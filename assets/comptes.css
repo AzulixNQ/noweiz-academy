@@ -1,0 +1,93 @@
+/* Noweiz Academy, les pages des comptes. Tout le reste du style vient de maquette.css (la maquette validée). */
+
+body { padding-bottom: 0; }   /* pas de barre « Maquette » ici */
+.saut { position: absolute; left: 12px; top: -80px; z-index: 50; padding: 10px 16px; border-radius: 999px; background: var(--ink); color: #0B0B0C; font-weight: 520; text-decoration: none; }
+.saut:focus { top: 12px; }
+.cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pale { color: var(--faint); }
+.fort { color: var(--ink); font-weight: 520; }
+.coupe { overflow-wrap: anywhere; }
+
+/* l'en-tête */
+.brand-box { display: flex; align-items: center; gap: 12px; margin-right: auto; min-width: 0; }
+.brand-box .brand { margin-right: 0; }
+.top form { margin: 0; }
+@media (max-width: 420px) { .brand-box .tag { display: none; } }
+
+/* connexion, inscription, mot de passe : une carte éclairée par les deux lumières */
+.auth { position: relative; isolation: isolate; overflow: clip; display: flex; flex-direction: column; align-items: center; min-height: calc(100vh - var(--head) - 90px); padding: clamp(36px, 8vh, 96px) max(var(--gutter), env(safe-area-inset-right, 0px)) 72px max(var(--gutter), env(safe-area-inset-left, 0px)); }
+.auth-card { width: 100%; max-width: 448px; }
+.auth-card h1 { font-size: 28px; font-weight: 480; font-stretch: 106%; letter-spacing: -.028em; line-height: 1.12; }
+.auth-text { margin-top: 12px; color: var(--muted); font-size: 16px; }
+.auth-text b { color: var(--ink); font-weight: 520; overflow-wrap: anywhere; }
+.auth-card .msg { margin-top: 16px; }
+.auth-alt { margin-top: 18px; text-align: center; font-size: 15px; }
+.auth-alt a, .auth-under a, .auth-note a { color: var(--ink); }
+.auth-note { margin-top: 20px; color: var(--faint); font-size: 14px; line-height: 1.5; }
+.auth-under { margin-top: 22px; max-width: 448px; color: var(--muted); font-size: 15.5px; text-align: center; }
+.piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* les champs */
+.field .hint { margin-top: 0; }
+.opt-note { color: var(--faint); }
+.pw { position: relative; }
+.pw .input { padding-right: 104px; }
+.pw-voir { position: absolute; right: 6px; top: 6px; min-height: 38px; padding: 0 14px; border: 0; border-radius: 9px; background: var(--glass-2); color: var(--muted); font-size: 14px; font-weight: 520; cursor: pointer; }
+.pw-voir:hover { color: var(--ink); }
+select { font: inherit; color: inherit; }
+select.input { -webkit-appearance: none; appearance: none; padding-right: 40px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23A9A9AC' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 15px center; background-color: rgba(0, 0, 0, .32); }
+select.input option { background: #161617; color: var(--ink); }
+.input[readonly] { color: var(--muted); }
+.input-xs { min-height: 40px; width: auto; min-width: 150px; padding-left: 12px; border-radius: 10px; font-size: 15px; }
+.btn-xs { min-height: 40px; padding: 6px 16px; font-size: 14.5px; }
+.btn-warn { border-color: color-mix(in srgb, var(--warn) 50%, transparent); background: none; color: var(--warn); }
+.btn-warn:hover { background: color-mix(in srgb, var(--warn) 12%, transparent); }
+
+/* les messages */
+.msg { padding: 13px 16px; border: 1px solid var(--line-2); border-radius: 13px; background: var(--glass); color: var(--ink); font-size: 15.5px; line-height: 1.45; }
+.msg-ok { border-color: color-mix(in srgb, var(--a1) 45%, transparent); background: color-mix(in srgb, var(--a1) 9%, transparent); }
+.msg-err { border-color: color-mix(in srgb, var(--warn) 55%, transparent); background: color-mix(in srgb, var(--warn) 9%, transparent); }
+.main > .msg { max-width: 760px; margin-top: 22px; }
+.msg-act { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+.msg-act p { flex: 1 1 320px; color: var(--ink); }
+.msg-act form { margin: 0; }
+
+/* l'espace connecté */
+.box-text { max-width: 56ch; }
+.box form { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.box form .btn { margin-top: 18px; }
+.box form .field:first-of-type, .box .two .field { margin-top: 12px; }
+.box > form + form { margin-top: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.formes { display: flex; flex-direction: column; gap: 16px; max-width: 980px; margin-top: 32px; }
+.formes .box { flex: none; }
+.un { max-width: 420px; }
+.box-danger { border-color: color-mix(in srgb, var(--warn) 26%, var(--line)); }
+.fiche div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
+.fiche dt { color: var(--muted); }
+.fiche dd { text-align: right; overflow-wrap: anywhere; }
+.side-foot { overflow-wrap: anywhere; }
+
+/* l'administration */
+.lien-neuf { margin-top: 28px; max-width: 980px; flex: none; scroll-margin-top: calc(var(--head) + 24px); }
+.copie { display: flex; flex-wrap: wrap; gap: 10px; }
+.copie .input { flex: 1 1 320px; width: auto; font-size: 15px; }
+.copie .btn { margin: 0; }
+.box .copie .btn { align-self: auto; }
+.table-box { margin-top: 6px; }
+.table-s { min-width: 560px; }
+.td-act { text-align: right; }
+.td-act form { display: inline-flex; flex-direction: row; align-items: center; gap: 8px; }
+.td-act form .btn { margin: 0; }
+th .tag, td .tag { margin-left: 6px; }
+
+/* la page Confidentialité */
+.texte { max-width: 760px; }
+.texte h2 { margin-top: 40px; font-size: 22px; font-weight: 480; font-stretch: 106%; letter-spacing: -.022em; }
+.texte p, .texte ul { margin-top: 12px; color: var(--muted); }
+.texte ul { display: flex; flex-direction: column; gap: 8px; padding-left: 20px; list-style: disc; }
+.texte b { color: var(--ink); font-weight: 520; }
+.texte .msg { margin-top: 36px; color: var(--ink); }
+.texte .btn { margin-top: 12px; }
+.foot a { color: inherit; }

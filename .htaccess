@@ -1,0 +1,25 @@
+# Noweiz Academy
+Options -Indexes
+RewriteEngine On
+
+# Toujours en HTTPS
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteCond %{SERVER_PORT} 80
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Ce qui ne se lit pas depuis le web : le code, les données, les outils, les fichiers cachés (.git…)
+RewriteRule ^(app|donnees|outils)(/|$) - [F,L]
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [F,L]
+RewriteRule ^(LISEZMOI\.md|README\.md)$ - [F,L]
+
+# Les vrais fichiers (style, police, icône) sont servis tels quels ; tout le reste passe par index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  <FilesMatch "\.(css|js|woff2|svg)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+</IfModule>
