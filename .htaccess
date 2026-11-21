@@ -2,6 +2,9 @@
 Options -Indexes
 RewriteEngine On
 
+# Le contrôle du certificat HTTPS (Let's Encrypt) passe tel quel
+RewriteRule ^\.well-known/ - [L]
+
 # Toujours en HTTPS
 RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteCond %{SERVER_PORT} 80
