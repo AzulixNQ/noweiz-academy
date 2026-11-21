@@ -12,6 +12,10 @@ return [
     'test' => true,
     'discord' => 'https://discord.gg/4TEKKZTCdF',
 
+    // Le dossier des données (base, journal), par rapport au dossier du site. Il doit être HORS de tout dossier lisible par le web.
+    // Chez OVH, le site est dans hub/academy (le dépôt du HUB) : deux niveaux plus haut, on est à la racine de l'hébergement.
+    'donnees' => '../../academy-donnees',
+
     // La base. Vide : un fichier SQLite dans le dossier de données. Plus tard, MySQL :
     // 'base' => ['dsn' => 'mysql:host=...;dbname=...;charset=utf8mb4', 'utilisateur' => '...', 'mot_de_passe' => '...'] dans config.local.php.
     'base' => ['dsn' => '', 'utilisateur' => '', 'mot_de_passe' => ''],

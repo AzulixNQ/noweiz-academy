@@ -15,10 +15,16 @@ function dossier_donnees(): string
     $candidats = [];
     $env = getenv('NA_DONNEES');
     if (is_string($env) && $env !== '') $candidats[] = $env;
-    $candidats[] = dirname(RACINE) . '/' . basename(RACINE) . '-donnees';   // /home/…/academy-test-donnees
+    $regle = (require __DIR__ . '/config.php')['donnees'] ?? '';
+    if (is_string($regle) && $regle !== '') $candidats[] = $regle[0] === '/' ? $regle : RACINE . '/' . $regle;
     $candidats[] = RACINE . '/donnees';                                       // secours : dans le site, fermé par .htaccess
     foreach ($candidats as $c) {
-        if ((is_dir($c) || @mkdir($c, 0700, true)) && is_writable($c)) return $d = $c;
+        if ((is_dir($c) || @mkdir($c, 0700, true)) && is_writable($c)) {
+            $c = realpath($c) ?: $c;
+            // Ceinture et bretelles : même si ce dossier se retrouvait un jour sous un site, le serveur refuse de le servir.
+            if (!is_file($c . '/.htaccess')) @file_put_contents($c . '/.htaccess', "Require all denied\n");
+            return $d = $c;
+        }
     }
     throw new RuntimeException('Aucun dossier de données accessible en écriture.');
 }

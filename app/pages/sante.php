@@ -13,6 +13,12 @@ try {
     $etat['base'] = 'en panne';
 }
 $etat['donnees'] = donnees_hors_site() ? 'hors du site' : 'dans le site (dossier fermé)';
+// Combien de dossiers il faut remonter depuis le site pour trouver le dossier des données (2 attendu chez OVH).
+$site = explode('/', trim(RACINE, '/'));
+$donnees = explode('/', trim(dirname(dossier_donnees()), '/'));
+$commun = 0;
+while ($commun < min(count($site), count($donnees)) && $site[$commun] === $donnees[$commun]) $commun++;
+$etat['donnees_niveaux'] = count($site) - $commun;
 $etat['https'] = est_https();
 // « interne » voudrait dire que le site ne voit pas l'adresse des visiteurs : la limite d'essais par connexion toucherait tout le monde.
 $etat['adresse_visiteur'] = filter_var(adresse_visiteur(), FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) ? 'publique' : 'interne';
