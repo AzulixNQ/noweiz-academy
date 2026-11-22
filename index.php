@@ -39,6 +39,7 @@ $pages = [
     '/formateur/question' => 'formateur_question',
     '/formateur/cohorte' => 'formateur_cohorte',
     '/formateur/envoi' => 'formateur_envoi',
+    '/apercu-style' => 'apercu_style',
     '/sante' => 'sante',
 ];
 
