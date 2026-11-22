@@ -186,6 +186,14 @@ function smtp_envoyer(array $r, string $de, string $a, string $message, ?string 
 
 final class SmtpInjoignable extends RuntimeException {}
 
+/** Le journal d'un échange avec le serveur, pour le diagnostic de l'administration. Jamais l'identifiant ni le mot de passe. */
+function smtp_journal(?string $ligne = null): array
+{
+    static $j = [];
+    if ($ligne !== null && !empty($GLOBALS['na_smtp_journal'])) $j[] = mb_substr((string) preg_replace('/[^\x20-\x7E\x{A0}-\x{FFFF}]+/u', ' ', $ligne), 0, 300);
+    return $j;
+}
+
 /** Les essais automatiques parlent à un faux serveur sur la machine même, sans chiffrement. Jamais ailleurs. */
 function smtp_local(string $hote): bool
 {
@@ -208,6 +216,7 @@ function smtp_ouvrir(string $hote, int $port)
         throw new SmtpInjoignable('Le site n\'a pas pu joindre ' . $hote . ' (port ' . $port . ')' . ($detail !== '' ? ' : ' . mb_substr($detail, 0, 120) : '') . '.');
     }
     stream_set_timeout($s, SMTP_DELAI);
+    smtp_journal('connecté à ' . (string) @stream_socket_get_name($s, true) . ($direct ? ' (chiffré)' : ''));
     return $s;
 }
 
@@ -242,6 +251,7 @@ function smtp_session($s, string $hote, int $port, string $utilisateur, string $
     smtp_dire($s, 'DATA', [354], 'envoi');
     $m = preg_replace("/\r\n|\r|\n/", "\r\n", rtrim($message, "\r\n")) ?? '';
     $m = preg_replace('/^\./m', '..', $m) ?? '';                // une ligne qui commence par un point ne doit pas finir l'e-mail
+    smtp_journal('> (le message, ' . strlen($m) . ' octets)');
     smtp_ecrire_ligne($s, $m . "\r\n.");
     smtp_attendre($s, [250], 'envoi');
     try { smtp_ecrire_ligne($s, 'QUIT'); } catch (Throwable $e) { /* déjà parti : peu importe */ }
@@ -261,6 +271,7 @@ function smtp_ecrire_ligne($s, string $ligne): void
 /** Envoie une commande, attend un des codes prévus ; renvoie la réponse. $si_refus : le message à donner si le code ne va pas. */
 function smtp_dire($s, string $ligne, array $codes, string $etape, ?string $si_refus = null): string
 {
+    smtp_journal('> ' . ($etape === 'identification' ? '(identification)' : $ligne));
     smtp_ecrire_ligne($s, $ligne);
     return smtp_attendre($s, $codes, $etape, $si_refus);
 }
@@ -278,6 +289,7 @@ function smtp_attendre($s, array $codes, string $etape, ?string $si_refus = null
         if (strlen($l) < 4 || $l[3] !== '-') break;          // « 250-… » : la réponse continue ; « 250 … » : c'est la dernière ligne
     }
     $code = (int) substr($tout, 0, 3);
+    smtp_journal('< ' . trim($tout));
     if (!in_array($code, $codes, true)) {
         if ($si_refus !== null) throw new RuntimeException($si_refus);
         $dit = trim((string) preg_replace('/[^\x20-\x7E\x{A0}-\x{FFFF}]+/u', ' ', $tout));

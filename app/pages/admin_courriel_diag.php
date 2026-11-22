@@ -28,24 +28,20 @@ if (methode() === 'POST' && $smtp !== null) {
         'H sans apercu image Discord' => [$sans_discord_t($t), $sans_discord_h($sans_image($sans_apercu($h))), $auto],
         'I texte seul nu' => [$sans_discord_t($t), null, []],
     ];
-    foreach ($variantes as $nomv => [$texte, $html, $plus]) {
-        $limite = 'na-' . bin2hex(random_bytes(12));
-        $entetes = ['From: ' . reglage('courriel.nom') . ' <' . $boite . '>', 'MIME-Version: 1.0'];
-        if ($html === null) {
-            $entetes[] = 'Content-Type: text/plain; charset=UTF-8';
-            $entetes[] = 'Content-Transfer-Encoding: base64';
-            $corps = chunk_split(base64_encode($texte));
-        } else {
-            $entetes[] = 'Content-Type: multipart/alternative; boundary="' . $limite . '"';
-            $corps = "--$limite\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($texte))
-                   . "--$limite\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html))
-                   . "--$limite--\r\n";
-        }
-        foreach ($plus as $p) $entetes[] = $p;
-        $erreur = null;
-        $ok = smtp_envoyer($smtp, $boite, $boite, message_smtp($boite, $boite, 'Diag ' . $nomv, $entetes, $corps), $erreur);
-        $lignes[] = $nomv . ' : ' . ($ok ? 'accepté' : 'refusé (' . $erreur . ')');
-    }
+    // Deuxième diagnostic : un seul e-mail tout simple, avec le journal de l'échange ; puis un essai avec un mot de passe faux
+    // (tiré au hasard ici) pour vérifier que le serveur contrôle vraiment l'identification.
+    $GLOBALS['na_smtp_journal'] = true;
+    [$texte, $html, $plus] = $variantes['I texte seul nu'];
+    $entetes = ['From: ' . reglage('courriel.nom') . ' <' . $boite . '>', 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64'];
+    $erreur = null;
+    smtp_journal('--- 1. vrai mot de passe, e-mail simple vers la boîte ---');
+    $ok = smtp_envoyer($smtp, $boite, $boite, message_smtp($boite, $boite, 'Diag J journal', $entetes, chunk_split(base64_encode($texte))), $erreur);
+    smtp_journal($ok ? '=> accepté' : '=> refusé : ' . $erreur);
+    smtp_journal('--- 2. mot de passe faux (au hasard) ---');
+    $faux = $smtp; $faux['mdp'] = 'faux-' . bin2hex(random_bytes(8));
+    $ok = smtp_envoyer($faux, $boite, $boite, message_smtp($boite, $boite, 'Diag K faux mot de passe', $entetes, chunk_split(base64_encode($texte))), $erreur);
+    smtp_journal($ok ? '=> ACCEPTÉ (anormal)' : '=> refusé : ' . $erreur);
+    $lignes = smtp_journal();
 }
 page_debut('Diagnostic e-mails', ['zone' => 'app', 'courant' => 'courriel']);
 ?>
@@ -57,7 +53,7 @@ page_debut('Diagnostic e-mails', ['zone' => 'app', 'courant' => 'courriel']);
 <?php else: ?>
     <form class="mt-24" method="post" action="/admin/courriel/diagnostic">
       <?= champ_jeton() ?>
-      <button type="submit" class="btn btn-main">Envoyer les neuf variantes</button>
+      <button type="submit" class="btn btn-main">Lancer le diagnostic</button>
     </form>
 <?php endif; ?>
 <?php if ($lignes !== []): ?>
