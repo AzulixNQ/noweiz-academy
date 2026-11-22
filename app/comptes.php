@@ -139,6 +139,10 @@ function supprimer_compte(int $id): void
 {
     requete('DELETE FROM sessions WHERE compte_id = ?', [$id]);
     requete('DELETE FROM liens WHERE compte_id = ? OR (cree_par = ? AND utilise_le IS NULL)', [$id, $id]);
+    // sa progression dans la formation part avec lui
+    requete('DELETE FROM inscriptions WHERE compte_id = ?', [$id]);
+    requete('DELETE FROM vues WHERE compte_id = ?', [$id]);
+    requete('DELETE FROM quiz WHERE compte_id = ?', [$id]);
     requete('DELETE FROM comptes WHERE id = ?', [$id]);
 }
 

@@ -33,4 +33,12 @@
       else secours();
     });
   });
+
+  /* l'espace élève : imprimer le certificat ; pas de menu « Enregistrer la vidéo sous » sur les vidéos des cours */
+  tous('[data-imprimer]').forEach(function (b) {
+    b.addEventListener('click', function (ev) { ev.preventDefault(); window.print(); });
+  });
+  tous('video.player-vrai').forEach(function (v) {
+    v.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+  });
 })();

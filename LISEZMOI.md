@@ -1,4 +1,4 @@
-# Noweiz Academy : la page d'accueil, la liste d'attente et les comptes (version de test)
+# Noweiz Academy : la page d'accueil, la liste d'attente, les comptes et l'espace élève (version de test)
 
 Le début du vrai site de la formation : de vrais comptes, avec e-mail et mot de passe, dans une vraie base.
 Le design est celui de la maquette validée (`assets/maquette.css` en est la copie).
@@ -19,8 +19,20 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - Réglages dans `app/config.php` : `ouverture` (vide = « 2027 », une date = compte à rebours), `compteur_min` (le compteur « X inscrits » s'affiche à partir de 25 confirmés), `hub`.
 - **Pages légales** : `/confidentialite` (liste d'attente et comptes) et `/mentions-legales` (hébergeur OVH ; l'éditeur sera ajouté avant l'ouverture au public).
 
+## Les e-mails (22/11)
+- Partent de « Noweiz Academy <contact@noweiz.com> » (`courriel.expediteur`) : on peut y répondre. Chez OVH, contact@noweiz.com est une redirection vers la boîte contact@noweiz.fr. L'enveloppe (`courriel.retours`) reste ne-pas-repondre@noweiz.com, pour que les e-mails non livrés ne remplissent pas la boîte.
+- Gabarit aux couleurs du site : bandeau noir avec l'icône (`assets/img/courriel-icone.png`), filet vert citron vers blanc, bouton vert. Mise en page en tableaux (Outlook).
+
+## L'espace élève (22/11)
+- **Pages** : `/espace` (tableau de bord : module de la semaine, prochain live, progression, classement, à venir), `/parcours` (les modules), `/module?id=` (la leçon, sa vidéo, la liste des leçons, le live du module), `/quiz?m=`, `/lives` (à venir et replays), `/classement`, `/certificat` (à imprimer ou enregistrer en PDF).
+- **Règles** (`app/cours.php`) : le module n s'ouvre au départ de la cohorte + (n − 1) semaines, et seulement si le quiz du module n − 1 est validé (`quiz_seuil`, 70 %). Sans quiz, un module est validé quand ses leçons sont vues. Quiz corrigé sur le serveur ; raté, on dit quelles questions sont fausses sans donner les bonnes réponses ; on garde le meilleur essai. Points : 10 par leçon vue, 10 par bonne réponse (à valider par Nojah et Weizix). Le classement n'affiche que les prénoms.
+- **Aperçu** : un administrateur ou un formateur qui n'est pas inscrit dans une cohorte la voit avec tout ouvert, sans rien enregistrer.
+- **Vidéos** : rangées dans `<données>/videos/`, hors du site, sous un nom tiré au hasard. Lien signé (ce compte, cette connexion, 4 heures), accès revérifié à chaque morceau, morceaux de 4 Mo (206), refus si l'adresse est ouverte dans un onglet (`Sec-Fetch-Dest`), pas de bouton Télécharger dans le lecteur ni de menu « Enregistrer sous ». Rien n'empêche un élève de filmer son écran.
+- **Cohorte d'essai** (administrateur, `/admin/essai`) : une cohorte d'order flow partie il y a 15 jours, avec les 8 modules de la trame, 5 leçons chacun, 3 questions par module (notions de base écrites pour l'essai, pas celles de Nojah), l'extrait sur l'absorption en vidéo (module 3), un live passé avec replay et le prochain live. On peut y inscrire d'autres comptes. Tout s'efface d'un clic (vidéo copiée comprise).
+- La suppression d'un compte efface aussi ses inscriptions, leçons vues et quiz.
+
 ## Ce qui n'existe pas encore
-Les cohortes, les modules et les quiz, le paiement, le lien avec Discord, l'espace formateurs.
+L'espace formateur (déposer des leçons, des vidéos, des lives et des replays ; suivre les élèves), la création des vraies cohortes par l'administrateur, le paiement, le lien avec Discord.
 
 ## Sécurité
 - Les mots de passe sont brouillés (Argon2id) ; les jetons de connexion et les liens ne sont gardés que sous forme d'empreinte.
@@ -33,6 +45,7 @@ Les cohortes, les modules et les quiz, le paiement, le lien avec Discord, l'espa
 - `app/config.php` : les réglages (adresse du site, durées, expéditeur des e-mails).
 - `app/base.php` : la base (SQLite par défaut ; MySQL plus tard, par `config.local.php` dans le dossier de données).
 - `app/liste.php` : la liste d'attente (inscription, confirmation, désinscription, e-mails).
+- `app/cours.php` : la formation (cohortes, modules, progression, quiz, classement, lives, vidéos protégées). `app/essai.php` : la cohorte d'essai.
 - `assets/` : le style (`maquette.css`, `comptes.css`, `fermee.css`), la police, les scripts, les images et l'extrait vidéo.
 - `outils/serveur.php` : le serveur d'essai. `outils/essais.js` : les essais automatiques (`node outils/essais.js`).
 

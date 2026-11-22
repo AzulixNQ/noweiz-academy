@@ -24,6 +24,14 @@ $pages = [
     '/liste-attente/desinscription' => 'liste_desinscription',
     '/admin/liste-attente' => 'admin_liste',
     '/admin/liste-attente.csv' => 'admin_liste_csv',
+    '/parcours' => 'parcours',
+    '/module' => 'module',
+    '/quiz' => 'quiz',
+    '/lives' => 'lives',
+    '/classement' => 'classement',
+    '/certificat' => 'certificat',
+    '/video' => 'video',
+    '/admin/essai' => 'admin_essai',
     '/sante' => 'sante',
 ];
 

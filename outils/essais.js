@@ -467,6 +467,130 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await alice.goto(URL + '/mentions-legales');
     verif((await texte(alice)).includes('2 rue Kellermann'), 'mentions légales : l\'hébergeur est indiqué');
 
+    /* ---------- K. l'espace élève (cohorte d'essai) ---------- */
+    console.log('K. L\'espace élève');
+    const window_URL = require('url').URL;
+    const base = (sql) => JSON.parse(require('child_process').execFileSync('php', ['-r', 'require "app/demarrage.php"; echo json_encode(lignes($argv[1]));', sql],
+      { cwd: racine, env: Object.assign({}, process.env, { NA_DONNEES: donnees, NA_COURRIER: 'fichier', NA_URL: URL }) }).toString());
+    await eleve.goto(URL + '/espace');
+    verif((await texte(eleve)).includes('Aucune cohorte'), 'sans cohorte : « Aucune cohorte pour l\'instant »');
+    verif(!(await eleve.locator('.side-nav').innerText()).includes('Mon parcours'), 'sans cohorte, pas de « Mon parcours » dans le menu');
+    await eleve.goto(URL + '/parcours');
+    verif(new window_URL(eleve.url()).pathname === '/espace', '/parcours sans cohorte renvoie au tableau de bord');
+    verif((await eleve.goto(URL + '/admin/essai')).status() === 403, 'la cohorte d\'essai est réservée à l\'administrateur');
+
+    await alice.goto(URL + '/admin/essai');
+    await envoyer(alice, 'form:has(input[value=creer]) button[type=submit]');
+    verif((await texte(alice)).includes('La cohorte d\'essai est prête'), 'cohorte d\'essai créée');
+    const mods = base('SELECT id, numero FROM modules ORDER BY numero').map(m => m.id);
+    verif(mods.length === 8 && base('SELECT COUNT(*) AS n FROM lecons')[0].n === 40 && base('SELECT COUNT(*) AS n FROM questions')[0].n === 24, '8 modules, 40 leçons, 24 questions');
+    verif(fs.readdirSync(path.join(donnees, 'videos')).length === 1, 'la vidéo d\'essai est copiée hors du site');
+    await alice.goto(URL + '/espace');
+    t = await texte(alice);
+    verif(t.includes('Semaine 3 : Ordres limite et ordres au marché'), 'tableau de bord : semaine 3, module 1 à travailler');
+    verif(t.includes('Live d\'essai : les exercices du module 3, sur Discord'), 'tableau de bord : le prochain live');
+    verif((await alice.locator('.side-nav').innerText()).includes('Mon parcours') && (await alice.locator('.side-box').innerText()).includes('Semaine 3 sur 8'), 'menu de l\'élève et semaine dans la barre de côté');
+    await alice.goto(URL + '/parcours');
+    t = await texte(alice);
+    verif(t.includes('Commencer') && t.includes('quand le quiz du module 1 est validé') && /S'ouvre le \d/.test(t), 'parcours : module 1 ouvert, module 2 attend le quiz, module 4 attend sa date');
+    await photo(alice, 'pc-parcours');
+    let rr = await alice.goto(URL + '/module?id=' + mods[1]);
+    verif(rr.status() === 404 && (await texte(alice)).includes('pas ouvert pour toi'), 'module 2 fermé tant que le quiz 1 n\'est pas validé');
+    rr = await alice.goto(URL + '/quiz?m=' + mods[1]);
+    verif(rr.status() === 404, 'quiz du module 2 fermé aussi');
+
+    // les 5 leçons du module 1, puis le quiz
+    await alice.goto(URL + '/module?id=' + mods[0]);
+    await photo(alice, 'pc-module');
+    for (let i = 0; i < 5; i++) await envoyer(alice, '.lecon-act button[type=submit]');
+    verif(new window_URL(alice.url()).pathname === '/quiz', 'après la 5e leçon, on arrive au quiz');
+    verif(base('SELECT COUNT(*) AS n FROM vues')[0].n === 5, 'les 5 leçons sont notées comme vues');
+    const bonnes = {};
+    for (const q of base('SELECT id, module_id, bonne, choix FROM questions')) bonnes[q.id] = q;
+    async function repondre(p, m, justes) {
+      await p.goto(URL + '/quiz?m=' + m);
+      const ids = Object.values(bonnes).filter(q => q.module_id === m).map(q => q.id);
+      for (const [n, id] of ids.entries()) {
+        const choix = justes > n ? bonnes[id].bonne : (bonnes[id].bonne + 1) % JSON.parse(bonnes[id].choix).length;
+        await p.check('input[name=q' + id + '][value="' + choix + '"]');
+      }
+      await envoyer(p, '.quiz-form button[type=submit]');
+      return texte(p);
+    }
+    await alice.goto(URL + '/quiz?m=' + mods[0]);
+    await photo(alice, 'pc-quiz');
+    t = await repondre(alice, mods[0], 1);
+    verif(t.includes('1/3') && t.includes('Pas encore') && !t.includes('Bonne réponse'), 'quiz raté : 1/3, sans donner les bonnes réponses');
+    t = await repondre(alice, mods[0], 3);
+    verif(t.includes('3/3') && t.includes('Quiz validé') && t.includes('Bonne réponse') === false && t.includes('Ouvrir le module 2'), 'quiz réussi : 3/3, le module 2 s\'ouvre');
+    await photo(alice, 'pc-quiz-reussi');
+    verif((await alice.goto(URL + '/module?id=' + mods[1])).status() === 200, 'module 2 ouvert après le quiz 1');
+    t = await repondre(alice, mods[1], 3);
+    verif(t.includes('Ouvrir le module 3'), 'quiz 2 réussi : le module 3 s\'ouvre (sa date est passée)');
+
+    // la vraie vidéo du module 3
+    await alice.goto(URL + '/module?id=' + mods[2]);
+    const src = await alice.getAttribute('video.player-vrai', 'src');
+    verif(/^\/video\?g=l&id=\d+&e=\d+&s=[a-f0-9]{40}$/.test(src || ''), 'la leçon a une vidéo avec un lien signé');
+    const lue = await alice.waitForFunction(() => { const v = document.querySelector('video.player-vrai'); return v && v.readyState >= 1 && v.duration > 60; }, null, { timeout: 15000 }).then(() => true, () => false);
+    verif(lue, 'le lecteur du navigateur charge la vidéo (plus d\'une minute)');
+    verif(await alice.getAttribute('video.player-vrai', 'controlslist') === 'nodownload noremoteplayback', 'pas de bouton Télécharger dans le lecteur');
+    await photo(alice, 'pc-video');
+    let v = await alice.request.get(URL + src, { headers: { Range: 'bytes=0-' } });
+    verif(v.status() === 206 && v.headers()['content-type'] === 'video/mp4' && /^bytes 0-4194303\/\d+$/.test(v.headers()['content-range'] || ''), 'vidéo envoyée par morceaux de 4 Mo (206)');
+    v = await alice.request.get(URL + src, { headers: { Range: 'bytes=4194304-' } });
+    verif(v.status() === 206 && (await v.body()).length > 0, 'le morceau suivant arrive aussi');
+    v = await alice.request.get(URL + src, { headers: { Range: 'bytes=0-', 'Sec-Fetch-Dest': 'document' } });
+    verif(v.status() === 403, 'ouverte dans un onglet, la vidéo est refusée');
+    v = await alice.request.get(URL + src.replace(/s=[a-f0-9]{40}/, 's=' + '0'.repeat(40)), { headers: { Range: 'bytes=0-' } });
+    verif(v.status() === 403, 'signature fausse : refus');
+    v = await eleve.request.get(URL + src, { headers: { Range: 'bytes=0-' } });
+    verif(v.status() === 403, 'le lien d\'Alice ne marche pas pour Dan');
+    r = await fetch(URL + src, { headers: { Range: 'bytes=0-' } });
+    verif(r.status === 403, 'sans connexion : refus');
+
+    // classement, inscription de Dan, lives, certificat
+    await alice.goto(URL + '/classement');
+    verif(/Toi \(Alice\)\s*\d+ pts/.test(await texte(alice)), 'classement : Alice avec ses points');
+    await alice.goto(URL + '/admin/essai');
+    await alice.selectOption('#es-qui', { label: 'Dan (Élève)' });
+    await envoyer(alice, 'form:has(input[value=inscrire]) button[type=submit]');
+    verif((await texte(alice)).includes('Compte inscrit'), 'Dan inscrit dans la cohorte d\'essai');
+    await eleve.goto(URL + '/espace');
+    t = await texte(eleve);
+    verif(t.includes('Semaine 3') && t.includes('Tu es 2e sur 2'), 'Dan voit la cohorte et sa place au classement');
+    verif((await eleve.goto(URL + '/module?id=' + mods[1])).status() === 404, 'pour Dan, le module 2 reste fermé (son quiz 1 n\'est pas fait)');
+    await eleve.goto(URL + '/classement');
+    t = await texte(eleve);
+    verif(t.includes('Alice') && t.includes('Toi (Dan)') && !t.includes('alice@exemple.fr'), 'classement : prénoms seulement');
+    await eleve.goto(URL + '/lives');
+    t = await texte(eleve);
+    verif(t.includes('Live d\'essai : les exercices du module 3') && t.includes('Voir le replay'), 'lives : le prochain live et un replay');
+    await envoyer(eleve, 'a[href^="/lives?replay="]');
+    verif(await eleve.locator('video.player-vrai').count() === 1, 'le replay se regarde dans la page');
+    await eleve.goto(URL + '/certificat');
+    verif((await texte(eleve)).includes('Il se débloque quand les 8 modules sont validés'), 'certificat : pas avant les 8 modules');
+
+    // téléphone
+    const telA = await fenetre({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    await connecter(telA, 'alice@exemple.fr', M.alice);
+    for (const [ch, nom] of [['/espace', 'tel-espace'], ['/parcours', 'tel-parcours'], ['/module?id=' + mods[2], 'tel-module'], ['/quiz?m=' + mods[2], 'tel-quiz'], ['/lives', 'tel-lives'], ['/classement', 'tel-classement']]) {
+      await telA.goto(URL + ch);
+      const large = await telA.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      verif(large <= 0, ch + ' ne déborde pas sur téléphone (' + large + ' px)');
+      await photo(telA, nom);
+    }
+    await alice.goto(URL + '/espace'); await photo(alice, 'pc-espace');
+
+    // tout effacer
+    await alice.goto(URL + '/admin/essai');
+    await envoyer(alice, 'form:has(input[value=supprimer]) button[type=submit]');
+    verif((await texte(alice)).includes('La cohorte d\'essai est effacée'), 'cohorte d\'essai effacée');
+    verif(['modules', 'lecons', 'questions', 'cohortes', 'inscriptions', 'vues', 'quiz', 'lives'].every(tb => base('SELECT COUNT(*) AS n FROM ' + tb)[0].n === 0), 'plus rien de l\'essai dans la base');
+    verif(fs.readdirSync(path.join(donnees, 'videos')).length === 0, 'la vidéo copiée est effacée');
+    await eleve.goto(URL + '/espace');
+    verif((await texte(eleve)).includes('Aucune cohorte'), 'Dan revient à « Aucune cohorte »');
+
     verif(erreursPage.length === 0, 'aucune erreur de script ni de sécurité dans le navigateur : ' + erreursPage.slice(0, 3).join(' / '));
     const journal = path.join(donnees, 'erreurs.log');
     verif(!fs.existsSync(journal) || fs.readFileSync(journal, 'utf8').trim() === '', 'journal d\'erreurs du serveur vide : ' + (fs.existsSync(journal) ? fs.readFileSync(journal, 'utf8').slice(0, 300) : ''));

@@ -45,6 +45,10 @@ function texte_annonce(string $code, string $detail = ''): ?array
         'role-change' => ['ok', 'Rôle changé.'],
         'trop' => ['err', 'Trop de demandes. Réessaie dans quelques minutes.'],
         'liste-supprime' => ['ok', 'Effacé de la liste d\'attente.'],
+        'essai-cree' => ['ok', "La cohorte d'essai est prête : tu y es inscrit."],
+        'essai-inscrit' => ['ok', "Compte inscrit dans la cohorte d'essai."],
+        'essai-retire' => ['ok', "Compte retiré de la cohorte d'essai."],
+        'essai-supprime' => ['ok', "La cohorte d'essai est effacée."],
     ];
     if (!isset($liste[$code])) return null;
     [$genre, $msg] = $liste[$code];
@@ -103,19 +107,39 @@ function page_debut(string $titre, array $o = []): void
 <?php
     if ($zone === 'app' && $compte !== null) {
         $courant = (string) ($o['courant'] ?? '');
-        $menu = ['espace' => ['/espace', 'Tableau de bord'], 'compte' => ['/compte', 'Mon compte']];
+        $cohorte = cohorte_active($compte);
+        $menu = ['espace' => ['/espace', 'Tableau de bord']];
+        if ($cohorte !== null) {
+            $menu['parcours'] = ['/parcours', 'Mon parcours'];
+            $menu['lives'] = ['/lives', 'Lives et replays'];
+            $menu['classement'] = ['/classement', 'Classement'];
+            $menu['certificat'] = ['/certificat', 'Certificat'];
+        }
+        $menu['compte'] = ['/compte', 'Mon compte'];
         if ($compte['role'] === 'admin') $menu['admin'] = ['/admin', 'Comptes et invitations'];
         if ($compte['role'] === 'admin') $menu['liste'] = ['/admin/liste-attente', "Liste d'attente"];
+        if ($compte['role'] === 'admin') $menu['essai'] = ['/admin/essai', "Cohorte d'essai"];
+        if ($cohorte !== null) {
+            $nb = count(modules_parcours((int) $cohorte['parcours_id']));
+            $sem = semaine_cohorte($cohorte, $nb);
+            $haut = $cohorte['parcours_nom'] . ' · ' . $cohorte['nom'];
+            $bas = !empty($cohorte['apercu']) ? 'Aperçu formateur' : ($sem === 0 ? 'Départ le ' . date_fr((int) $cohorte['debut']) : 'Semaine ' . $sem . ' sur ' . $nb);
+        } else {
+            $haut = ROLES[$compte['role']] ?? 'Élève';
+            $bas = $compte['prenom'];
+        }
+        $point = $cohorte !== null && $cohorte['parcours_cle'] === 'ict' ? 'dot-ict' : 'dot-of';
+        $discord = $cohorte !== null && !empty($cohorte['discord']) ? (string) $cohorte['discord'] : (string) reglage('discord');
         ?>
-<div class="app">
+<div class="app<?= $point === 'dot-ict' ? ' app-ict' : '' ?>">
   <nav class="side" aria-label="Ton espace">
-    <div class="side-box"><small><?= e(ROLES[$compte['role']] ?? 'Élève') ?></small><b><?= e($compte['prenom']) ?></b></div>
+    <div class="side-box"><small><?php if ($cohorte !== null): ?><i class="dot <?= $point ?>" aria-hidden="true"></i><?php endif; ?><?= e($haut) ?></small><b><?= e($bas) ?></b></div>
     <div class="side-nav">
 <?php foreach ($menu as $cle => [$lien, $libelle]): ?>
       <a href="<?= e($lien) ?>"<?= $cle === $courant ? ' aria-current="page"' : '' ?>><?= e($libelle) ?></a>
 <?php endforeach; ?>
     </div>
-    <a class="btn btn-line btn-sm" href="<?= e((string) reglage('discord')) ?>" target="_blank" rel="noopener">Rejoindre le Discord</a>
+    <a class="btn btn-line btn-sm" href="<?= e($discord) ?>" target="_blank" rel="noopener"><?= $cohorte !== null && !empty($cohorte['discord']) ? 'Salon Discord de la cohorte' : 'Rejoindre le Discord' ?></a>
     <p class="side-foot">Connecté : <?= e($compte['email']) ?></p>
   </nav>
   <main class="main" id="contenu">

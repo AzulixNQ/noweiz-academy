@@ -87,4 +87,5 @@ require __DIR__ . '/session.php';
 require __DIR__ . '/courriel.php';
 require __DIR__ . '/comptes.php';
 require __DIR__ . '/liste.php';
+require __DIR__ . '/cours.php';
 require __DIR__ . '/vues.php';
