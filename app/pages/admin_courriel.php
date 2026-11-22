@@ -129,11 +129,12 @@ page_debut('E-mails', ['zone' => 'app', 'courant' => 'courriel']);
       <section class="box" aria-labelledby="ce-boite">
         <h2 id="ce-boite"><?= $branche ? 'Changer de boîte ou de mot de passe' : 'Brancher la boîte contact' ?></h2>
         <p>Le site se connecte à la boîte comme le ferait une application de messagerie, envoie un e-mail d'essai, et ne garde le mot de passe que si l'essai est parti. Le mot de passe est gardé chiffré ; il n'est jamais réaffiché.</p>
+        <?php /* « new-password » sur le champ : sans ça, le navigateur y glisse tout seul le mot de passe du compte (il ignore « off »). */ ?>
         <form method="post" action="/admin/courriel" novalidate autocomplete="off">
           <?= champ_jeton() ?><input type="hidden" name="action" value="brancher">
           <div class="two">
             <?= champ('boite', 'Adresse de la boîte', ['type' => 'email', 'valeur' => $v['boite'], 'erreur' => $err['boite'] ?? '', 'autocomplete' => 'off', 'inputmode' => 'email', 'max' => 190]) ?>
-            <?= champ('mdp_boite', 'Mot de passe de la boîte', ['type' => 'password', 'erreur' => $err['mdp_boite'] ?? '', 'autocomplete' => 'off', 'mdp' => true, 'max' => 200, 'aide' => 'Celui du webmail de la boîte, pas celui de ton compte ici.']) ?>
+            <?= champ('mdp_boite', 'Mot de passe de la boîte', ['type' => 'password', 'erreur' => $err['mdp_boite'] ?? '', 'autocomplete' => 'new-password', 'mdp' => true, 'max' => 200, 'aide' => 'Celui du webmail de la boîte, pas celui de ton compte ici.']) ?>
           </div>
 <?php if (!$branche): ?>
           <div class="un">
