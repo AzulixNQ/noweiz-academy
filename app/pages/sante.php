@@ -23,6 +23,8 @@ $etat['https'] = est_https();
 // « interne » voudrait dire que le site ne voit pas l'adresse des visiteurs : la limite d'essais par connexion toucherait tout le monde.
 $etat['adresse_visiteur'] = filter_var(adresse_visiteur(), FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) ? 'publique' : 'interne';
 $etat['mots_de_passe'] = defined('PASSWORD_ARGON2ID') ? 'argon2id' : 'bcrypt';
+// La taille d'un envoi accepté par PHP, en Mo : l'espace formateur découpe les vidéos en morceaux plus petits.
+$etat['envoi_mo'] = intdiv(taille_envoi_max(), 1048576);
 $etat['courriel'] = reglage('courriel.transport') === 'mail' ? (function_exists('mail') ? 'mail' : 'mail indisponible') : 'essai (fichier)';
 
 http_response_code($etat['ok'] ? 200 : 503);

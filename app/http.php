@@ -58,7 +58,7 @@ function entetes_securite(): void
     header('X-Frame-Options: DENY');
     header('Referrer-Policy: same-origin');   // l'adresse d'une page (et le jeton d'un lien) ne part jamais vers un autre site
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
-    header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
+    header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
     if (site_securise()) header('Strict-Transport-Security: max-age=15552000');
     if (reglage('test')) header('X-Robots-Tag: noindex, nofollow');
 }
@@ -135,7 +135,7 @@ function verifier_formulaire(): void
     }
     if ($origine !== '' && $origine !== 'null' && rtrim($origine, '/') !== url_site()) $ok = false;
 
-    $recu = $_POST['jeton'] ?? '';
+    $recu = $_POST['jeton'] ?? ($_SERVER['HTTP_X_JETON'] ?? '');     // en-tête X-Jeton : les envois de vidéo par morceaux
     $s = session_courante();
     $attendu = $s !== null ? (string) $s['csrf'] : lire_temoin('formulaire');
     if (!is_string($recu) || $attendu === '' || !hash_equals($attendu, $recu)) $ok = false;

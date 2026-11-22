@@ -73,14 +73,15 @@ page_debut('Quiz du module ' . (int) $module['numero'], ['zone' => 'app', 'coura
         <div class="quiz-head"><span id="q-<?= (int) $q['id'] ?>">Question <?= $i + 1 ?> sur <?= count($questions) ?></span><span><?= $d['juste'] ? 'Juste' : 'Faux' ?></span></div>
         <h2><?= e($q['enonce']) ?></h2>
         <div class="opts opts-col">
-<?php foreach ($q['choix'] as $k => $texte):
+<?php foreach (ordre_choix((int) $compte['id'], (int) $q['id'], count($q['choix'])) as $pos => $k):
+    $texte = $q['choix'][$k];
     $choisi = (int) $d['reponse'] === $k;
     $classe = 'neutre';
     $marque = '';
     if ($choisi) { $classe = $d['juste'] ? 'juste' : 'faux'; $marque = 'Ta réponse'; }
     elseif ($resultat['reussi'] && $k === (int) $q['bonne']) { $classe = 'juste'; $marque = 'Bonne réponse'; }
 ?>
-          <div class="ans <?= $classe ?>"><i><?= $lettres[$k] ?? ($k + 1) ?></i><span><?= e($texte) ?></span><?php if ($marque !== ''): ?><span class="marque"><?= $marque ?></span><?php endif; ?></div>
+          <div class="ans <?= $classe ?>"><i><?= $lettres[$pos] ?? ($pos + 1) ?></i><span><?= e($texte) ?></span><?php if ($marque !== ''): ?><span class="marque"><?= $marque ?></span><?php endif; ?></div>
 <?php endforeach; ?>
         </div>
 <?php if ($resultat['reussi'] && !empty($q['explication'])): ?>
@@ -100,10 +101,11 @@ page_debut('Quiz du module ' . (int) $module['numero'], ['zone' => 'app', 'coura
       <div class="quiz"><fieldset class="quiz-q">
         <legend><small>Question <?= $i + 1 ?> sur <?= count($questions) ?></small><?= e($q['enonce']) ?></legend>
         <div class="opts">
-<?php foreach ($q['choix'] as $k => $texte):
+<?php foreach (ordre_choix((int) $compte['id'], (int) $q['id'], count($q['choix'])) as $pos => $k):
+    $texte = $q['choix'][$k];
     $coche = isset($_POST['q' . $q['id']]) && (string) $_POST['q' . $q['id']] === (string) $k;
 ?>
-          <label class="ans"><input type="radio" name="q<?= (int) $q['id'] ?>" value="<?= $k ?>"<?= $coche ? ' checked' : '' ?> required><i><?= $lettres[$k] ?? ($k + 1) ?></i><span><?= e($texte) ?></span></label>
+          <label class="ans"><input type="radio" name="q<?= (int) $q['id'] ?>" value="<?= $k ?>"<?= $coche ? ' checked' : '' ?> required><i><?= $lettres[$pos] ?? ($pos + 1) ?></i><span><?= e($texte) ?></span></label>
 <?php endforeach; ?>
         </div>
       </fieldset></div>

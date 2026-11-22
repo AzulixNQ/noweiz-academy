@@ -268,6 +268,16 @@ function migrations(string $pilote): array
         ], $apart('modules_parcours', 'modules', 'parcours_id, numero'), $apart('lecons_module', 'lecons', 'module_id, numero'),
            $apart('questions_module', 'questions', 'module_id, numero'), $apart('quiz_compte', 'quiz', 'compte_id, module_id'),
            $apart('lives_cohorte', 'lives', 'cohorte_id, debut')),
+        // 4 : l'équipe de chaque parcours (les formateurs qui le gèrent)
+        [
+            "CREATE TABLE IF NOT EXISTS equipe (
+                id $id,
+                compte_id $ref NOT NULL,
+                parcours_id $ref NOT NULL,
+                cree_le $date NOT NULL,
+                UNIQUE (compte_id, parcours_id)
+            )$fin",
+        ],
     ];
 }
 

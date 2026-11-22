@@ -49,6 +49,21 @@ function texte_annonce(string $code, string $detail = ''): ?array
         'essai-inscrit' => ['ok', "Compte inscrit dans la cohorte d'essai."],
         'essai-retire' => ['ok', "Compte retiré de la cohorte d'essai."],
         'essai-supprime' => ['ok', "La cohorte d'essai est effacée."],
+        'module-cree' => ['ok', 'Module ajouté.'],
+        'module-supprime' => ['ok', 'Module effacé.'],
+        'lecon-creee' => ['ok', 'Leçon en ligne.'],
+        'lecon-supprimee' => ['ok', 'Leçon effacée.'],
+        'video-en-ligne' => ['ok', 'Vidéo en ligne : les élèves la voient déjà.'],
+        'video-retiree' => ['ok', 'Vidéo retirée.'],
+        'question-enregistree' => ['ok', 'Question enregistrée.'],
+        'question-supprimee' => ['ok', 'Question effacée.'],
+        'live-cree' => ['ok', 'Live programmé : il apparaît chez les élèves de la cohorte.'],
+        'live-supprime' => ['ok', 'Live effacé.'],
+        'cohorte-creee' => ['ok', 'Cohorte créée.'],
+        'eleve-inscrit' => ['ok', 'Élève inscrit dans la cohorte.'],
+        'eleve-retire' => ['ok', 'Élève retiré de la cohorte.'],
+        'equipe-ajoute' => ['ok', "Ajouté à l'équipe du parcours."],
+        'equipe-retire' => ['ok', "Retiré de l'équipe du parcours."],
     ];
     if (!isset($liste[$code])) return null;
     [$genre, $msg] = $liste[$code];
@@ -83,6 +98,9 @@ function page_debut(string $titre, array $o = []): void
 <link rel="stylesheet" href="<?= e(version_fichier('/assets/maquette.css')) ?>">
 <link rel="stylesheet" href="<?= e(version_fichier('/assets/comptes.css')) ?>">
 <script src="<?= e(version_fichier('/assets/comptes.js')) ?>" defer></script>
+<?php if (str_starts_with(chemin(), '/formateur')): ?>
+<script src="<?= e(version_fichier('/assets/formateur.js')) ?>" defer></script>
+<?php endif; ?>
 </head>
 <body>
 <a class="saut" href="#contenu">Aller au contenu</a>
@@ -115,6 +133,7 @@ function page_debut(string $titre, array $o = []): void
             $menu['classement'] = ['/classement', 'Classement'];
             $menu['certificat'] = ['/certificat', 'Certificat'];
         }
+        if (in_array($compte['role'], ['admin', 'formateur'], true)) $menu['formateur'] = ['/formateur', 'Espace formateur'];
         $menu['compte'] = ['/compte', 'Mon compte'];
         if ($compte['role'] === 'admin') $menu['admin'] = ['/admin', 'Comptes et invitations'];
         if ($compte['role'] === 'admin') $menu['liste'] = ['/admin/liste-attente', "Liste d'attente"];

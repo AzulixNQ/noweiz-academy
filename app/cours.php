@@ -248,6 +248,14 @@ function classement(array $cohorte): array
 
 /* ---------- les leçons vues et les quiz ---------- */
 
+/** L'ordre d'affichage des réponses d'une question pour un élève : mélangé, mais toujours le même pour lui. */
+function ordre_choix(int $compte_id, int $question_id, int $n): array
+{
+    $ordre = range(0, max(0, $n - 1));
+    usort($ordre, static fn($a, $b) => strcmp(md5($compte_id . '|' . $question_id . '|' . $a . '|' . sel()), md5($compte_id . '|' . $question_id . '|' . $b . '|' . sel())));
+    return $ordre;
+}
+
 function marquer_vue(int $compte_id, int $lecon_id): void
 {
     if (valeur('SELECT 1 FROM vues WHERE compte_id = ? AND lecon_id = ?', [$compte_id, $lecon_id])) return;

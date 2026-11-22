@@ -40,6 +40,11 @@ if ($genre === 'l') {
     $a = acces_replay($compte, (int) $id);
     $fichier = $a !== null ? fichier_video($a['live']['replay']) : null;
 }
+// L'équipe d'un parcours voit ses vidéos même sans cohorte (pour vérifier ce qu'elle vient d'envoyer).
+if ($a === null && in_array($compte['role'], ['admin', 'formateur'], true)) {
+    $a = cible_envoi($compte, $genre === 'l' ? 'lecon' : 'replay', (int) $id);
+    $fichier = $a !== null ? fichier_video($genre === 'l' ? $a['ligne']['video'] : $a['ligne']['replay']) : null;
+}
 if ($a === null) {
     $refus(403);
     return;

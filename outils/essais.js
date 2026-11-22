@@ -25,7 +25,8 @@ function courriels(a) {
 function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] : null; }
 
 (async () => {
-  const serveur = spawn('php', ['-S', '127.0.0.1:' + PORT, 'outils/serveur.php'], { cwd: racine, env: Object.assign({}, process.env, { NA_URL: URL, NA_COURRIER: 'fichier', NA_DONNEES: donnees }), stdio: 'ignore' });
+  // une petite limite d'envoi, comme un hébergement serré : les vidéos de l'espace formateur partent en plusieurs morceaux
+  const serveur = spawn('php', ['-d', 'post_max_size=3M', '-d', 'upload_max_filesize=3M', '-S', '127.0.0.1:' + PORT, 'outils/serveur.php'], { cwd: racine, env: Object.assign({}, process.env, { NA_URL: URL, NA_COURRIER: 'fichier', NA_DONNEES: donnees }), stdio: 'ignore' });
   for (let i = 0; i < 50; i++) { try { const r = await fetch(URL + '/sante'); if (r.ok) break; } catch (e) {} await pause(100); }
 
   const nav = await chromium.launch();
@@ -34,7 +35,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     const c = await nav.newContext(Object.assign({ viewport: { width: 1440, height: 900 }, locale: 'fr-FR', reducedMotion: 'reduce' }, o || {}));   // sans défilement doux : les clics des essais tombent juste
     const p = await c.newPage();
     p.on('pageerror', e => erreursPage.push('erreur de script : ' + e.message));
-    p.on('console', m => { if (m.type() === 'error' && !/status of 40[34]|status of 421/.test(m.text())) erreursPage.push('console : ' + m.text()); });
+    p.on('console', m => { if (m.type() === 'error' && !/status of 40[34]|status of 42[12]/.test(m.text())) erreursPage.push('console : ' + m.text()); });
     return p;
   }
   const texte = p => p.evaluate(() => document.body.innerText);
@@ -590,6 +591,153 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     verif(fs.readdirSync(path.join(donnees, 'videos')).length === 0, 'la vidéo copiée est effacée');
     await eleve.goto(URL + '/espace');
     verif((await texte(eleve)).includes('Aucune cohorte'), 'Dan revient à « Aucune cohorte »');
+
+    /* ---------- L. l'espace formateur ---------- */
+    console.log('L. L\'espace formateur');
+    const videoEssai = path.join(racine, 'assets/video/absorption-v2.mp4');
+    const nbVideos = () => fs.readdirSync(path.join(donnees, 'videos')).length;
+    verif((await eleve.goto(URL + '/formateur')).status() === 403, 'espace formateur refusé à une élève');
+    verif((await eleve.request.post(URL + '/formateur/envoi?action=debut', { form: { genre: 'lecon', id: '1', taille: '9999', nom: 'a.mp4' } })).status() === 403, 'envoi de vidéo refusé à une élève');
+    await alice.goto(URL + '/espace');
+    verif((await alice.locator('.side-nav').innerText()).includes('Espace formateur'), 'l\'administrateur a « Espace formateur » dans son menu');
+    await alice.goto(URL + '/formateur');
+    t = await texte(alice);
+    verif(t.includes('Order flow avec Nojah') && t.includes('Crée d\'abord un module') && t.includes('ICT · Weizix'), 'espace formateur : parcours order flow, onglet ICT, pas encore de module');
+    await alice.fill('#md-titre', 'Les ordres au marché');
+    await envoyer(alice, 'form:has(input[value=module]) button[type=submit]');
+    verif((await texte(alice)).includes('Module ajouté'), 'module ajouté');
+    await alice.fill('#md-titre', 'Le footprint');
+    await envoyer(alice, 'form:has(input[value=module]) button[type=submit]');
+    // une leçon avec sa vidéo, en glissant le fichier : création, puis envoi en plusieurs morceaux
+    await alice.selectOption('#nl-module', { index: 0 });
+    await alice.setInputFiles('.form-lecon .depot-fichier', videoEssai);
+    verif(await alice.inputValue('#nl-titre') === 'absorption v2', 'le titre se remplit avec le nom du fichier');
+    await alice.fill('#nl-titre', 'Qui frappe au marché');
+    await Promise.all([alice.waitForURL(/\/formateur\/lecon\?id=\d+$/, { timeout: 30000 }), alice.click('.form-lecon button[type=submit]')]);
+    t = await texte(alice);
+    verif(t.includes('Vidéo en ligne') && await alice.locator('video.player-vrai').count() === 1, 'leçon créée, vidéo envoyée par morceaux et en ligne');
+    const lecon1 = base('SELECT * FROM lecons ORDER BY id DESC LIMIT 1')[0];
+    verif(lecon1.video && /^[a-f0-9]{32}\.mp4$/.test(lecon1.video) && Math.abs(lecon1.duree - 64) <= 1 && fs.statSync(path.join(donnees, 'videos', lecon1.video)).size === fs.statSync(videoEssai).size, 'la vidéo est rangée hors du site, entière, avec sa durée (' + lecon1.duree + ' s)');
+    verif(fs.readdirSync(path.join(donnees, 'envois')).length === 0, 'plus rien dans le dossier des envois');
+    const lueF = await alice.waitForFunction(() => { const v = document.querySelector('video.player-vrai'); return v && v.readyState >= 1; }, null, { timeout: 15000 }).then(() => true, () => false);
+    verif(lueF, 'le formateur voit sa vidéo, même sans cohorte');
+    await photo(alice, 'pc-formateur-lecon');
+    // un faux fichier vidéo est refusé
+    await alice.setInputFiles('.depot .depot-fichier', { name: 'faux.mp4', mimeType: 'video/mp4', buffer: Buffer.alloc(6000, 120) });
+    await alice.waitForSelector('.depot-erreur', { timeout: 15000 });
+    verif((await alice.locator('.depot-erreur').innerText()).includes('pas une vidéo MP4') && base('SELECT video FROM lecons WHERE id = ' + lecon1.id)[0].video === lecon1.video, 'un faux MP4 est refusé, l\'ancienne vidéo reste');
+    await alice.goto(URL + '/formateur/lecon?id=' + lecon1.id);
+    // une leçon sans vidéo, puis le quiz
+    await alice.goto(URL + '/formateur/lecon?m=' + lecon1.module_id);
+    await alice.fill('#nl-titre', 'Le carnet et le prix');
+    await envoyer(alice, '.form-lecon button[type=submit]');
+    verif((await texte(alice)).includes('Leçon en ligne') && (await texte(alice)).includes('Pas encore de vidéo'), 'leçon sans vidéo créée');
+    await alice.goto(URL + '/formateur/question?m=' + lecon1.module_id);
+    await alice.fill('#q-enonce', 'Un ordre au marché à l\'achat passe…');
+    await alice.fill('#q-choix-0', 'Tout de suite, au meilleur prix vendeur');
+    await alice.fill('#q-choix-1', 'Seulement à mon prix');
+    await alice.check('#q-bonne-0');
+    await envoyer(alice, 'button[name=encore]');
+    verif(new window_URL(alice.url()).search === '?m=' + lecon1.module_id && (await texte(alice)).includes('Question enregistrée'), '« enregistrer et en ajouter une autre »');
+    await alice.fill('#q-enonce', 'Une question sans bonne réponse');
+    await alice.fill('#q-choix-0', 'Oui'); await alice.fill('#q-choix-1', 'Non');
+    await alice.evaluate(() => { document.querySelectorAll('input[name=bonne]').forEach(r => { r.checked = false; r.required = false; }); });
+    await envoyer(alice, '.lecon-act button.btn-main');
+    verif((await texte(alice)).includes('Coche la bonne réponse'), 'question refusée sans bonne réponse');
+    await alice.goto(URL + '/formateur/module?id=' + lecon1.module_id);
+    t = await texte(alice);
+    verif(t.includes('1 question') && t.includes('Qui frappe au marché') && t.includes('Le carnet et le prix'), 'page du module : 2 leçons et le quiz');
+    await envoyer(alice, 'form:has(input[value=lecon-deplacer]):has(input[name=sens][value="1"]) button');
+    verif(base('SELECT titre FROM lecons WHERE module_id = ' + lecon1.module_id + ' ORDER BY numero')[0].titre === 'Le carnet et le prix', 'les leçons se réordonnent');
+    await photo(alice, 'pc-formateur-module');
+    // une cohorte, un élève, un live passé et son replay
+    await alice.goto(URL + '/formateur');
+    await alice.fill('#ch-nom', 'Cohorte 1');
+    await alice.fill('#ch-jour', new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10));
+    await envoyer(alice, 'form:has(input[value=cohorte]) button[type=submit]');
+    verif((await texte(alice)).includes('Cohorte créée'), 'cohorte créée par l\'administrateur');
+    const cohorte1 = new window_URL(alice.url()).searchParams.get('id');
+    await alice.selectOption('#in-qui', { label: 'Dan (Élève, da…@exemple.fr)' });
+    await envoyer(alice, 'form:has(input[value=inscrire]) button[type=submit]');
+    verif((await texte(alice)).includes('Élève inscrit'), 'Dan inscrit dans la cohorte 1');
+    await alice.goto(URL + '/formateur');
+    await alice.fill('#lv-jour', new Date(Date.now() - 86400000).toISOString().slice(0, 10));
+    await alice.fill('#lv-titre', 'Les exercices du module 1');
+    await envoyer(alice, 'form:has(input[value=live]) button[type=submit]');
+    verif((await texte(alice)).includes('Live programmé'), 'live programmé');
+    await alice.fill('#lv-titre', 'Live à venir');
+    await alice.fill('#lv-lien', 'https://exemple.fr/pas-discord');
+    await envoyer(alice, 'form:has(input[value=live]) button[type=submit]');
+    verif((await texte(alice)).includes('Le lien doit être un lien Discord'), 'un lien qui n\'est pas Discord est refusé');
+    await alice.goto(URL + '/formateur/cohorte?id=' + cohorte1);
+    const avantReplay = nbVideos();
+    await alice.setInputFiles('.mod-live .depot-fichier', videoEssai);
+    await alice.waitForFunction(() => document.body.innerText.includes('replay en ligne'), null, { timeout: 30000 });
+    verif(nbVideos() === avantReplay + 1, 'replay envoyé et en ligne');
+    t = await texte(alice);
+    verif(t.includes('Dan') && t.includes('Pas commencé'), 'suivi : Dan apparaît, pas commencé');
+    await photo(alice, 'pc-formateur-cohorte');
+    // côté élève : le module, la vidéo, le quiz (réponses mélangées), le replay
+    await eleve.goto(URL + '/espace');
+    t = await texte(eleve);
+    verif(t.includes('Le footprint') === false || t.includes('Les ordres au marché'), 'Dan voit le parcours créé par le formateur');
+    await eleve.goto(URL + '/parcours');
+    await envoyer(eleve, 'a.btn-main[href^="/module?id="]');
+    verif(await eleve.locator('video.player-vrai').count() === 0 && (await texte(eleve)).includes('Le carnet et le prix'), 'Dan commence par la 1re leçon (sans vidéo)');
+    await envoyer(eleve, '.lecon-act button[type=submit]');
+    verif(await eleve.locator('video.player-vrai').count() === 1, 'la 2e leçon a la vidéo envoyée par le formateur');
+    await envoyer(eleve, '.lecon-act button[type=submit]');
+    verif(new window_URL(eleve.url()).pathname === '/quiz', 'puis le quiz');
+    const q1 = base('SELECT id, bonne FROM questions WHERE module_id = ' + lecon1.module_id)[0];
+    await eleve.check('input[name=q' + q1.id + '][value="' + q1.bonne + '"]');
+    await envoyer(eleve, '.quiz-form button[type=submit]');
+    verif((await texte(eleve)).includes('1/1') && (await texte(eleve)).includes('Quiz validé'), 'Dan réussit le quiz du formateur');
+    await eleve.goto(URL + '/lives');
+    verif((await texte(eleve)).includes('Voir le replay'), 'Dan voit le replay du live');
+    await alice.goto(URL + '/formateur/cohorte?id=' + cohorte1);
+    t = await texte(alice);
+    verif(t.includes('1 / 2') && /À jour|Terminé/.test(t) && t.includes('Moyenne des meilleurs essais : 1,0 sur 1'), 'suivi : Dan à jour, 1 module validé sur 2, chiffres du quiz');
+
+    // un formateur : seulement les parcours de son équipe
+    await alice.goto(URL + '/admin');
+    await alice.fill('#c-note', 'Eve');
+    await alice.selectOption('#c-role', 'formateur');
+    await envoyer(alice, 'form:has(input[value=inviter]) button[type=submit]');
+    const eve = await fenetre();
+    await eve.goto(await alice.inputValue('#lien-invitation'));
+    await inscrire(eve, 'Eve', 'eve@exemple.fr', mdp());
+    await eve.goto(URL + '/formateur');
+    verif((await texte(eve)).includes('ne t\'a pas encore confié de parcours'), 'formateur sans parcours : message clair');
+    await alice.goto(URL + '/formateur?p=2');
+    await alice.selectOption('#eq-qui', { label: 'Eve' });
+    await envoyer(alice, 'form:has(input[value=equipe]) button[type=submit]');
+    verif((await texte(alice)).includes('Ajouté à l\'équipe'), 'Eve ajoutée à l\'équipe ICT');
+    await eve.goto(URL + '/formateur');
+    t = await texte(eve);
+    verif(t.includes('ICT avec Weizix') && !t.includes('Order flow avec Nojah') && !t.includes('Créer une cohorte'), 'Eve ne voit que l\'ICT, sans création de cohorte');
+    verif((await eve.goto(URL + '/formateur/module?id=' + lecon1.module_id)).status() === 403, 'Eve ne peut pas ouvrir un module d\'order flow');
+    verif((await eve.goto(URL + '/formateur/cohorte?id=' + cohorte1)).status() === 403, 'ni la cohorte d\'order flow');
+    r = await eve.request.post(URL + '/formateur/envoi?action=debut', { form: { genre: 'lecon', id: String(lecon1.id), taille: '99999', nom: 'a.mp4' }, headers: { 'X-Jeton': await eve.inputValue('input[name=jeton]').catch(() => '') } });
+    verif(r.status() === 422 || r.status() === 403, 'Eve ne peut pas envoyer de vidéo dans une leçon d\'order flow');
+
+    // téléphone
+    for (const [ch, nom] of [['/formateur', 'tel-formateur'], ['/formateur/lecon?id=' + lecon1.id, 'tel-formateur-lecon'], ['/formateur/cohorte?id=' + cohorte1, 'tel-formateur-cohorte'], ['/formateur/question?m=' + lecon1.module_id, 'tel-formateur-question']]) {
+      await telA.goto(URL + ch);
+      const large = await telA.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      verif(large <= 0, ch + ' ne déborde pas sur téléphone (' + large + ' px)');
+      await photo(telA, nom);
+    }
+    await alice.goto(URL + '/formateur'); await photo(alice, 'pc-formateur');
+
+    // effacer : la leçon et sa vidéo, puis le module
+    const avantSup = nbVideos();
+    const l2 = base('SELECT id FROM lecons WHERE video IS NOT NULL AND module_id = ' + lecon1.module_id)[0];
+    await alice.goto(URL + '/formateur/lecon?id=' + l2.id + '&supprimer=1');
+    await envoyer(alice, 'form:has(input[value=supprimer]) button');
+    verif((await texte(alice)).includes('Leçon effacée') && nbVideos() === avantSup - 1, 'leçon effacée avec sa vidéo');
+    await alice.goto(URL + '/formateur/module?id=' + lecon1.module_id + '&supprimer=1');
+    await envoyer(alice, 'form:has(input[value=supprimer]) button');
+    verif((await texte(alice)).includes('Module effacé') && base('SELECT COUNT(*) AS n FROM modules')[0].n === 1 && base('SELECT numero FROM modules')[0].numero === 1, 'module effacé, le suivant devient le module 1');
 
     verif(erreursPage.length === 0, 'aucune erreur de script ni de sécurité dans le navigateur : ' + erreursPage.slice(0, 3).join(' / '));
     const journal = path.join(donnees, 'erreurs.log');

@@ -87,7 +87,7 @@ page_debut('Comptes et invitations', ['zone' => 'app', 'courant' => 'admin']);
               </select>
             </div>
           </div>
-          <p class="hint">Élève : son espace. Formateur : le suivi des cohortes, quand il existera. Administrateur : tout, y compris cette page.</p>
+          <p class="hint">Élève : son espace. Formateur : l'espace formateur des parcours que tu lui confies (leçons, vidéos, quiz, lives, suivi des élèves). Administrateur : tout, y compris cette page.</p>
           <button type="submit" class="btn btn-main">Créer le lien d'invitation</button>
         </form>
       </section>

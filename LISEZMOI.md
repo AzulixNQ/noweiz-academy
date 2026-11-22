@@ -1,4 +1,4 @@
-# Noweiz Academy : la page d'accueil, la liste d'attente, les comptes et l'espace élève (version de test)
+# Noweiz Academy : la page d'accueil, la liste d'attente, les comptes, l'espace élève et l'espace formateur (version de test)
 
 Le début du vrai site de la formation : de vrais comptes, avec e-mail et mot de passe, dans une vraie base.
 Le design est celui de la maquette validée (`assets/maquette.css` en est la copie).
@@ -31,8 +31,17 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - **Cohorte d'essai** (administrateur, `/admin/essai`) : une cohorte d'order flow partie il y a 15 jours, avec les 8 modules de la trame, 5 leçons chacun, 3 questions par module (notions de base écrites pour l'essai, pas celles de Nojah), l'extrait sur l'absorption en vidéo (module 3), un live passé avec replay et le prochain live. On peut y inscrire d'autres comptes. Tout s'efface d'un clic (vidéo copiée comprise).
 - La suppression d'un compte efface aussi ses inscriptions, leçons vues et quiz.
 
+## L'espace formateur (22/11)
+- **Pour qui** : l'administrateur (tous les parcours) et les formateurs de l'équipe d'un parcours (l'administrateur les ajoute dans « L'équipe du parcours »). Menu « Espace formateur ».
+- **`/formateur`** : « Nouvelle leçon » (choisir le module, glisser la vidéo, le titre se remplit avec le nom du fichier, « Mettre la leçon en ligne »), « Programmer un live » (cohorte, jour, heure de Paris, titre, module, lien Discord), les modules (ajouter, monter, descendre), les cohortes (l'administrateur les crée), l'équipe.
+- **`/formateur/module`** : titre et phrase du module, ses leçons (ordre, vidéo ou pas), son quiz (ajouter, modifier, effacer une question), « Voir comme un élève », effacer le module (avec confirmation).
+- **`/formateur/lecon`** : la vidéo (glisser pour ajouter ou remplacer, retirer), le titre et le texte, effacer la leçon.
+- **`/formateur/question`** : l'énoncé, 2 à 4 réponses, la bonne, l'explication. Les réponses sont mélangées pour chaque élève (toujours dans le même ordre pour lui).
+- **`/formateur/cohorte`** : le suivi (élèves, à jour, en retard, pas commencé ; tableau de progression ; à relancer ; moyenne des quiz et question la plus ratée), les lives (effacer ; après le live, glisser le replay), les inscrits (inscrire un compte, retirer), les réglages (administrateur).
+- **Envoi des vidéos** (`/formateur/envoi`, `assets/formateur.js`) : le navigateur découpe le fichier en morceaux (8 Mo au plus, toujours sous la limite de PHP), chaque morceau est renvoyé jusqu'à 4 fois si la connexion coupe, le serveur dit où il en est. À la fin : vérification que c'est une vidéo MP4 (boîte `ftyp`), rangement dans `<données>/videos/`, durée lue par le navigateur. Envois abandonnés effacés après un jour. Taille maximale : `video_max_mo` (4 Go). `/sante` donne `envoi_mo`, la limite de PHP.
+
 ## Ce qui n'existe pas encore
-L'espace formateur (déposer des leçons, des vidéos, des lives et des replays ; suivre les élèves), la création des vraies cohortes par l'administrateur, le paiement, le lien avec Discord.
+Le paiement (inscription automatique dans une cohorte), le lien avec Discord (rôles, salons), les présences aux lives.
 
 ## Sécurité
 - Les mots de passe sont brouillés (Argon2id) ; les jetons de connexion et les liens ne sont gardés que sous forme d'empreinte.
@@ -45,7 +54,7 @@ L'espace formateur (déposer des leçons, des vidéos, des lives et des replays 
 - `app/config.php` : les réglages (adresse du site, durées, expéditeur des e-mails).
 - `app/base.php` : la base (SQLite par défaut ; MySQL plus tard, par `config.local.php` dans le dossier de données).
 - `app/liste.php` : la liste d'attente (inscription, confirmation, désinscription, e-mails).
-- `app/cours.php` : la formation (cohortes, modules, progression, quiz, classement, lives, vidéos protégées). `app/essai.php` : la cohorte d'essai.
+- `app/cours.php` : la formation (cohortes, modules, progression, quiz, classement, lives, vidéos protégées). `app/essai.php` : la cohorte d'essai. `app/formateur.php` : l'espace formateur (équipe, modules, leçons, questions, cohortes, lives, envoi des vidéos, suivi).
 - `assets/` : le style (`maquette.css`, `comptes.css`, `fermee.css`), la police, les scripts, les images et l'extrait vidéo.
 - `outils/serveur.php` : le serveur d'essai. `outils/essais.js` : les essais automatiques (`node outils/essais.js`).
 
