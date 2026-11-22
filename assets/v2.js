@@ -12,7 +12,7 @@
   var borne = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
 
   var haut = document.querySelector('.haut');
-  var parcours = document.querySelector('[data-parcours]');
+  var parcours = document.querySelector('[data-chemin]');
   var etapes = parcours ? Array.prototype.slice.call(parcours.querySelectorAll('.etape')) : [];
   var allumees = -2;
   var scene = parcours && !calme && window.CSS && CSS.supports && CSS.supports('position', 'sticky');

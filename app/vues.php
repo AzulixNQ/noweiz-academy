@@ -85,7 +85,12 @@ function page_debut(string $titre, array $o = []): void
     $zone = ($o['zone'] ?? 'site') === 'app' ? 'app' : 'site';
     $compte = compte_courant();
     $nom = (string) reglage('nom');
-    if (!headers_sent()) entetes_securite();
+    if (!headers_sent()) {
+        entetes_securite();
+        // Le jeton des formulaires pose un témoin au premier passage : il doit exister avant que la page commence à partir,
+        // sinon un formulaire placé loin dans la page ne peut plus le poser.
+        jeton_formulaire();
+    }
     ?>
 <!doctype html>
 <html lang="fr" data-zone="<?= $zone ?>" data-etat="ouvert">

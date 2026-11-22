@@ -880,20 +880,20 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
       if (!process.env.NA_GARDER) fs.rmSync(donnees2, { recursive: true, force: true });
     }
 
-    /* ---------- N. l'aperçu du nouveau style ---------- */
-    console.log('N. L\'aperçu du nouveau style');
+    /* ---------- N. le nouveau style de l'accueil ---------- */
+    console.log('N. Le nouveau style de l\'accueil');
     const apercu = await fenetre();
-    await apercu.goto(URL + '/apercu-style');
+    await apercu.goto(URL + '/');
     t = await texte(apercu);
     verif(t.includes('L\'order flow') && t.includes('avec Weizix.') && t.includes('Exemple illustratif') && t.includes('Les chiffres de cet exemple sont inventés'), 'aperçu : le titre, et le footprint annoncé comme un exemple aux chiffres inventés');
     verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 semaines, les faits (13 certificats)');
-    verif((await apercu.locator('meta[name=robots]').getAttribute('content')) === 'noindex, nofollow', 'aperçu : jamais référencé');
+    verif((await apercu.locator('meta[name=robots]').getAttribute('content')) === 'noindex, nofollow', 'accueil de test : jamais référencé');
     verif(await apercu.evaluate(() => !document.documentElement.hasAttribute('data-scene') && document.documentElement.getAttribute('data-rubans') !== 'animes' && !document.querySelector('.fp[data-vif]') && document.querySelectorAll('.etape.allumee').length === 8
       && getComputedStyle(document.querySelector('.fp-grille')).display === 'grid' && getComputedStyle(document.querySelector('.carte-lecture')).display === 'none'),
       'aperçu en mouvement réduit : pas de scène, rubans fixes ou absents, footprint en grille fixe, les 8 semaines allumées');
     verif(await apercu.evaluate(() => !/C6F432|198, 244, 50/i.test(getComputedStyle(document.querySelector('.parcours')).backgroundColor + getComputedStyle(document.body).backgroundColor)), 'aperçu : le vert n\'est jamais un fond de page');
     const anime = await fenetre({ reducedMotion: 'no-preference' });
-    await anime.goto(URL + '/apercu-style');
+    await anime.goto(URL + '/');
     await pause(900);
     verif(await anime.evaluate(() => document.documentElement.hasAttribute('data-scene') && !!document.querySelector('.fp[data-vif]') && getComputedStyle(document.querySelector('.fp-toile')).display === 'block' && getComputedStyle(document.querySelector('.fp-grille')).display === 'none'),
       'aperçu animé : la scène du parcours est en place, le footprint vivant remplace la grille');

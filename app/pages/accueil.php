@@ -53,7 +53,26 @@ $titre = $nom . " : l'order flow avec Nojah, l'ICT avec Weizix";
 $desc = "Une formation par cohortes : un module par semaine, des lives sur Discord. Ouverture en 2027. Inscris-toi sur la liste d'attente.";
 $aria = static fn(string $c): string => isset($err[$c]) ? ' aria-invalid="true" aria-describedby="wl-' . $c . '-err"' : '';
 
-if (!headers_sent()) entetes_securite();
+/* Le footprint d'exemple du haut de page, tel qu'il s'affiche sans animation (les six premières bougies de assets/footprint.js).
+   Chaque bougie : ses niveaux de prix (ligne 1 = le plus haut), puis ventes × achats. Les chiffres sont inventés, et c'est écrit
+   sur la page. Marques : a = les acheteurs dominent, v = les vendeurs dominent, f = les achats absorbés. o / c : ouverture, clôture. */
+$bougies = [
+    1 => ['o' => 11, 'c' => 8, 'n' => [8 => [12, 48], 9 => [31, 140, 'a'], 10 => [44, 168, 'a'], 11 => [58, 96], 12 => [40, 22]]],
+    2 => ['o' => 9, 'c' => 6, 'n' => [6 => [9, 61], 7 => [22, 154, 'a'], 8 => [36, 188, 'a'], 9 => [51, 120], 10 => [47, 35]]],
+    3 => ['o' => 7, 'c' => 3, 'n' => [3 => [18, 97, 'a'], 4 => [27, 176, 'a'], 5 => [39, 203, 'a'], 6 => [62, 110], 7 => [55, 41], 8 => [30, 26]]],
+    4 => ['o' => 3, 'c' => 2, 'n' => [1 => [212, 1240, 'f'], 2 => [187, 980, 'f'], 3 => [96, 310, 'a'], 4 => [74, 122], 5 => [60, 58]]],
+    5 => ['o' => 2, 'c' => 7, 'n' => [2 => [44, 12], 3 => [201, 63, 'v'], 4 => [244, 71, 'v'], 5 => [190, 88, 'v'], 6 => [133, 90], 7 => [97, 104]]],
+    6 => ['o' => 7, 'c' => 8, 'n' => [6 => [28, 9], 7 => [76, 31, 'v'], 8 => [64, 52], 9 => [22, 18]]],
+];
+$nb = static fn(int $n): string => number_format($n, 0, ',', "\u{202F}");
+$absorbes = $bougies[4]['n'][1][1] + $bougies[4]['n'][2][1];
+$certificats = count(glob(RACINE . '/assets/img/certificats/*.webp') ?: []);
+
+if (!headers_sent()) {
+    entetes_securite();
+    // Le formulaire est en bas de page : son jeton (qui pose un témoin au premier passage) doit exister avant que la page parte.
+    jeton_formulaire();
+}
 ?>
 <!doctype html>
 <html lang="fr">
@@ -65,7 +84,7 @@ if (!headers_sent()) entetes_securite();
 <?php if (reglage('test')): ?>
 <meta name="robots" content="noindex, nofollow">
 <?php endif; ?>
-<meta name="theme-color" content="#0B0B0C">
+<meta name="theme-color" content="#050606">
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
 <meta property="og:title" content="<?= e($titre) ?>">
@@ -76,251 +95,238 @@ if (!headers_sent()) entetes_securite();
 <link rel="canonical" href="<?= e(url_site('/')) ?>">
 <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
 <link rel="preload" href="/assets/fonts/nojah-sans.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="<?= e(version_fichier('/assets/maquette.css')) ?>">
-<link rel="stylesheet" href="<?= e(version_fichier('/assets/comptes.css')) ?>">
-<link rel="stylesheet" href="<?= e(version_fichier('/assets/fermee.css')) ?>">
+<link rel="stylesheet" href="<?= e(version_fichier('/assets/v2.css')) ?>">
+<script src="<?= e(version_fichier('/assets/rubans.js')) ?>" defer></script>
+<script src="<?= e(version_fichier('/assets/footprint.js')) ?>" defer></script>
+<script src="<?= e(version_fichier('/assets/v2.js')) ?>" defer></script>
 <script src="<?= e(version_fichier('/assets/fermee.js')) ?>" defer></script>
 </head>
 <body>
-<a class="skip" href="#contenu">Aller au contenu</a>
+<a class="saut" href="#contenu">Aller au contenu</a>
+<canvas id="rubans" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
 
-<header class="top">
-  <div class="wrap top-in">
-    <div class="brand-box">
-      <a class="brand" href="#haut"><?= e($nom) ?></a>
+<div class="page">
+<header class="haut">
+  <div class="cadre haut-in">
+    <a class="marque" href="#haut"><img src="/assets/icone.svg" alt="" width="28" height="28"><?= e($nom) ?></a>
 <?php if (reglage('test')): ?>
-      <span class="tag">Version de test</span>
+    <span class="etiquette">Version de test</span>
 <?php endif; ?>
-    </div>
-    <nav class="top-nav" aria-label="Sections de la page">
+    <nav class="haut-nav" aria-label="Sections de la page">
+      <a href="#rythme">Le rythme</a>
       <a href="#parcours">Les parcours</a>
-      <a href="#cohorte">Une cohorte</a>
       <a href="#apercu">L'espace élève</a>
       <a href="#formateurs">Les formateurs</a>
     </nav>
 <?php if ($compte !== null): ?>
-    <a class="btn btn-line btn-sm" href="/espace">Mon espace</a>
+    <a class="bouton bouton-verre bouton-petit" href="/espace">Mon espace</a>
 <?php else: ?>
-    <a class="btn btn-main btn-sm" href="#liste">Liste d'attente</a>
+    <a class="bouton bouton-vert bouton-petit" href="#liste">Liste d'attente</a>
 <?php endif; ?>
   </div>
 </header>
 
 <main id="contenu">
 <?php $ann = annonce_html(); if ($ann !== ''): ?>
-  <div class="wrap annonce-haut"><?= $ann ?></div>
+  <div class="cadre annonce-haut"><?= $ann ?></div>
 <?php endif; ?>
   <section class="hero" id="haut">
-    <div class="lights" aria-hidden="true"></div>
-    <div class="wrap">
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <p class="status"><i class="live" aria-hidden="true"></i>La liste d'attente est ouverte</p>
-          <h1 class="lead"><span>L'order flow avec Nojah,</span> <span>l'ICT avec Weizix.</span></h1>
-          <p class="sub">Une formation par cohortes : ta promo démarre à une date, un module s'ouvre chaque semaine, et les lives se passent sur Discord.</p>
-        </div>
-
+    <div class="cadre">
+      <div class="hero-grille">
+        <div class="hero-texte">
+          <p class="etat"><i class="pouls" aria-hidden="true"></i>La liste d'attente est ouverte</p>
+          <h1 class="titre"><span>L'order flow</span> <span>avec Nojah,</span> <span class="deux">l'ICT</span> <span class="deux">avec Weizix.</span></h1>
+          <p class="chapo">Une formation en cohorte de 8 semaines. Un module s'ouvre chaque semaine, tu le valides par un quiz, et les lives se passent sur Discord avec ta promo.</p>
 <?php if ($fin === false): ?>
-        <div class="opening" id="ouverture">
-          <p class="timer-label">Le site ouvre en</p>
-          <div class="opening-row"><b>2027</b><span>La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</span></div>
-        </div>
+          <p class="sous-actions" id="ouverture">Ouverture en 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</p>
 <?php else: ?>
-        <div class="timer" id="compteur" role="timer" aria-label="Temps restant avant l'ouverture" data-fin="<?= (int) $fin ?>">
-          <p class="timer-label">Le site ouvre dans</p>
-          <div class="timer-row">
+          <div class="compteur" id="compteur" role="timer" aria-label="Temps restant avant l'ouverture" data-fin="<?= (int) $fin ?>">
+            <p class="compteur-titre">Le site ouvre dans</p>
+            <div class="compteur-rang">
 <?php $r = max(0, $fin - time()); foreach ([['t-j', intdiv($r, 86400), 'jours'], ['t-h', intdiv($r % 86400, 3600), 'heures'], ['t-m', intdiv($r % 3600, 60), 'minutes'], ['t-s', $r % 60, 'secondes']] as [$id, $n, $u]): ?>
-            <div class="timer-unit"><b id="<?= $id ?>"><?= sprintf('%02d', $n) ?></b><span><?= $u ?></span></div>
+              <div class="compteur-case"><b id="<?= $id ?>"><?= sprintf('%02d', $n) ?></b><span><?= $u ?></span></div>
 <?php endforeach; ?>
+            </div>
+            <p class="compteur-note">Ouverture le <?= e(date_fr($fin, true)) ?>, heure de Paris.</p>
           </div>
-          <p class="timer-note">Ouverture le <?= e(date_fr($fin, true)) ?>, heure de Paris.</p>
+<?php endif; ?>
+          <div class="actions">
+            <a class="bouton bouton-vert" href="#liste">M'inscrire sur la liste d'attente</a>
+            <a class="bouton bouton-verre" href="#extrait"><i class="lecture" aria-hidden="true"></i>Voir un extrait, 1 minute</a>
+          </div>
         </div>
-<?php endif; ?>
 
-        <section class="join" id="liste" aria-labelledby="liste-titre"<?= !empty($err) || $alerte !== '' ? ' data-erreur' : '' ?>>
-<?php if ($envoye): ?>
-          <h2 tabindex="-1" id="liste-titre">Plus qu'une étape : confirme ton adresse.</h2>
-          <p class="join-after">On vient de t'envoyer un e-mail. Ouvre-le et clique sur « Confirmer mon inscription » : c'est ce qui te met sur la liste.</p>
-          <ol class="join-steps">
-            <li>Pas d'e-mail dans 5 minutes ? Regarde dans les <b>indésirables</b> ou l'onglet <b>Promotions</b>.</li>
-            <li>Le lien marche pendant <?= e(duree_lisible((int) reglage('confirmation_heures') * 60)) ?>.</li>
-          </ol>
-          <p class="join-after">En attendant, rejoins le Discord : c'est là que se passent les lives et les annonces.</p>
-          <a class="btn btn-main btn-full" href="<?= e((string) reglage('discord')) ?>" target="_blank" rel="noopener">Rejoindre le Discord</a>
-<?php else: ?>
-          <h2 id="liste-titre">Inscris-toi sur la liste d'attente</h2>
-          <ul class="join-perks">
-            <li>Tu passes en premier sur les 50&nbsp;places.</li>
-            <li>Tu connais la date d'ouverture avant tout le monde.</li>
-          </ul>
-          <form id="wl-form" method="post" action="/#liste" novalidate>
-            <?= champ_jeton() ?>
-            <div class="field">
-              <label for="wl-prenom">Ton prénom</label>
-              <input class="input" id="wl-prenom" name="prenom" type="text" autocomplete="given-name" maxlength="60" placeholder="Prénom" required value="<?= e($v['prenom']) ?>"<?= $aria('prenom') ?>>
-              <p class="err" id="wl-prenom-err"<?= isset($err['prenom']) ? '' : ' hidden' ?>><?= e($err['prenom'] ?? 'Écris ton prénom.') ?></p>
-            </div>
-            <div class="field">
-              <label for="wl-email">Ton e-mail</label>
-              <input class="input" id="wl-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="190" placeholder="toi@exemple.fr" required autocapitalize="none" autocorrect="off" spellcheck="false" value="<?= e($v['email']) ?>"<?= $aria('email') ?>>
-              <p class="err" id="wl-email-err"<?= isset($err['email']) ? '' : ' hidden' ?>><?= e($err['email'] ?? "Cette adresse n'est pas complète. Exemple : toi@exemple.fr") ?></p>
-            </div>
-            <fieldset>
-              <legend>Le parcours qui t'intéresse</legend>
-              <div class="pills">
-                <label class="pill pill-of"><input type="radio" name="parcours" id="wl-p-of" value="of"<?= $v['parcours'] === 'of' ? ' checked' : '' ?>><span><i class="dot dot-of"></i>Order flow</span></label>
-                <label class="pill pill-ict"><input type="radio" name="parcours" id="wl-p-ict" value="ict"<?= $v['parcours'] === 'ict' ? ' checked' : '' ?>><span><i class="dot dot-ict"></i>ICT</span></label>
-                <label class="pill"><input type="radio" name="parcours" id="wl-p-pack" value="pack"<?= $v['parcours'] === 'pack' ? ' checked' : '' ?>><span>Les deux</span></label>
+        <div class="scene-fp">
+          <i class="foyer" data-foyer aria-hidden="true"></i>
+          <div class="relief" data-relief>
+            <figure class="fp verre" data-footprint aria-labelledby="fp-titre">
+              <div class="fp-haut">
+                <h2 id="fp-titre">Le footprint, niveau par niveau</h2>
+                <span class="etiquette">Exemple illustratif</span>
+                <span class="fp-cours"><i class="pouls" aria-hidden="true"></i>Bougie en cours</span>
               </div>
-            </fieldset>
-            <div class="piege" aria-hidden="true">
-              <label for="wl-site">Laisse ce champ vide</label>
-              <input id="wl-site" name="site" type="text" tabindex="-1" autocomplete="off">
-            </div>
-            <label class="accord" for="wl-accord">
-              <input type="checkbox" id="wl-accord" name="accord" value="1" required<?= isset($err['accord']) ? ' aria-invalid="true" aria-describedby="wl-accord-err"' : '' ?>>
-              <span>J'accepte de recevoir les e-mails de <?= e($nom) ?> sur l'ouverture. <a href="/confidentialite#liste-attente">Ce qu'on fait de ton e-mail</a></span>
-            </label>
-            <p class="err" id="wl-accord-err"<?= isset($err['accord']) ? '' : ' hidden' ?>>Coche la case : sans ton accord, on ne peut pas t'écrire à l'ouverture.</p>
-            <button type="submit" class="btn btn-main btn-full" id="wl-envoi">M'inscrire sur la liste</button>
-            <p class="err" id="wl-envoi-err" role="alert"<?= $alerte !== '' ? '' : ' hidden' ?>><?= e($alerte) ?></p>
-          </form>
-<?php endif; ?>
-<?php if ($montrer_compteur): ?>
-          <p class="join-count"><i class="live" aria-hidden="true"></i><span><b><?= e(number_format($inscrits, 0, ',', "\u{202F}")) ?></b> inscrits</span></p>
-<?php endif; ?>
-        </section>
+              <canvas class="fp-toile" aria-hidden="true"></canvas>
+              <div class="fp-grille" aria-hidden="true">
+                <p class="fp-note"><b>Absorption</b><span><?= e($nb($absorbes)) ?> achats sur deux niveaux, et le prix ne passe pas.</span></p>
+<?php foreach ($bougies as $k => $b): foreach ($b['n'] as $l => $c):
+    $marque = $c[2] ?? '';
+?>
+                <span class="fp-c l<?= $l ?> k<?= $k ?><?= $k === 6 ? ' vif' : '' ?>"><i<?= $marque === 'v' ? ' class="vente"' : '' ?>><?= e($nb($c[0])) ?></i><i<?= $marque === 'a' ? ' class="achat"' : ($marque === 'f' ? ' class="fort"' : '') ?>><?= e($nb($c[1])) ?></i></span>
+<?php endforeach; ?>
+                <i class="fp-corps k<?= $k ?> l<?= min($b['o'], $b['c']) ?> h<?= abs($b['o'] - $b['c']) + 1 ?> <?= $b['c'] < $b['o'] ? 'monte' : 'baisse' ?>"></i>
+<?php endforeach; ?>
+<?php for ($l = 1; $l <= 12; $l++): ?>
+                <span class="fp-prix l<?= $l ?> k7"><?= e(number_format(24315.0 - ($l - 1) * 0.5, 2, ',', "\u{202F}")) ?></span>
+<?php endfor; ?>
+              </div>
+              <div class="fp-pied" aria-hidden="true">
+<?php foreach ($bougies as $k => $b):
+    $d = 0;
+    foreach ($b['n'] as $c) $d += $c[1] - $c[0];
+?>
+                <span class="k<?= $k ?> <?= $d >= 0 ? 'plus' : 'moins' ?>"><?= ($d > 0 ? '+' : ($d < 0 ? "\u{2212}" : '')) . e($nb(abs($d))) ?></span>
+<?php endforeach; ?>
+                <span class="fp-prix k7">Delta</span>
+              </div>
+              <figcaption class="fp-legende">À gauche les ventes, à droite les achats, niveau de prix par niveau de prix. En vert, là où les acheteurs dominent ; en blanc, les vendeurs. Les chiffres de cet exemple sont inventés.</figcaption>
+            </figure>
+            <p class="carte carte-lecture verre" data-lecture aria-hidden="true"><small>Ce qu'on y lit</small><b>Absorption</b><span><?= e($nb($absorbes)) ?> achats sur deux niveaux, et le prix ne passe pas.</span></p>
+            <p class="carte carte-cvd verre" aria-hidden="true"><small>Delta cumulé</small><b data-cvd>0</b><canvas data-cvd-courbe></canvas></p>
+          </div>
+        </div>
       </div>
-      <div class="name-box"><p class="name" aria-hidden="true"><?= e($nom) ?></p></div>
+
+      <dl class="faits verre" id="bref">
+        <div><dt>8 semaines</dt><dd>du premier module à ton bilan avec ton formateur</dd></div>
+        <div><dt>2 parcours</dt><dd>l'order flow, l'ICT, ou les deux ensemble</dd></div>
+        <div><dt>70&nbsp;%</dt><dd>au quiz d'un module pour ouvrir le suivant</dd></div>
+        <div><dt>20 à 50</dt><dd>élèves par cohorte, et des lives sur Discord</dd></div>
+        <div><dt><?= $certificats ?> certificats</dt><dd>de payout de Nojah, à vérifier un par un</dd></div>
+      </dl>
     </div>
   </section>
 
-  <section class="sec" id="parcours">
-    <div class="wrap">
-      <h2 class="h2">Deux parcours, trois façons de venir</h2>
-      <p class="intro">Chaque parcours a ses cohortes. Tu prends l'un, l'autre, ou les deux ensemble.</p>
-      <div class="cards sec-body">
-        <article class="card l1">
-          <p class="card-who"><i class="dot dot-of"></i>Avec Nojah</p>
+  <section class="parcours" id="rythme" data-chemin data-avance="7" aria-labelledby="parcours-titre">
+    <div class="parcours-colle">
+      <div class="cadre parcours-in">
+        <div class="parcours-tete">
+          <h2 class="titre-2" id="parcours-titre"><span>Huit semaines,</span> <span>un module à la fois.</span></h2>
+          <p class="parcours-texte">Ta cohorte, c'est ta promo : 20 à 50 élèves qui avancent au même rythme. Chaque semaine, des vidéos courtes, un quiz, puis le live sur Discord. À 70&nbsp;% au quiz, le module suivant s'ouvre.</p>
+        </div>
+        <ol class="chemin">
+<?php for ($s = 1; $s <= 8; $s++): ?>
+          <li class="etape"><i class="noeud" data-noeud aria-hidden="true"></i><span class="etape-nom">Semaine <?= $s ?></span></li>
+<?php endfor; ?>
+        </ol>
+        <p class="parcours-fin verre">Et à la fin : 30&nbsp;minutes seul avec ton formateur pour faire le point, ton certificat, et l'accès aux cours et aux replays à vie.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bloc" id="parcours" aria-labelledby="prix-titre">
+    <div class="cadre">
+      <div class="bloc-tete">
+        <h2 class="titre-2" id="prix-titre"><span>Deux parcours,</span> <span>trois façons de venir.</span></h2>
+        <p class="bloc-texte">Chaque parcours a ses cohortes. Tu prends l'un, l'autre, ou les deux ensemble. Tout se paie en 2 à 4 fois.</p>
+      </div>
+      <div class="offres">
+        <article class="offre offre-of verre">
+          <p class="offre-qui"><i class="point point-of" aria-hidden="true"></i>Avec Nojah</p>
           <h3>Order flow</h3>
-          <p class="card-text">Lire qui achète et qui vend, en direct : carnet d'ordres, footprint, absorption, volume profile, VWAP.</p>
-          <ul class="card-list">
-            <li>Un module par semaine</li>
-            <li>Un quiz par module</li>
+          <p class="offre-texte">Lire qui achète et qui vend, en direct : carnet d'ordres, footprint, absorption, volume profile, VWAP.</p>
+          <ul class="offre-liste">
+            <li>Un module par semaine, un quiz par module</li>
             <li>Lives sur Discord et replays</li>
             <li>Un appel bilan avec Nojah, à la fin</li>
             <li>Certificat de fin de parcours</li>
           </ul>
-          <div class="card-price"><b>599,99&nbsp;€</b><span>Payable en 2 à 4 fois</span><span>1&nbsp;199,99&nbsp;€ avec le mentorat</span></div>
-          <a class="btn btn-line" href="#liste" data-parcours="wl-p-of">Être prévenu à l'ouverture</a>
+          <p class="offre-prix"><b>599,99&nbsp;€</b><span>1&nbsp;199,99&nbsp;€ avec le mentorat</span></p>
+          <a class="bouton bouton-verre" href="#liste" data-parcours="wl-p-of">Être prévenu à l'ouverture</a>
         </article>
-        <article class="card l2">
-          <p class="card-who"><i class="dot dot-ict"></i>Avec Weizix</p>
+        <article class="offre offre-ict verre">
+          <p class="offre-qui"><i class="point point-ict" aria-hidden="true"></i>Avec Weizix</p>
           <h3>ICT</h3>
-          <p class="card-text">La liquidité, la structure du marché et les déséquilibres de prix (fair value gaps).</p>
-          <ul class="card-list">
-            <li>Un module par semaine</li>
-            <li>Un quiz par module</li>
+          <p class="offre-texte">La liquidité, la structure du marché et les déséquilibres de prix (fair value gaps).</p>
+          <ul class="offre-liste">
+            <li>Un module par semaine, un quiz par module</li>
             <li>Lives sur Discord et replays</li>
             <li>Un appel bilan avec Weizix, à la fin</li>
             <li>Certificat de fin de parcours</li>
           </ul>
-          <div class="card-price"><b>349,99&nbsp;€</b><span>Payable en 2 à 4 fois</span><span>699,99&nbsp;€ avec le mentorat</span></div>
-          <a class="btn btn-line" href="#liste" data-parcours="wl-p-ict">Être prévenu à l'ouverture</a>
+          <p class="offre-prix"><b>349,99&nbsp;€</b><span>699,99&nbsp;€ avec le mentorat</span></p>
+          <a class="bouton bouton-verre" href="#liste" data-parcours="wl-p-ict">Être prévenu à l'ouverture</a>
         </article>
-        <article class="card l12">
-          <p class="card-who"><span class="dots"><i class="dot dot-of"></i><i class="dot dot-ict"></i></span>Avec Nojah et Weizix</p>
+        <article class="offre offre-pack verre">
+          <p class="offre-qui"><span class="points"><i class="point point-of" aria-hidden="true"></i><i class="point point-ict" aria-hidden="true"></i></span>Avec Nojah et Weizix</p>
           <h3>Le pack</h3>
-          <p class="card-text">Les deux parcours, pour lire le même marché de deux façons.</p>
-          <ul class="card-list">
+          <p class="offre-texte">Les deux parcours, pour lire le même marché de deux façons.</p>
+          <ul class="offre-liste">
             <li>Tout l'order flow et tout l'ICT</li>
             <li>Les lives des deux cohortes</li>
-            <li>Deux certificats</li>
             <li>Un appel bilan avec chacun, à la fin</li>
+            <li>Deux certificats</li>
           </ul>
-          <div class="card-price"><b>899,99&nbsp;€</b><span>Payable en 2 à 4 fois, 49,99&nbsp;€ de moins que les deux pris séparément</span><span>1&nbsp;799,99&nbsp;€ avec le mentorat</span></div>
-          <a class="btn btn-main" href="#liste" data-parcours="wl-p-pack">Être prévenu à l'ouverture</a>
+          <p class="offre-prix"><b>899,99&nbsp;€</b><span>49,99&nbsp;€ de moins que les deux pris séparément</span><span>1&nbsp;799,99&nbsp;€ avec le mentorat</span></p>
+          <a class="bouton bouton-vert" href="#liste" data-parcours="wl-p-pack">Être prévenu à l'ouverture</a>
         </article>
       </div>
-      <div class="plus">
-        <div class="plus-copy">
+      <div class="mentorat verre">
+        <div>
           <h3>Le mentorat, en option</h3>
           <p>Après ta cohorte, 4 appels individuels de 45&nbsp;minutes avec ton formateur, dans les 8 semaines qui suivent. Vous regardez tes trades ensemble, un par un.</p>
         </div>
-        <p class="plus-price"><b>Dès 699,99&nbsp;€</b><span>formation comprise : 699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack</span></p>
+        <p class="mentorat-prix"><b>Dès 699,99&nbsp;€</b><span>formation comprise : 699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack</span></p>
       </div>
     </div>
   </section>
 
-  <section class="sec" id="cohorte">
-    <div class="wrap">
-      <h2 class="h2">Comment se passe une cohorte</h2>
-      <p class="intro">Une cohorte, c'est ta promo : 20 à 50 élèves qui avancent ensemble, au même rythme.</p>
-      <ol class="steps sec-body">
-        <li><p class="n">1</p><h3>Tu rejoins une promo</h3><p>Une date de départ, 20 à 50 élèves, un salon Discord réservé à ta cohorte.</p></li>
-        <li><p class="n">2</p><h3>Un module par semaine</h3><p>Des vidéos courtes, puis un quiz. Le quiz validé ouvre le module suivant.</p></li>
-        <li><p class="n">3</p><h3>Les lives sur Discord</h3><p>On revoit les exercices ensemble, tu poses tes questions. Le replay rejoint le module.</p></li>
-        <li><p class="n">4</p><h3>Le bilan, puis tu gardes tout</h3><p>À la fin, 30&nbsp;minutes seul avec ton formateur pour faire le point. Tu gardes ton certificat, les cours et les replays à vie.</p></li>
-      </ol>
-      <div class="weeks">
-        <p class="weeks-title">Exemple : ta cohorte en semaine 3</p>
-        <ol>
-          <li class="ok"><small>Semaine 1</small><b>Validé</b></li>
-          <li class="ok"><small>Semaine 2</small><b>Validé</b></li>
-          <li class="now"><small>Semaine 3</small><b>Ouvert</b></li>
-<?php for ($s = 4; $s <= 8; $s++): ?>
-          <li><small>Semaine <?= $s ?></small><b>Verrouillé</b></li>
-<?php endfor; ?>
-        </ol>
-        <p class="weeks-note">Le module suivant s'ouvre la semaine d'après, une fois le quiz du module en cours validé.</p>
+  <section class="bloc" id="apercu" aria-labelledby="apercu-titre">
+    <div class="cadre">
+      <div class="bloc-tete">
+        <h2 class="titre-2" id="apercu-titre"><span>Ton espace élève.</span></h2>
+        <p class="bloc-texte">Tout est au même endroit : ton module de la semaine, le prochain live, ta progression et le classement de ta cohorte.</p>
       </div>
+      <div class="tabs onglets" role="group" aria-label="Écran à afficher" hidden>
+        <button type="button" class="onglet" aria-pressed="true" data-shot="espace">Tableau de bord</button>
+        <button type="button" class="onglet" aria-pressed="false" data-shot="modules">Mon parcours</button>
+        <button type="button" class="onglet" aria-pressed="false" data-shot="module">Un module</button>
+      </div>
+      <figure class="ecran verre">
+        <img id="shot-img" src="/assets/img/apercu-espace.webp" width="1440" height="900" loading="lazy" decoding="async" alt="Aperçu du tableau de bord de l'élève : module de la semaine, prochain live, progression et classement.">
+      </figure>
+      <p class="ecran-note"><span id="shot-cap">Le tableau de bord : ce que tu as à faire cette semaine, d'un coup d'œil.</span> Les noms, les titres et les chiffres de l'aperçu sont des exemples.</p>
     </div>
   </section>
 
-  <section class="sec" id="apercu">
-    <div class="wrap">
-      <h2 class="h2">Ton espace élève</h2>
-      <p class="intro">Tout est au même endroit : ton module de la semaine, le prochain live, ta progression et le classement de ta cohorte.</p>
-      <div class="sec-body glow">
-        <div class="tabs" role="group" aria-label="Écran à afficher" hidden>
-          <button type="button" class="tab" aria-pressed="true" data-shot="espace">Tableau de bord</button>
-          <button type="button" class="tab" aria-pressed="false" data-shot="modules">Mon parcours</button>
-          <button type="button" class="tab" aria-pressed="false" data-shot="module">Un module</button>
-        </div>
-        <figure class="shot">
-          <img id="shot-img" src="/assets/img/apercu-espace.webp" width="1440" height="900" loading="lazy" decoding="async" alt="Aperçu du tableau de bord de l'élève : module de la semaine, prochain live, progression et classement.">
-        </figure>
-        <p class="shot-cap"><span id="shot-cap">Le tableau de bord : ce que tu as à faire cette semaine, d'un coup d'œil.</span> Les noms, les titres et les chiffres de l'aperçu sont des exemples.</p>
+  <section class="bloc" id="extrait" aria-labelledby="extrait-titre">
+    <div class="cadre extrait">
+      <div class="extrait-texte">
+        <h2 class="titre-2" id="extrait-titre"><span>Un extrait :</span> <span>l'absorption, par Nojah.</span></h2>
+        <p class="bloc-texte">Une minute pour comprendre pourquoi beaucoup d'achats ne font pas toujours monter le prix. Dans la formation, chaque notion a ses vidéos, son quiz et son live.</p>
       </div>
-    </div>
-  </section>
-
-  <section class="sec" id="extrait">
-    <div class="wrap clip">
-      <div class="clip-copy">
-        <h2 class="h2">Un extrait : l'absorption, par Nojah</h2>
-        <p class="intro">Une minute pour comprendre pourquoi beaucoup d'achats ne font pas toujours monter le prix. Dans la formation, chaque notion a ses vidéos, son quiz et son live.</p>
-      </div>
-      <figure class="clip-video">
+      <figure class="extrait-video">
         <video controls playsinline preload="none" poster="/assets/video/absorption-v2-affiche.webp" src="/assets/video/absorption-v2.mp4" aria-label="Extrait vidéo : l'absorption expliquée par Nojah, 1 minute 04"></video>
       </figure>
     </div>
   </section>
 
-  <section class="sec" id="formateurs">
-    <div class="wrap">
-      <h2 class="h2">Les formateurs</h2>
-      <div class="cards sec-body">
-        <article class="who l1">
+  <section class="bloc" id="formateurs" aria-labelledby="formateurs-titre">
+    <div class="cadre">
+      <div class="bloc-tete">
+        <h2 class="titre-2" id="formateurs-titre"><span>Les formateurs.</span></h2>
+      </div>
+      <div class="formateurs">
+        <article class="formateur formateur-of verre">
           <h3>Nojah</h3>
           <dl>
             <div><dt>Sa méthode</dt><dd>L'order flow</dd></div>
             <div><dt>Son marché</dt><dd>Le Nasdaq, en futures : NQ et MNQ</dd></div>
             <div><dt>Comptes funded</dt><dd>Lucid Trading et Topstep, avec des payouts depuis juin 2026</dd></div>
-            <div><dt>Ses payouts</dt><dd><span class="money">33&nbsp;115&nbsp;$</span></dd></div>
+            <div><dt>Ses payouts</dt><dd><span class="gain">33&nbsp;115&nbsp;$</span></dd></div>
           </dl>
         </article>
-        <article class="who l2">
+        <article class="formateur formateur-ict verre">
           <h3>Weizix</h3>
           <dl>
             <div><dt>Sa méthode</dt><dd>L'ICT (Inner Circle Trader)</dd></div>
@@ -329,8 +335,8 @@ if (!headers_sent()) entetes_securite();
         </article>
       </div>
     </div>
-    <div class="proof">
-      <div class="wrap proof-head">
+    <div class="preuves">
+      <div class="cadre preuves-tete">
         <h3>Les payouts de Nojah, certificat par certificat</h3>
         <p><a href="<?= e((string) reglage('hub')) ?>" target="_blank" rel="noopener">Voir tous les certificats sur Noweiz HUB</a></p>
       </div>
@@ -338,36 +344,97 @@ if (!headers_sent()) entetes_securite();
     </div>
   </section>
 
-  <section class="sec" id="questions">
-    <div class="wrap">
-      <h2 class="h2">Questions fréquentes</h2>
-      <dl class="faq sec-body">
-        <div><dt>Quand ouvre le site ?</dt><dd>En 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</dd></div>
-        <div><dt>À quoi sert la liste d'attente ?</dt><dd>Tu laisses ton e-mail et on te prévient à l'ouverture. Les inscrits passent en premier sur les 50&nbsp;places de la cohorte 1.</dd></div>
-        <div><dt>Combien ça coûte ?</dt><dd>349,99&nbsp;€ le parcours ICT, 599,99&nbsp;€ le parcours order flow, 899,99&nbsp;€ les deux ensemble. Avec le mentorat : 699,99&nbsp;€, 1&nbsp;199,99&nbsp;€ et 1&nbsp;799,99&nbsp;€.</dd></div>
-        <div><dt>Que faites-vous de mon e-mail ?</dt><dd>On s'en sert seulement pour t'écrire au sujet de l'ouverture. Tu peux te désinscrire quand tu veux, avec le lien en bas de chaque e-mail. Le détail est sur la page <a href="/confidentialite#liste-attente">Confidentialité</a>.</dd></div>
-        <div><dt>Je garde l'accès après ma cohorte ?</dt><dd>Oui, à vie : les modules, les quiz et les replays des lives.</dd></div>
-        <div><dt>Je pourrai payer en plusieurs fois ?</dt><dd>Oui, en 2 à 4 fois. L'accès reste ouvert tant que les échéances sont payées.</dd></div>
-        <div><dt>Et si je rate un live ?</dt><dd>Le replay est ajouté au module concerné.</dd></div>
-        <div><dt>Et après la formation ?</dt><dd>Tu as un appel bilan de 30&nbsp;minutes avec ton formateur, compris dans le prix. Pour continuer, le mentorat ajoute 4 appels individuels de 45&nbsp;minutes : il se choisit avec la formation (699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack, formation comprise).</dd></div>
-      </dl>
+  <section class="bloc" id="questions" aria-labelledby="questions-titre">
+    <div class="cadre questions">
+      <div class="bloc-tete">
+        <h2 class="titre-2" id="questions-titre"><span>Questions</span> <span>fréquentes.</span></h2>
+      </div>
+      <div class="faq">
+        <details open><summary>Quand ouvre le site ?</summary><p>En 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</p></details>
+        <details><summary>À quoi sert la liste d'attente ?</summary><p>Tu laisses ton e-mail et on te prévient à l'ouverture. Les inscrits passent en premier sur les 50&nbsp;places de la cohorte 1.</p></details>
+        <details><summary>Combien ça coûte ?</summary><p>349,99&nbsp;€ le parcours ICT, 599,99&nbsp;€ le parcours order flow, 899,99&nbsp;€ les deux ensemble. Avec le mentorat : 699,99&nbsp;€, 1&nbsp;199,99&nbsp;€ et 1&nbsp;799,99&nbsp;€.</p></details>
+        <details><summary>Je pourrai payer en plusieurs fois ?</summary><p>Oui, en 2 à 4 fois. L'accès reste ouvert tant que les échéances sont payées.</p></details>
+        <details><summary>Je garde l'accès après ma cohorte ?</summary><p>Oui, à vie : les modules, les quiz et les replays des lives.</p></details>
+        <details><summary>Et si je rate un live ?</summary><p>Le replay est ajouté au module concerné.</p></details>
+        <details><summary>Et après la formation ?</summary><p>Tu as un appel bilan de 30&nbsp;minutes avec ton formateur, compris dans le prix. Pour continuer, le mentorat ajoute 4 appels individuels de 45&nbsp;minutes : il se choisit avec la formation (699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack, formation comprise).</p></details>
+        <details><summary>Que faites-vous de mon e-mail ?</summary><p>On s'en sert seulement pour t'écrire au sujet de l'ouverture. Tu peux te désinscrire quand tu veux, avec le lien en bas de chaque e-mail. Le détail est sur la page <a href="/confidentialite#liste-attente">Confidentialité</a>.</p></details>
+      </div>
     </div>
   </section>
 
-  <section class="sec sec-fin">
-    <div class="lights" aria-hidden="true"></div>
-    <div class="wrap end">
-      <h2 class="h2">Sois là à l'ouverture.</h2>
-      <a class="btn btn-main" href="#liste">M'inscrire sur la liste d'attente</a>
+  <section class="bloc bloc-fin" aria-labelledby="liste-titre">
+    <div class="cadre">
+      <div class="inscription verre" id="liste"<?= !empty($err) || $alerte !== '' ? ' data-erreur' : '' ?>>
+        <i class="inscription-lueur" aria-hidden="true"></i>
+<?php if ($envoye): ?>
+        <div class="inscription-texte">
+          <h2 class="titre-2" tabindex="-1" id="liste-titre"><span>Plus qu'une étape :</span> <span>confirme ton adresse.</span></h2>
+          <p class="bloc-texte">On vient de t'envoyer un e-mail. Ouvre-le et clique sur « Confirmer mon inscription » : c'est ce qui te met sur la liste.</p>
+        </div>
+        <div class="inscription-form">
+          <ol class="apres">
+            <li>Pas d'e-mail dans 5 minutes ? Regarde dans les <b>indésirables</b> ou l'onglet <b>Promotions</b>.</li>
+            <li>Le lien marche pendant <?= e(duree_lisible((int) reglage('confirmation_heures') * 60)) ?>.</li>
+            <li>En attendant, rejoins le Discord : c'est là que se passent les lives et les annonces.</li>
+          </ol>
+          <a class="bouton bouton-vert bouton-plein" href="<?= e((string) reglage('discord')) ?>" target="_blank" rel="noopener">Rejoindre le Discord</a>
+        </div>
+<?php else: ?>
+        <div class="inscription-texte">
+          <h2 class="titre-2" id="liste-titre">Inscris-toi sur la liste d'attente</h2>
+          <ul class="avantages">
+            <li>Tu passes en premier sur les 50&nbsp;places de la cohorte 1.</li>
+            <li>Tu connais la date d'ouverture avant tout le monde.</li>
+            <li>Un e-mail à l'ouverture, rien d'autre.</li>
+          </ul>
+<?php if ($montrer_compteur): ?>
+          <p class="inscrits"><i class="pouls" aria-hidden="true"></i><span><b><?= e(number_format($inscrits, 0, ',', "\u{202F}")) ?></b> inscrits</span></p>
+<?php endif; ?>
+        </div>
+        <form class="inscription-form" id="wl-form" method="post" action="/#liste" novalidate>
+          <?= champ_jeton() ?>
+          <div class="champ">
+            <label for="wl-prenom">Ton prénom</label>
+            <input class="saisie" id="wl-prenom" name="prenom" type="text" autocomplete="given-name" maxlength="60" placeholder="Prénom" required value="<?= e($v['prenom']) ?>"<?= $aria('prenom') ?>>
+            <p class="err" id="wl-prenom-err"<?= isset($err['prenom']) ? '' : ' hidden' ?>><?= e($err['prenom'] ?? 'Écris ton prénom.') ?></p>
+          </div>
+          <div class="champ">
+            <label for="wl-email">Ton e-mail</label>
+            <input class="saisie" id="wl-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="190" placeholder="toi@exemple.fr" required autocapitalize="none" autocorrect="off" spellcheck="false" value="<?= e($v['email']) ?>"<?= $aria('email') ?>>
+            <p class="err" id="wl-email-err"<?= isset($err['email']) ? '' : ' hidden' ?>><?= e($err['email'] ?? "Cette adresse n'est pas complète. Exemple : toi@exemple.fr") ?></p>
+          </div>
+          <fieldset class="choix">
+            <legend>Le parcours qui t'intéresse</legend>
+            <div class="pastilles">
+              <label class="pastille pastille-of"><input type="radio" name="parcours" id="wl-p-of" value="of"<?= $v['parcours'] === 'of' ? ' checked' : '' ?>><span><i class="point point-of" aria-hidden="true"></i>Order flow</span></label>
+              <label class="pastille pastille-ict"><input type="radio" name="parcours" id="wl-p-ict" value="ict"<?= $v['parcours'] === 'ict' ? ' checked' : '' ?>><span><i class="point point-ict" aria-hidden="true"></i>ICT</span></label>
+              <label class="pastille"><input type="radio" name="parcours" id="wl-p-pack" value="pack"<?= $v['parcours'] === 'pack' ? ' checked' : '' ?>><span>Les deux</span></label>
+            </div>
+          </fieldset>
+          <div class="piege" aria-hidden="true">
+            <label for="wl-site">Laisse ce champ vide</label>
+            <input id="wl-site" name="site" type="text" tabindex="-1" autocomplete="off">
+          </div>
+          <label class="accord" for="wl-accord">
+            <input type="checkbox" id="wl-accord" name="accord" value="1" required<?= isset($err['accord']) ? ' aria-invalid="true" aria-describedby="wl-accord-err"' : '' ?>>
+            <span>J'accepte de recevoir les e-mails de <?= e($nom) ?> sur l'ouverture. <a href="/confidentialite#liste-attente">Ce qu'on fait de ton e-mail</a></span>
+          </label>
+          <p class="err" id="wl-accord-err"<?= isset($err['accord']) ? '' : ' hidden' ?>>Coche la case : sans ton accord, on ne peut pas t'écrire à l'ouverture.</p>
+          <button type="submit" class="bouton bouton-vert bouton-plein" id="wl-envoi">M'inscrire sur la liste</button>
+          <p class="err" id="wl-envoi-err" role="alert"<?= $alerte !== '' ? '' : ' hidden' ?>><?= e($alerte) ?></p>
+        </form>
+<?php endif; ?>
+      </div>
     </div>
   </section>
 </main>
 
-<footer class="foot">
-  <div class="wrap foot-in">
+<footer class="pied">
+  <div class="cadre pied-in">
     <p>Le trading comporte un risque de perte. Cette formation ne promet aucun gain : Nojah et Weizix y partagent leur méthode, pas des conseils en investissement.</p>
-    <p class="foot-links"><a href="/confidentialite">Confidentialité</a><a href="/mentions-legales">Mentions légales</a><a href="<?= $compte !== null ? '/espace' : '/connexion' ?>" class="pale"><?= $compte !== null ? 'Mon espace' : 'Se connecter' ?></a></p>
+    <p class="pied-liens"><a href="/confidentialite">Confidentialité</a><a href="/mentions-legales">Mentions légales</a><a href="<?= $compte !== null ? '/espace' : '/connexion' ?>" class="pale"><?= $compte !== null ? 'Mon espace' : 'Se connecter' ?></a></p>
   </div>
 </footer>
+</div>
 </body>
 </html>

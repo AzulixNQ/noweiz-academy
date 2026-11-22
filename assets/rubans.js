@@ -278,7 +278,7 @@
   var temps = 0, dernier = 0, image = 0, demande = 0, enRoute = false;
   var mesures = [], mesureDepuis = 0;
   /* le parcours */
-  var scene = document.querySelector('[data-parcours]');
+  var scene = document.querySelector('[data-chemin]');
   var reperes = scene ? scene.querySelectorAll('[data-noeud]') : [];
   var noeuds = new Float32Array(16), avance = 7, cheminVu = false, cheminDoux = 0;
 
