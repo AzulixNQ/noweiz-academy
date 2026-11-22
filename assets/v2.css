@@ -89,7 +89,7 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 
 /* ---------- le premier écran ---------- */
 .hero { position: relative; padding: clamp(36px, 7vh, 96px) 0 clamp(40px, 7vh, 88px); }
-.hero-grille { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1fr); align-items: center; gap: clamp(32px, 5vw, 88px); min-height: min(680px, calc(100vh - var(--haut) - 190px)); }
+.hero-grille { display: grid; grid-template-columns: minmax(0, .88fr) minmax(0, 1fr); align-items: center; gap: clamp(32px, 5vw, 88px); min-height: min(680px, calc(100vh - var(--haut) - 190px)); }
 .hero-texte { position: relative; max-width: 620px; }
 /* une ombre douce sous le texte : il reste lisible quand un ruban passe derrière */
 .hero-texte::before { content: ""; position: absolute; z-index: -1; inset: -14% -22% -18% -40%; background: radial-gradient(closest-side, rgba(5, 6, 6, .8), rgba(5, 6, 6, .52) 55%, transparent); pointer-events: none; }
@@ -100,7 +100,7 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 .chapo { max-width: 34em; margin-top: 26px; color: #C9CCCA; font-size: clamp(17px, .45vw + 15px, 20px); line-height: 1.5; text-wrap: pretty; }
 .sous-actions { margin-top: 16px; color: var(--gris-2); font-size: 14.5px; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-.hero .actions .bouton { padding-inline: 21px; font-size: 15.5px; }
+.hero .actions .bouton { padding-inline: 19px; font-size: 15.5px; }
 
 /* ---------- le footprint, en relief ---------- */
 .scene-fp { position: relative; justify-self: end; width: 100%; max-width: 760px; perspective: 1600px; }
