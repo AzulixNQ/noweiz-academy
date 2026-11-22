@@ -367,6 +367,9 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     verif((await texte(sansJs)).includes('Plus qu\'une étape'), 'sans JavaScript : l\'inscription marche aussi');
     let mails = courriels('jean@exemple.fr');
     verif(mails.length === 1 && mails[0].sujet.includes('Confirme ton inscription'), 'e-mail « Confirme ton inscription » envoyé');
+    verif(mails[0].html.includes(URL + '/assets/img/courriel-icone.png') && mails[0].html.includes('Réponds simplement à cet e-mail') && !mails[0].html.includes('ne réponds pas'),
+      'l\'e-mail a le bandeau Noweiz et invite à répondre');
+    verif((await fetch(URL + '/assets/img/courriel-icone.png')).headers.get('content-type') === 'image/png', 'l\'icône des e-mails est servie');
     const lienJean = lienDe(mails[0]);
     verif(/\/liste-attente\/confirmer\?lien=[a-f0-9]{64}$/.test(lienJean || ''), 'le lien de confirmation a la bonne forme');
     await alice.goto(URL + '/admin/liste-attente');

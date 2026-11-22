@@ -9,6 +9,7 @@ function envoyer_courriel(string $a, string $sujet, string $texte, string $html,
 {
     if (!filter_var($a, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $a . $sujet . implode('', $en_plus))) return false;
     $expediteur = (string) reglage('courriel.expediteur');
+    $retours = (string) (reglage('courriel.retours') ?: $expediteur);
     $nom = (string) reglage('courriel.nom');
 
     if (reglage('courriel.transport') === 'fichier') {
@@ -33,7 +34,7 @@ function envoyer_courriel(string $a, string $sujet, string $texte, string $html,
     $sujet_code = mb_encode_mimeheader($sujet, 'UTF-8', 'B');
 
     try {
-        $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes), '-f' . $expediteur);
+        $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes), '-f' . $retours);
         if (!$ok) $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes));
     } catch (Throwable $e) {
         $ok = false;
@@ -46,28 +47,56 @@ function envoyer_courriel(string $a, string $sujet, string $texte, string $html,
 function gabarit_courriel(string $titre, array $paragraphes, ?string $bouton = null, ?string $lien = null, string $note = ''): array
 {
     $nom = (string) reglage('nom');
-    $pied = "Cet e-mail est envoyé automatiquement : ne réponds pas à cette adresse. Pour nous écrire, passe par le Discord : " . reglage('discord');
+    $pied = "Une question ? Réponds simplement à cet e-mail, ou écris-nous sur le Discord : " . reglage('discord');
 
     $texte = $titre . "\n\n" . implode("\n\n", $paragraphes);
     if ($lien !== null) $texte .= "\n\n" . $bouton . " :\n" . $lien;
     if ($note !== '') $texte .= "\n\n" . $note;
     $texte .= "\n\n-- \n" . $nom . "\n" . $pied . "\n";
 
+    /* La version HTML reprend le site : un bandeau noir avec l'icône et le nom, le filet qui va du vert citron (Nojah) au blanc
+       (Weizix) comme dans l'icône, puis le message sur fond blanc et le bouton vert du site.
+       Des tableaux plutôt que des blocs : c'est ce qu'Outlook sait afficher. Si les images sont bloquées, il ne manque que
+       l'icône : le nom est du texte. */
     $h = static fn(string $s): string => htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-    $html = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light dark"><title>' . $h($titre) . '</title></head>'
-          . '<body style="margin:0;padding:0;background:#f4f4f2;">'
-          . '<div style="max-width:560px;margin:0 auto;padding:32px 20px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0B0B0C;">'
-          . '<p style="margin:0 0 24px;font-size:17px;font-weight:700;letter-spacing:-0.02em;">' . $h($nom) . '</p>'
-          . '<div style="background:#ffffff;border:1px solid #e3e3df;border-radius:16px;padding:28px 26px;">'
-          . '<h1 style="margin:0 0 16px;font-size:23px;line-height:1.25;font-weight:600;letter-spacing:-0.02em;">' . $h($titre) . '</h1>';
+    $police = "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
+    $discord = (string) reglage('discord');
+    // La ligne grise qu'affiche la boîte de réception sous l'objet : la première phrase utile, pas « Bonjour Louis, ».
+    $apercu = '';
+    foreach ($paragraphes as $p) if (!preg_match('/^(Bonjour|Bienvenue)\b/u', $p)) { $apercu = $p; break; }
+
+    $html = '<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+          . '<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>' . $h($titre) . '</title></head>'
+          . '<body style="margin:0;padding:0;background:#f4f4f2;-webkit-text-size-adjust:100%;">'
+          . '<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">' . $h($apercu) . str_repeat('&#847;&zwnj;&nbsp;', 40) . '</div>'
+          . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f2;"><tr><td align="center" style="padding:32px 14px;">'
+          . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">'
+          // le bandeau
+          . '<tr><td style="background:#0B0B0C;border-radius:16px 16px 0 0;padding:18px 26px;">'
+          . '<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
+          . '<td style="vertical-align:middle;padding-right:12px;"><img src="' . $h(url_site('/assets/img/courriel-icone.png')) . '" width="30" height="30" alt="" style="display:block;border:0;"></td>'
+          . '<td style="vertical-align:middle;' . $police . 'font-size:18px;line-height:1;font-weight:700;letter-spacing:-0.02em;color:#ffffff;">' . $h($nom) . '</td>'
+          . '</tr></table></td></tr>'
+          // le filet vert citron → blanc
+          . '<tr><td style="height:3px;line-height:3px;font-size:0;background:#C6F432;background-image:linear-gradient(90deg,#C6F432 0%,#C6F432 30%,#ffffff 100%);">&nbsp;</td></tr>'
+          // le message
+          . '<tr><td style="background:#ffffff;border:1px solid #e3e3df;border-top:0;border-radius:0 0 16px 16px;padding:30px 26px 28px;' . $police . 'color:#0B0B0C;">'
+          . '<h1 style="margin:0 0 18px;font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-0.025em;color:#0B0B0C;">' . $h($titre) . '</h1>';
     foreach ($paragraphes as $p) $html .= '<p style="margin:0 0 14px;font-size:16px;line-height:1.55;color:#33333a;">' . nl2br($h($p)) . '</p>';
     if ($lien !== null) {
-        $html .= '<p style="margin:24px 0 18px;"><a href="' . $h($lien) . '" style="display:inline-block;background:#0B0B0C;color:#C6F432;text-decoration:none;font-size:16px;font-weight:600;padding:14px 26px;border-radius:999px;">' . $h((string) $bouton) . '</a></p>'
+        $html .= '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 20px;"><tr><td style="background:#C6F432;border-radius:999px;">'
+               . '<a href="' . $h($lien) . '" style="display:inline-block;padding:15px 28px;border:1px solid #B5E21F;border-radius:999px;' . $police . 'font-size:16px;line-height:1;font-weight:700;color:#0B0B0C;text-decoration:none;">' . $h((string) $bouton) . '</a>'
+               . '</td></tr></table>'
                . '<p style="margin:0 0 6px;font-size:13.5px;line-height:1.5;color:#6b6b72;">Le bouton ne marche pas ? Copie ce lien dans ton navigateur :</p>'
                . '<p style="margin:0;font-size:13.5px;line-height:1.5;word-break:break-all;"><a href="' . $h($lien) . '" style="color:#33333a;">' . $h($lien) . '</a></p>';
     }
-    if ($note !== '') $html .= '<p style="margin:20px 0 0;font-size:14.5px;line-height:1.5;color:#6b6b72;">' . $h($note) . '</p>';
-    $html .= '</div><p style="margin:20px 4px 0;font-size:13px;line-height:1.5;color:#6b6b72;">' . $h($pied) . '</p></div></body></html>';
+    if ($note !== '') $html .= '<p style="margin:22px 0 0;padding-top:18px;border-top:1px solid #eeeeea;font-size:14.5px;line-height:1.5;color:#6b6b72;">' . $h($note) . '</p>';
+    $html .= '</td></tr>'
+           // le pied
+           . '<tr><td style="padding:18px 8px 0;' . $police . 'font-size:13px;line-height:1.5;color:#6b6b72;">'
+           . 'Une question ? Réponds simplement à cet e-mail'
+           . ($discord !== '' ? ', ou écris-nous sur <a href="' . $h($discord) . '" style="color:#33333a;">le Discord ' . $h($nom) . '</a>.' : '.')
+           . '</td></tr></table></td></tr></table></body></html>';
 
     return [$texte, $html];
 }

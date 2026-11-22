@@ -9,8 +9,11 @@ page_debut('Mentions légales');
 
   <h2>Éditeur du site</h2>
 <?php if (reglage('test')): ?>
-  <p class="msg msg-info">Version de test : l'éditeur du site (nom ou société, adresse, e-mail, téléphone, numéro d'immatriculation) et le directeur de la publication seront indiqués ici avant l'ouverture au public.</p>
+  <p class="msg msg-info">Version de test : l'éditeur du site (nom ou société, adresse, téléphone, numéro d'immatriculation) et le directeur de la publication seront indiqués ici avant l'ouverture au public.</p>
 <?php endif; ?>
+
+  <h2>Contact</h2>
+  <p>Par e-mail : <a href="mailto:<?= e((string) reglage('contact')) ?>"><?= e((string) reglage('contact')) ?></a>. Ou sur le <a href="<?= e((string) reglage('discord')) ?>" target="_blank" rel="noopener">Discord</a>.</p>
 
   <h2>Hébergeur</h2>
   <p>OVH SAS, au capital de 50 000 000 €, RCS Lille Métropole 424 761 419 00045.<br>2 rue Kellermann, 59100 Roubaix, France. Téléphone : +33 9 72 10 10 07.</p>

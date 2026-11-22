@@ -28,9 +28,11 @@ return [
     // Les e-mails automatiques. transport : « mail » (envoi par l'hébergement) ou « fichier » (essais : rien ne part).
     'courriel' => [
         'transport' => getenv('NA_COURRIER') ?: 'mail',
-        'expediteur' => 'ne-pas-repondre@noweiz.com',
+        'expediteur' => 'contact@noweiz.com',        // l'adresse affichée : on peut y répondre (chez OVH, elle renvoie vers la boîte contact@noweiz.fr)
+        'retours' => 'ne-pas-repondre@noweiz.com',   // l'enveloppe : les e-mails qui n'ont pas pu être livrés ne remplissent pas la boîte
         'nom' => 'Noweiz Academy',
     ],
+    'contact' => 'contact@noweiz.com',   // l'adresse donnée sur le site et dans les e-mails
 
     'session_jours' => 30,          // durée d'une connexion
     'invitation_jours' => 7,        // durée d'un lien d'invitation
