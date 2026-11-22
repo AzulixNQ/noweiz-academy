@@ -739,6 +739,147 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await envoyer(alice, 'form:has(input[value=supprimer]) button');
     verif((await texte(alice)).includes('Module effacé') && base('SELECT COUNT(*) AS n FROM modules')[0].n === 1 && base('SELECT numero FROM modules')[0].numero === 1, 'module effacé, le suivant devient le module 1');
 
+    /* ---------- M. l'envoi des e-mails par la boîte (SMTP) ---------- */
+    console.log('M. L\'envoi des e-mails par la boîte');
+    await alice.goto(URL + '/admin/courriel');
+    t = await texte(alice);
+    verif(t.includes('Les e-mails partent par l\'hébergement') && (await alice.locator('.side-nav').innerText()).includes('E-mails'), 'page E-mails : par défaut, l\'envoi par l\'hébergement');
+    const curieux = await fenetre();
+    await curieux.goto(URL + '/admin/courriel');
+    verif(new window_URL(curieux.url()).pathname === '/connexion', 'page E-mails fermée à qui n\'est pas connecté');
+    await curieux.context().close();
+
+    // un deuxième site, qui envoie pour de vrai, et une fausse boîte e-mail en face
+    const net = require('net');
+    const donnees2 = fs.mkdtempSync(path.join(os.tmpdir(), 'na-essais-smtp-'));
+    const PORT2 = 8767, URL2 = 'http://127.0.0.1:' + PORT2, PORT_SMTP = 2526;
+    const BOITE = 'contact@boite.exemple', MDP_BOITE = 'Boîte ' + crypto.randomBytes(9).toString('base64url') + ' .é@';
+    const recus = []; let refuse = false, connexions = 0;
+    const fausseBoite = net.createServer(sock => {
+      connexions++;
+      let tampon = '', donnee = null, msg = { de: null, a: null, auth: false, brut: '' };
+      const dire = l => sock.write(l + '\r\n');
+      dire('220 fausse boite');
+      sock.on('error', () => {});
+      sock.on('data', d => {
+        tampon += d.toString('utf8');
+        let i;
+        while ((i = tampon.indexOf('\r\n')) !== -1) {
+          const ligne = tampon.slice(0, i); tampon = tampon.slice(i + 2);
+          if (donnee !== null) {
+            if (ligne === '.') { msg.brut = donnee.join('\r\n'); recus.push(msg); donnee = null; msg = { de: null, a: null, auth: msg.auth, brut: '' }; dire('250 2.0.0 Ok: queued'); }
+            else donnee.push(ligne.startsWith('..') ? ligne.slice(1) : ligne);
+            continue;
+          }
+          const cmd = ligne.toUpperCase();
+          if (cmd.startsWith('EHLO')) { sock.write('250-fausse.boite\r\n250-SIZE 10240000\r\n250-AUTH PLAIN LOGIN\r\n250 8BITMIME\r\n'); }
+          else if (cmd.startsWith('AUTH PLAIN ')) {
+            const [, u, m] = Buffer.from(ligne.slice(11), 'base64').toString('utf8').split('\0');
+            if (!refuse && u === BOITE && m === MDP_BOITE) { msg.auth = true; dire('235 2.7.0 Authentication successful'); } else dire('535 5.7.8 Error: authentication failed');
+          }
+          else if (cmd.startsWith('MAIL FROM:')) { if (!msg.auth) dire('530 5.7.0 Authentication required'); else { msg.de = ligne.slice(10).replace(/[<>]/g, ''); dire('250 2.1.0 Ok'); } }
+          else if (cmd.startsWith('RCPT TO:')) { msg.a = ligne.slice(8).replace(/[<>]/g, ''); dire('250 2.1.5 Ok'); }
+          else if (cmd === 'DATA') { donnee = []; dire('354 End data with <CR><LF>.<CR><LF>'); }
+          else if (cmd === 'QUIT') { dire('221 2.0.0 Bye'); sock.end(); }
+          else dire('502 5.5.2 Error: command not recognized');
+        }
+      });
+    });
+    await new Promise(r => fausseBoite.listen(PORT_SMTP, '127.0.0.1', r));
+    // sendmail_path=/bin/true : l'envoi « par l'hébergement » réussit sans rien envoyer
+    const serveur2 = spawn('php', ['-d', 'sendmail_path=/bin/true', '-S', '127.0.0.1:' + PORT2, 'outils/serveur.php'], { cwd: racine, env: Object.assign({}, process.env, { NA_URL: URL2, NA_COURRIER: 'mail', NA_DONNEES: donnees2, NA_SMTP_HOTE: '127.0.0.1', NA_SMTP_PORT: String(PORT_SMTP) }), stdio: 'ignore' });
+    try {
+      for (let i = 0; i < 50; i++) { try { const r = await fetch(URL2 + '/sante'); if (r.ok) break; } catch (e) {} await pause(100); }
+      const base2 = (sql) => JSON.parse(require('child_process').execFileSync('php', ['-r', 'require "app/demarrage.php"; echo json_encode(lignes($argv[1]));', sql],
+        { cwd: racine, env: Object.assign({}, process.env, { NA_DONNEES: donnees2, NA_COURRIER: 'fichier', NA_URL: URL2 }) }).toString());
+      const sante2 = async () => (await (await fetch(URL2 + '/sante')).json()).courriel_par;
+      const corpsDe = m => Buffer.from((m.brut.split('Content-Transfer-Encoding: base64\r\n\r\n')[1] || '').split('\r\n--')[0].replace(/\r\n/g, ''), 'base64').toString('utf8');
+      const sujetDe = m => ((m.brut.match(/^Subject: ((?:.*)(?:\r\n[ \t].*)*)/m) || [])[1] || '').replace(/\r\n[ \t]/g, '').replace(/=\?UTF-8\?B\?([^?]*)\?=/g, (x, b) => Buffer.from(b, 'base64').toString('utf8'));
+
+      const zoe = await fenetre();
+      await zoe.goto(URL2 + '/inscription');
+      await zoe.fill('#c-prenom', 'Zoé'); await zoe.fill('#c-email', 'zoe@exemple.fr'); await zoe.fill('#c-mdp', mdp());
+      await Promise.all([zoe.waitForNavigation(), zoe.click('button[type=submit].btn-main')]);
+      verif(recus.length === 0 && await sante2() === 'hébergement', 'boîte pas branchée : rien ne passe par elle');
+
+      await zoe.goto(URL2 + '/admin/courriel');
+      verif(await zoe.inputValue('#c-boite') === 'contact@noweiz.fr' && await zoe.inputValue('#c-essai') === 'zoe@exemple.fr', 'formulaire prérempli : la boîte contact, et l\'essai vers l\'adresse de l\'admin');
+      await zoe.fill('#c-boite', BOITE); await zoe.fill('#c-mdp_boite', 'pas le bon');
+      await Promise.all([zoe.waitForNavigation(), zoe.click('form:has(input[value=brancher]) button[type=submit]')]);
+      t = await texte(zoe);
+      verif(t.includes('La boîte a refusé l\'identifiant ou le mot de passe') && recus.length === 0, 'mauvais mot de passe : refus expliqué, rien n\'est envoyé');
+      verif(base2("SELECT COUNT(*) AS n FROM reglages WHERE cle = 'smtp'")[0].n === 0 && await zoe.inputValue('#c-mdp_boite') === '' && await zoe.inputValue('#c-boite') === BOITE, 'mauvais mot de passe : rien n\'est gardé, le champ est vide, l\'adresse reste');
+
+      await zoe.fill('#c-mdp_boite', MDP_BOITE);
+      await Promise.all([zoe.waitForNavigation(), zoe.click('form:has(input[value=brancher]) button[type=submit]')]);
+      t = await texte(zoe);
+      verif(t.includes('La boîte est branchée') && t.includes('Les e-mails partent par la boîte ' + BOITE), 'bon mot de passe : la boîte est branchée');
+      verif(recus.length === 1 && recus[0].de === BOITE && recus[0].a === 'zoe@exemple.fr', 'l\'e-mail d\'essai est parti par la boîte, vers l\'adresse choisie');
+      const e1 = recus[0] || { brut: '' };
+      verif(/^From: Noweiz Academy <contact@boite\.exemple>$/m.test(e1.brut) && /^To: <zoe@exemple\.fr>$/m.test(e1.brut) && /^Date: /m.test(e1.brut) && /^Message-ID: <[a-f0-9]{32}@boite\.exemple>$/m.test(e1.brut),
+        'e-mail complet : expéditeur = la boîte, destinataire, date, identifiant');
+      verif(sujetDe(e1).includes('Essai d\'envoi') && corpsDe(e1).includes('L\'envoi des e-mails fonctionne'), 'objet et texte de l\'essai lisibles');
+      const garde = base2("SELECT valeur FROM reglages WHERE cle = 'smtp'")[0].valeur;
+      const tout = fs.readdirSync(donnees2).filter(f => fs.statSync(path.join(donnees2, f)).isFile()).map(f => fs.readFileSync(path.join(donnees2, f))).reduce((a, b) => Buffer.concat([a, b]), Buffer.alloc(0));
+      verif(!garde.includes(MDP_BOITE) && /"mdp":"s1:/.test(garde) && !tout.includes(Buffer.from(MDP_BOITE, 'utf8')) && !tout.includes(Buffer.from(MDP_BOITE, 'utf8').toString('base64')),
+        'le mot de passe de la boîte n\'est écrit en clair nulle part dans les données (base, journal)');
+      verif((fs.statSync(path.join(donnees2, 'cle-courriel')).mode & 0o077) === 0, 'la clé de chiffrement n\'est lisible que par le site');
+      verif(!(await zoe.content()).includes(MDP_BOITE) && await sante2() === 'boîte', 'le mot de passe n\'est jamais réaffiché ; /sante dit « boîte »');
+
+      // un vrai e-mail du site passe maintenant par la boîte
+      const passant2 = await fenetre();
+      await passant2.goto(URL2 + '/');
+      await passant2.fill('#wl-prenom', 'Nina'); await passant2.fill('#wl-email', 'nina@exemple.fr'); await passant2.check('#wl-accord');
+      await Promise.all([passant2.waitForNavigation(), passant2.click('#wl-envoi')]);
+      verif((await texte(passant2)).includes('Plus qu\'une étape') && recus.length === 2 && recus[1].a === 'nina@exemple.fr' && recus[1].de === BOITE, 'liste d\'attente : l\'e-mail de confirmation part par la boîte');
+      const e2 = recus[1] || { brut: '' };
+      const lien2 = (corpsDe(e2).match(/https?:\/\/\S+/) || [])[0] || '';
+      verif(sujetDe(e2).includes('Confirme ton inscription') && lien2.startsWith(URL2 + '/liste-attente/confirmer?lien='), 'son lien de confirmation est intact');
+      await passant2.goto(lien2);
+      verif((await texte(passant2)).includes('C\'est confirmé, Nina'), 'et il marche');
+      verif(e2.brut.split('\r\n').every(l => l.length <= 998), 'aucune ligne trop longue pour un serveur d\'e-mails');
+
+      // la boîte refuse (mot de passe changé chez OVH) : l'e-mail part quand même, par l'hébergement, et l'admin le voit
+      refuse = true;
+      await passant2.goto(URL2 + '/');
+      await passant2.fill('#wl-prenom', 'Omar'); await passant2.fill('#wl-email', 'omar@exemple.fr'); await passant2.check('#wl-accord');
+      await Promise.all([passant2.waitForNavigation(), passant2.click('#wl-envoi')]);
+      verif((await texte(passant2)).includes('Plus qu\'une étape') && recus.length === 2, 'boîte en panne : le visiteur ne voit rien, l\'e-mail part par l\'hébergement');
+      await zoe.goto(URL2 + '/admin/courriel');
+      t = await texte(zoe);
+      verif(t.includes('Dernière panne') && t.includes('refusé l\'identifiant ou le mot de passe') && await sante2() === 'boîte (en panne : hébergement)', 'la panne est affichée à l\'admin et dans /sante');
+      await Promise.all([zoe.waitForNavigation(), zoe.click('form:has(input[value=essai]) button[type=submit]')]);
+      verif((await texte(zoe)).includes('parti par l\'hébergement à la place'), 'essai pendant la panne : dit clairement que l\'e-mail n\'est pas passé par la boîte');
+      refuse = false;
+      await zoe.fill('#c-essai', 'ailleurs@exemple.fr');
+      await Promise.all([zoe.waitForNavigation(), zoe.click('form:has(input[value=essai]) button[type=submit]')]);
+      t = await texte(zoe);
+      verif(t.includes('E-mail d\'essai parti par la boîte') && !t.includes('Dernière panne') && recus.length === 3 && recus[2].a === 'ailleurs@exemple.fr' && await sante2() === 'boîte', 'boîte revenue : l\'essai passe, la panne s\'efface');
+
+      // le serveur ne répond plus du tout : on n'attend pas à chaque e-mail
+      await new Promise(r => fausseBoite.close(r));
+      const avantCoupure = connexions;
+      await passant2.goto(URL2 + '/');
+      await passant2.fill('#wl-prenom', 'Paco'); await passant2.fill('#wl-email', 'paco@exemple.fr'); await passant2.check('#wl-accord');
+      await Promise.all([passant2.waitForNavigation(), passant2.click('#wl-envoi')]);
+      verif((await texte(passant2)).includes('Plus qu\'une étape'), 'serveur d\'envoi injoignable : l\'inscription marche quand même');
+      const r2 = JSON.parse(base2("SELECT valeur FROM reglages WHERE cle = 'smtp'")[0].valeur);
+      verif(/pas pu joindre 127\.0\.0\.1/.test(r2.erreur) && r2.pause > Date.now() / 1000 + 300 && connexions === avantCoupure, 'injoignable : panne notée, la boîte est mise de côté 10 minutes');
+
+      await zoe.goto(URL2 + '/admin/courriel');
+      await Promise.all([zoe.waitForNavigation(), zoe.click('form:has(input[value=debrancher]) button[type=submit]')]);
+      t = await texte(zoe);
+      verif(t.includes('Boîte débranchée') && t.includes('Les e-mails partent par l\'hébergement') && base2("SELECT COUNT(*) AS n FROM reglages WHERE cle = 'smtp'")[0].n === 0 && await sante2() === 'hébergement', 'débrancher : le mot de passe est effacé, retour à l\'hébergement');
+      const journal2 = path.join(donnees2, 'erreurs.log');
+      const j2 = fs.existsSync(journal2) ? fs.readFileSync(journal2, 'utf8') : '';
+      verif(j2.split('\n').filter(l => l.trim() !== '' && !/Envoi par la boîte refusé/.test(l)).length === 0, 'journal du deuxième site : seulement les pannes de boîte attendues : ' + j2.slice(0, 300));
+      await zoe.context().close(); await passant2.context().close();
+    } finally {
+      serveur2.kill();
+      try { fausseBoite.close(); } catch (e) {}
+      if (!process.env.NA_GARDER) fs.rmSync(donnees2, { recursive: true, force: true });
+    }
+
     verif(erreursPage.length === 0, 'aucune erreur de script ni de sécurité dans le navigateur : ' + erreursPage.slice(0, 3).join(' / '));
     const journal = path.join(donnees, 'erreurs.log');
     verif(!fs.existsSync(journal) || fs.readFileSync(journal, 'utf8').trim() === '', 'journal d\'erreurs du serveur vide : ' + (fs.existsSync(journal) ? fs.readFileSync(journal, 'utf8').slice(0, 300) : ''));

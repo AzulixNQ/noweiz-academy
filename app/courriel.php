@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 /* Les e-mails automatiques : bienvenue et confirmation de l'adresse, mot de passe oublié, alertes de sécurité.
-   Chaque e-mail part en deux versions (texte et HTML). En essai (transport « fichier »), rien ne part :
+   Chaque e-mail part en deux versions (texte et HTML). Il part par la boîte e-mail du site si elle est branchée
+   (app/smtp.php, page /admin/courriel), sinon par l'hébergement. En essai (transport « fichier »), rien ne part :
    l'e-mail est écrit dans le dossier de données. */
 
 function envoyer_courriel(string $a, string $sujet, string $texte, string $html, array $en_plus = []): bool
@@ -20,27 +21,55 @@ function envoyer_courriel(string $a, string $sujet, string $texte, string $html,
     }
 
     $limite = 'na-' . bin2hex(random_bytes(12));
-    $entetes = [
-        'From: ' . mb_encode_mimeheader($nom, 'UTF-8', 'B') . ' <' . $expediteur . '>',
-        'MIME-Version: 1.0',
-        'Content-Type: multipart/alternative; boundary="' . $limite . '"',
-        'Auto-Submitted: auto-generated',
-        'X-Auto-Response-Suppress: All',
-    ];
-    foreach ($en_plus as $e) $entetes[] = $e;
     $corps = "--$limite\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($texte))
            . "--$limite\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html))
            . "--$limite--\r\n";
     $sujet_code = mb_encode_mimeheader($sujet, 'UTF-8', 'B');
+    $entetes = static function (string $de) use ($nom, $limite, $en_plus): array {
+        $e = [
+            'From: ' . mb_encode_mimeheader($nom, 'UTF-8', 'B') . ' <' . $de . '>',
+            'MIME-Version: 1.0',
+            'Content-Type: multipart/alternative; boundary="' . $limite . '"',
+            'Auto-Submitted: auto-generated',
+            'X-Auto-Response-Suppress: All',
+        ];
+        foreach ($en_plus as $x) $e[] = $x;
+        return $e;
+    };
+
+    // D'abord par la boîte e-mail du site, si elle est branchée (/admin/courriel) : l'e-mail est alors signé comme ceux du webmail.
+    $smtp = smtp_actif();
+    if ($smtp !== null) {
+        $erreur = null;
+        if (smtp_envoyer($smtp, $smtp['utilisateur'], $a, message_smtp($smtp['utilisateur'], $a, $sujet_code, $entetes($smtp['utilisateur']), $corps), $erreur)) {
+            smtp_noter_succes();
+            return true;
+        }
+        smtp_noter_erreur((string) $erreur);
+        error_log('Envoi par la boîte refusé (' . $sujet . ') : ' . $erreur);
+        // et on continue : l'e-mail part par l'hébergement, comme avant
+    }
 
     try {
-        $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes), '-f' . $retours);
-        if (!$ok) $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes));
+        $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes($expediteur)), '-f' . $retours);
+        if (!$ok) $ok = @mail($a, $sujet_code, $corps, implode("\r\n", $entetes($expediteur)));
     } catch (Throwable $e) {
         $ok = false;
     }
     if (!$ok) error_log('E-mail non parti : ' . $sujet);
     return $ok;
+}
+
+/** Le message complet pour un envoi par la boîte : là, c'est à nous d'écrire la date, le destinataire et l'objet. */
+function message_smtp(string $de, string $a, string $sujet_code, array $entetes, string $corps): string
+{
+    $domaine = (string) (substr((string) strrchr($de, '@'), 1) ?: 'localhost');
+    return implode("\r\n", array_merge([
+        'Date: ' . date('r'),
+        'Message-ID: <' . bin2hex(random_bytes(16)) . '@' . $domaine . '>',
+        'To: <' . $a . '>',
+        'Subject: ' . $sujet_code,
+    ], $entetes)) . "\r\n\r\n" . $corps;
 }
 
 /** Met en forme un e-mail : un titre, des paragraphes, un bouton, une note. Renvoie [texte, html]. */

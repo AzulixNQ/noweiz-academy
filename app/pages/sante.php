@@ -26,6 +26,13 @@ $etat['mots_de_passe'] = defined('PASSWORD_ARGON2ID') ? 'argon2id' : 'bcrypt';
 // La taille d'un envoi accepté par PHP, en Mo : l'espace formateur découpe les vidéos en morceaux plus petits.
 $etat['envoi_mo'] = intdiv(taille_envoi_max(), 1048576);
 $etat['courriel'] = reglage('courriel.transport') === 'mail' ? (function_exists('mail') ? 'mail' : 'mail indisponible') : 'essai (fichier)';
+// « boîte » : les e-mails partent par la boîte contact (signés) ; « hébergement » : par mail(), non signés.
+try {
+    $r = smtp_reglage();
+    $etat['courriel_par'] = $r !== null && !empty($r['actif']) ? ((string) ($r['erreur'] ?? '') !== '' ? 'boîte (en panne : hébergement)' : 'boîte') : 'hébergement';
+} catch (Throwable $e) {
+    $etat['courriel_par'] = 'inconnu';
+}
 
 http_response_code($etat['ok'] ? 200 : 503);
 header_remove('X-Powered-By');

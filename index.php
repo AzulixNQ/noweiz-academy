@@ -32,6 +32,7 @@ $pages = [
     '/certificat' => 'certificat',
     '/video' => 'video',
     '/admin/essai' => 'admin_essai',
+    '/admin/courriel' => 'admin_courriel',
     '/formateur' => 'formateur',
     '/formateur/module' => 'formateur_module',
     '/formateur/lecon' => 'formateur_lecon',

@@ -45,6 +45,9 @@ function texte_annonce(string $code, string $detail = ''): ?array
         'role-change' => ['ok', 'Rôle changé.'],
         'trop' => ['err', 'Trop de demandes. Réessaie dans quelques minutes.'],
         'liste-supprime' => ['ok', 'Effacé de la liste d\'attente.'],
+        'courriel-branche' => ['ok', "La boîte est branchée et l'e-mail d'essai est parti. Regarde s'il est bien arrivé (et pas dans les indésirables)."],
+        'courriel-essai' => ['ok', "E-mail d'essai parti par la boîte. Regarde s'il est bien arrivé."],
+        'courriel-debranche' => ['ok', "Boîte débranchée : les e-mails repartent par l'hébergement, et le mot de passe est effacé du site."],
         'essai-cree' => ['ok', "La cohorte d'essai est prête : tu y es inscrit."],
         'essai-inscrit' => ['ok', "Compte inscrit dans la cohorte d'essai."],
         'essai-retire' => ['ok', "Compte retiré de la cohorte d'essai."],
@@ -138,6 +141,7 @@ function page_debut(string $titre, array $o = []): void
         if ($compte['role'] === 'admin') $menu['admin'] = ['/admin', 'Comptes et invitations'];
         if ($compte['role'] === 'admin') $menu['liste'] = ['/admin/liste-attente', "Liste d'attente"];
         if ($compte['role'] === 'admin') $menu['essai'] = ['/admin/essai', "Cohorte d'essai"];
+        if ($compte['role'] === 'admin') $menu['courriel'] = ['/admin/courriel', 'E-mails'];
         if ($cohorte !== null) {
             $nb = count(modules_parcours((int) $cohorte['parcours_id']));
             $sem = semaine_cohorte($cohorte, $nb);

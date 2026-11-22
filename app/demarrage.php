@@ -84,6 +84,7 @@ set_exception_handler(static function (Throwable $e): void {
 require __DIR__ . '/base.php';
 require __DIR__ . '/http.php';
 require __DIR__ . '/session.php';
+require __DIR__ . '/smtp.php';
 require __DIR__ . '/courriel.php';
 require __DIR__ . '/comptes.php';
 require __DIR__ . '/liste.php';

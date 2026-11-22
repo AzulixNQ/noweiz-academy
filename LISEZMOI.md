@@ -20,7 +20,12 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - **Pages légales** : `/confidentialite` (liste d'attente et comptes) et `/mentions-legales` (hébergeur OVH ; l'éditeur sera ajouté avant l'ouverture au public).
 
 ## Les e-mails (22/11)
-- Partent de « Noweiz Academy <contact@noweiz.com> » (`courriel.expediteur`) : on peut y répondre. Chez OVH, contact@noweiz.com est une redirection vers la boîte contact@noweiz.fr. L'enveloppe (`courriel.retours`) reste ne-pas-repondre@noweiz.com, pour que les e-mails non livrés ne remplissent pas la boîte.
+- **Par où ils partent** : par la boîte e-mail du site si elle est branchée (page admin « E-mails », `/admin/courriel`), sinon par l'hébergement (`mail()`).
+  - Par l'hébergement, l'e-mail n'est pas signé (DKIM) : les boîtes OVH le jettent sans prévenir (constaté le 22/11 : envoi compté par OVH, rien dans la boîte ni dans les indésirables), les autres le rangent parfois en indésirables.
+  - Par la boîte (`app/smtp.php`, serveur `smtp.mail.ovh.net`, port 465 chiffré, 587 en secours), il est signé comme ceux du webmail. L'expéditeur est alors l'adresse de la boîte (contact@noweiz.fr) : OVH refuse d'envoyer au nom d'une autre adresse.
+  - L'administrateur tape le mot de passe de la boîte sur la page ; le site envoie un e-mail d'essai et ne garde le mot de passe que si l'essai est parti. Il est gardé chiffré (clé dans `<données>/cle-courriel`), jamais réaffiché, jamais écrit dans le journal.
+  - Si la boîte refuse (mot de passe changé chez OVH) ou ne répond pas, l'e-mail part par l'hébergement, la page admin affiche la panne et `/sante` dit `courriel_par: boîte (en panne : hébergement)`. Serveur injoignable : la boîte est mise de côté 10 minutes pour ne pas faire attendre les visiteurs.
+- Sans la boîte : « Noweiz Academy <contact@noweiz.com> » (`courriel.expediteur`), enveloppe `courriel.retours` = contact@noweiz.com. Chez OVH, contact@noweiz.com est une redirection vers la boîte contact@noweiz.fr.
 - Gabarit aux couleurs du site : bandeau noir avec l'icône (`assets/img/courriel-icone.png`), filet vert citron vers blanc, bouton vert. Mise en page en tableaux (Outlook).
 
 ## L'espace élève (22/11)
@@ -54,6 +59,7 @@ Le paiement (inscription automatique dans une cohorte), le lien avec Discord (r�
 - `app/config.php` : les réglages (adresse du site, durées, expéditeur des e-mails).
 - `app/base.php` : la base (SQLite par défaut ; MySQL plus tard, par `config.local.php` dans le dossier de données).
 - `app/liste.php` : la liste d'attente (inscription, confirmation, désinscription, e-mails).
+- `app/smtp.php` : l'envoi des e-mails par la boîte du site (connexion chiffrée, mot de passe gardé chiffré, repli sur l'hébergement).
 - `app/cours.php` : la formation (cohortes, modules, progression, quiz, classement, lives, vidéos protégées). `app/essai.php` : la cohorte d'essai. `app/formateur.php` : l'espace formateur (équipe, modules, leçons, questions, cohortes, lives, envoi des vidéos, suivi).
 - `assets/` : le style (`maquette.css`, `comptes.css`, `fermee.css`), la police, les scripts, les images et l'extrait vidéo.
 - `outils/serveur.php` : le serveur d'essai. `outils/essais.js` : les essais automatiques (`node outils/essais.js`).
