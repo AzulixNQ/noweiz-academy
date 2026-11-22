@@ -85,6 +85,8 @@ function page_debut(string $titre, array $o = []): void
     $zone = ($o['zone'] ?? 'site') === 'app' ? 'app' : 'site';
     $compte = compte_courant();
     $nom = (string) reglage('nom');
+    $ici = chemin();
+    $rubans = $ici === '/espace' ? 'tableau' : (in_array($ici, ['/connexion', '/inscription', '/mot-de-passe-oublie', '/nouveau-mot-de-passe'], true) ? 'marque' : 'calme');
     if (!headers_sent()) {
         entetes_securite();
         // Le jeton des formulaires pose un témoin au premier passage : il doit exister avant que la page commence à partir,
@@ -99,12 +101,14 @@ function page_debut(string $titre, array $o = []): void
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= e($titre) ?>, <?= e($nom) ?></title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0B0B0C">
+<meta name="theme-color" content="#050606">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">
 <link rel="preload" href="/assets/fonts/nojah-sans.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= e(version_fichier('/assets/maquette.css')) ?>">
 <link rel="stylesheet" href="<?= e(version_fichier('/assets/comptes.css')) ?>">
+<link rel="stylesheet" href="<?= e(version_fichier('/assets/v2-app.css')) ?>">
+<script src="<?= e(version_fichier('/assets/rubans.js')) ?>" defer></script>
 <script src="<?= e(version_fichier('/assets/comptes.js')) ?>" defer></script>
 <?php if (str_starts_with(chemin(), '/formateur')): ?>
 <script src="<?= e(version_fichier('/assets/formateur.js')) ?>" defer></script>
@@ -112,6 +116,12 @@ function page_debut(string $titre, array $o = []): void
 </head>
 <body>
 <a class="saut" href="#contenu">Aller au contenu</a>
+<?php /* Les rubans de lumière : marqués à la connexion et sur le tableau de bord, très discrets partout ailleurs (on y lit, on y travaille). */ ?>
+<canvas id="rubans" aria-hidden="true"<?= $rubans === 'calme' ? ' data-mode="calme"' : ' data-eclat="' . ($rubans === 'tableau' ? '0.6' : '0.85') . '"' ?>></canvas>
+<div class="grain" aria-hidden="true"></div>
+<?php if ($rubans === 'marque'): ?>
+<i class="foyer-page" data-foyer aria-hidden="true"></i>
+<?php endif; ?>
 <header class="top">
   <div class="wrap top-in">
     <div class="brand-box">

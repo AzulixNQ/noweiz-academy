@@ -1,0 +1,57 @@
+/* Le nouveau style (22/11) posé sur les pages de compte, l'espace élève, l'espace formateur et les pages de texte.
+   Ces pages gardent leur mise en page (maquette.css, comptes.css) ; cette feuille change la matière :
+   la nuit plus profonde, les rubans de lumière derrière (très discrets là où on lit et où on travaille, marqués à la
+   connexion et sur le tableau de bord), et du verre sombre à la place des surfaces unies. */
+:root {
+  --bg: #050606;
+  --line: rgba(255, 255, 255, .10); --line-2: rgba(255, 255, 255, .17);
+  --glass: rgba(255, 255, 255, .045); --glass-2: rgba(255, 255, 255, .09);
+}
+html, body { background: #050606; }
+
+/* la lumière, derrière tout */
+#rubans { position: fixed; left: 0; top: 0; width: 100%; height: 100vh; height: 100lvh; z-index: 0; pointer-events: none; display: block; }
+html:not([data-rubans]) #rubans { display: none; }
+.grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .26; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.app, .auth, .legal, .foot, main { position: relative; z-index: 2; }
+/* là où les rubans du haut se pincent, sur les pages qui en ont (connexion, tableau de bord) */
+.foyer-page { position: fixed; left: calc(50% - 350px); top: 62vh; width: 1px; height: 1px; pointer-events: none; }
+/* sur le tableau de bord, le nœud de lumière se tient derrière la grande carte du module de la semaine */
+.grid-foyer { position: relative; }
+.foyer-carte { position: absolute; left: 44%; top: 62%; width: 1px; height: 1px; pointer-events: none; }
+/* avec les rubans, les anciens halos fixes n'ont plus lieu d'être */
+html[data-rubans] .lights { display: none; }
+
+/* le haut de page */
+.top { background: rgba(5, 6, 6, .8); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.brand { font-size: 18.5px; font-weight: 640; font-stretch: 108%; letter-spacing: -.035em; }
+
+/* le verre : une matière sombre, un filet de lumière en haut, une ombre profonde */
+.card, .who, .weeks, .recap, .box, .mini, .quiz, .kpi, .side-box, .opt, .mod, .plus {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .018) 44%), rgba(11, 14, 12, .8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 30px 70px -44px rgba(0, 0, 0, .9);
+}
+/* le menu de côté et la carte de connexion laissent voir la lumière à travers */
+.side { background: rgba(5, 6, 6, .5); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.join, .box-wide {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02) 42%), rgba(12, 15, 13, .56);
+  -webkit-backdrop-filter: blur(22px) saturate(135%); backdrop-filter: blur(22px) saturate(135%);
+}
+.box-wide { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 40px 90px -40px rgba(0, 0, 0, .9), 0 0 80px -34px color-mix(in srgb, var(--c) 45%, transparent); }
+
+/* les titres, les boutons, les champs */
+.h1-app { font-weight: 480; font-stretch: 111%; letter-spacing: -.04em; }
+.auth-card h1 { font-size: clamp(28px, 1.2vw + 20px, 36px); font-weight: 480; font-stretch: 111%; letter-spacing: -.04em; }
+.btn-main { box-shadow: 0 0 0 1px rgba(198, 244, 50, .35), 0 14px 44px -14px rgba(198, 244, 50, .55); }
+.input { background: rgba(5, 6, 6, .55); }
+.input:hover { border-color: rgba(255, 255, 255, .3); }
+.foot { background: rgba(5, 6, 6, .6); }
+
+@media (max-width: 860px) {
+  /* sur téléphone : pas de flou (il coûte cher quand le fond bouge), un verre plus opaque */
+  .side { background: rgba(5, 6, 6, .82); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .join, .box-wide { background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02) 42%), rgba(10, 13, 11, .84); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .foyer-page { left: 34%; top: 108px; }
+  .foyer-carte { left: 34%; top: -6px; }
+}

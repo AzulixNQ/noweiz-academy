@@ -12,6 +12,8 @@
    Tout le calcul est fait par la carte graphique (WebGL). Trois niveaux, choisis tout seuls :
      « plein »  ordinateur ; « léger »  téléphone ou ordinateur qui peine (moins de tout, 30 images par seconde) ;
      « fixe »   mouvement réduit demandé, ou appareil trop lent : une seule image, redessinée au défilement.
+   Sur les pages où on lit et où on travaille (data-mode="calme" sur la toile), il ne reste que les trois rubans calmes,
+   sans étincelles, à 30 images par seconde au plus.
    Sans WebGL, rien ne se passe : la page garde ses halos en CSS. */
 (function () {
   'use strict';
@@ -27,6 +29,8 @@
   };
   var niveau = estPetit.matches ? 'leger' : 'plein';
   var fixe = veutCalme.matches;
+  var calme = toile.getAttribute('data-mode') === 'calme';
+  var eclat = parseFloat(toile.getAttribute('data-eclat')) || 1;      // la force des rubans du haut (1 sur la page de vente)
 
   /* ---------- ce que les trois dessins ont en commun : où passe un ruban, sa couleur, sa force ---------- */
   var COMMUN = [
@@ -39,6 +43,7 @@
     'uniform vec2 u_noeuds[8];',               // les huit semaines du parcours, là où elles sont à l'écran
     'uniform float u_avance;',                 // jusqu'où le parcours est allumé (0 à 7)
     'uniform float u_chemin;',                 // 1 quand le parcours est à l'écran : les rubans calmes s'effacent
+    'uniform float u_calme;',                  // 1 sur les pages de travail : les rubans calmes gardent la même force partout
     'const float PI = 3.14159265;',
     'float hasard(float n) { return fract(sin(n * 91.3458) * 47453.5453); }',
 
@@ -108,7 +113,7 @@
     '    float tete = exp(-(x - u_avance) * (x - u_avance) * 6.0);',
     '    return mix(0.17, 0.9, allume) + tete * 0.9;',
     '  }',
-    '  if (r > 1.5) return mix(0.2, 0.5, smoothstep(0.15, 0.9, u_defil / u_taille.y)) * (1.0 - 0.7 * u_chemin);',
+    '  if (r > 1.5) return mix(mix(0.2, 0.5, smoothstep(0.15, 0.9, u_defil / u_taille.y)) * (1.0 - 0.7 * u_chemin), 0.36, u_calme);',
     '  return mix(1.0, 0.74, estBlanc(r));',
     '}',
     'vec4 ecran(vec2 p) { return vec4(p.x / u_taille.x * 2.0 - 1.0, 1.0 - p.y / u_taille.y * 2.0, 0.0, 1.0); }'
@@ -270,7 +275,7 @@
     '}'
   ].join('\n');
 
-  var NOMS_COMMUNS = ['u_taille', 'u_px', 'u_temps', 'u_defil', 'u_foyer', 'u_portrait', 'u_noeuds', 'u_avance', 'u_chemin'];
+  var NOMS_COMMUNS = ['u_taille', 'u_px', 'u_temps', 'u_defil', 'u_foyer', 'u_portrait', 'u_noeuds', 'u_avance', 'u_chemin', 'u_calme'];
   var gl = null;
   var brins = null, voile = null, points = null, lueur = null;           // { prog, lieux, tampon, nb, nbChemin }
   var px = 1, large = 0, haut = 0;
@@ -298,7 +303,7 @@
     if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'programme');
     var lieux = {};
     noms.forEach(function (u) { lieux[u] = gl.getUniformLocation(p, u); });
-    return { prog: p, lieux: lieux, tampon: gl.createBuffer(), nb: 0, nbChemin: 0 };
+    return { prog: p, lieux: lieux, tampon: gl.createBuffer(), bas: 0, nb: 0, nbChemin: 0 };      // bas : où commencent les rubans calmes
   }
 
   /* Toute la géométrie, en listes de triangles (et de points). Dans chaque liste : d'abord les rubans 0 à 4, puis le parcours. */
@@ -312,6 +317,7 @@
     for (r = 0; r < 6; r++) total += parRuban[r] * n.pas * 6;
     d = new Float32Array(total * 4); k = 0;
     for (r = 0; r < 6; r++) {
+      if (r === 2) brins.bas = k / 4;
       if (r === 5) brins.nb = k / 4;
       for (i = 0; i < parRuban[r]; i++) {
         var brin = (i + 0.5) / parRuban[r];
@@ -333,6 +339,7 @@
     // les voiles : une bande par ruban
     d = new Float32Array(6 * n.pas * 6 * 3); k = 0;
     for (r = 0; r < 6; r++) {
+      if (r === 2) voile.bas = k / 3;
       if (r === 5) voile.nb = k / 3;
       for (j = 0; j < n.pas; j++) {
         var u0 = j / n.pas, u1 = (j + 1) / n.pas;
@@ -356,6 +363,7 @@
     for (r = 0; r < 6; r++) total += parRubanPoints[r];
     d = new Float32Array(total * 4); k = 0;
     for (r = 0; r < 6; r++) {
+      if (r === 2) points.bas = k / 4;
       if (r === 5) points.nb = k / 4;
       for (i = 0; i < parRubanPoints[r]; i++) { d[k++] = tirer(); d[k++] = tirer(); d[k++] = tirer(); d[k++] = r; }
     }
@@ -431,6 +439,7 @@
     gl.uniform2fv(l.u_noeuds, noeuds);
     gl.uniform1f(l.u_avance, avance);
     gl.uniform1f(l.u_chemin, cheminDoux);
+    gl.uniform1f(l.u_calme, calme ? 1 : 0);
   }
 
   function dessiner() {
@@ -441,6 +450,22 @@
     gl.viewport(0, 0, large, haut);
     gl.clearColor(0.02, 0.024, 0.022, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // sur une page de travail : seulement les rubans calmes (voile et brins), rien d'autre
+    if (calme) {
+      communs(voile, defil);
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      gl.uniform1f(voile.lieux.u_heure, temps % 1000);
+      gl.uniform1f(voile.lieux.u_brume, 0); gl.uniform1f(voile.lieux.u_mode, 0); gl.uniform1f(voile.lieux.u_force, n.voile);
+      gl.drawArrays(gl.TRIANGLES, voile.bas, voile.nb - voile.bas);
+      communs(brins, defil);
+      gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+      gl.uniform1f(brins.lieux.u_demi, n.demi);
+      gl.uniform1f(brins.lieux.u_alpha, n.alpha);
+      gl.uniform1f(brins.lieux.u_halo, n.halo);
+      gl.drawArrays(gl.TRIANGLES, brins.bas, brins.nb - brins.bas);
+      return;
+    }
 
     // les lueurs, tant que le foyer n'est pas trop loin de l'écran
     var fy = foyer.y - defil;
@@ -453,11 +478,11 @@
       var souffle = 1 + Math.sin(temps * 0.4) * 0.06;
       gl.uniform2f(lueur.lieux.u_centre, foyer.x + base * 0.05, fy);
       gl.uniform2f(lueur.lieux.u_rayon, base * 0.5 * souffle, base * 0.42 * souffle);
-      gl.uniform3f(lueur.lieux.u_couleur, 0.1, 0.14, 0.02);
+      gl.uniform3f(lueur.lieux.u_couleur, 0.1 * eclat, 0.14 * eclat, 0.02 * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.uniform2f(lueur.lieux.u_centre, foyer.x, fy);
       gl.uniform2f(lueur.lieux.u_rayon, petit * 0.2 * souffle, petit * 0.17 * souffle);
-      gl.uniform3f(lueur.lieux.u_couleur, 0.3, 0.37, 0.1);
+      gl.uniform3f(lueur.lieux.u_couleur, 0.3 * eclat, 0.37 * eclat, 0.1 * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
@@ -467,17 +492,17 @@
     gl.uniform1f(voile.lieux.u_heure, temps % 1000);
     var nbVoile = voile.nb + (cheminVu ? voile.nbChemin : 0);
     if (n.brume > 0) {
-      gl.uniform1f(voile.lieux.u_brume, 1); gl.uniform1f(voile.lieux.u_mode, 1); gl.uniform1f(voile.lieux.u_force, n.brume);
+      gl.uniform1f(voile.lieux.u_brume, 1); gl.uniform1f(voile.lieux.u_mode, 1); gl.uniform1f(voile.lieux.u_force, n.brume * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, nbVoile);
     }
-    gl.uniform1f(voile.lieux.u_brume, 0); gl.uniform1f(voile.lieux.u_mode, 0); gl.uniform1f(voile.lieux.u_force, n.voile);
+    gl.uniform1f(voile.lieux.u_brume, 0); gl.uniform1f(voile.lieux.u_mode, 0); gl.uniform1f(voile.lieux.u_force, n.voile * eclat);
     gl.drawArrays(gl.TRIANGLES, 0, nbVoile);
 
     // les brins
     communs(brins, defil);
     gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
     gl.uniform1f(brins.lieux.u_demi, n.demi);
-    gl.uniform1f(brins.lieux.u_alpha, n.alpha);
+    gl.uniform1f(brins.lieux.u_alpha, n.alpha * eclat);
     gl.uniform1f(brins.lieux.u_halo, n.halo);
     gl.drawArrays(gl.TRIANGLES, 0, brins.nb + (cheminVu ? brins.nbChemin : 0));
 
@@ -485,7 +510,7 @@
     communs(points, defil);
     gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
     gl.uniform1f(points.lieux.u_point, n.point);
-    gl.uniform1f(points.lieux.u_alpha, 0.9);
+    gl.uniform1f(points.lieux.u_alpha, 0.9 * eclat);
     gl.drawArrays(gl.POINTS, 0, points.nb + (cheminVu ? points.nbChemin : 0));
   }
 
@@ -497,7 +522,7 @@
     var tri = mesures.slice().sort(function (x, y) { return x - y; });
     var mediane = tri[40];
     mesures = [];
-    var attendu = 1000 / 60 * NIVEAUX[niveau].cadence;
+    var attendu = 1000 / 60 * (calme ? 2 : NIVEAUX[niveau].cadence);
     if (mediane < attendu * 1.7) return;
     if (niveau === 'plein') {
       niveau = 'leger';
@@ -517,7 +542,7 @@
     if (!enRoute) return;
     demande = requestAnimationFrame(tour);
     image++;
-    if (image % NIVEAUX[niveau].cadence !== 0) return;
+    if (image % (calme ? 2 : NIVEAUX[niveau].cadence) !== 0) return;
     var ecart = dernier ? maintenant - dernier : 16;
     dernier = maintenant;
     if (ecart < 250) { temps += ecart / 1000; surveiller(ecart); }   // au retour d'un autre onglet, le temps ne saute pas

@@ -56,7 +56,8 @@ if ($cohorte !== null) {
 <?php endif; ?>
 
 <?php if ($cohorte === null): ?>
-    <div class="grid">
+    <div class="grid grid-foyer">
+      <i class="foyer-carte" data-foyer aria-hidden="true"></i>
       <section class="box box-wide" aria-labelledby="e-form">
         <p class="eyebrow" id="e-form">Ta formation</p>
         <h2>Aucune cohorte pour l'instant</h2>
@@ -70,7 +71,8 @@ if ($cohorte !== null) {
       </section>
     </div>
 <?php elseif ($nb === 0): ?>
-    <div class="grid">
+    <div class="grid grid-foyer">
+      <i class="foyer-carte" data-foyer aria-hidden="true"></i>
       <section class="box box-wide" aria-labelledby="e-form">
         <p class="eyebrow" id="e-form">Ta formation</p>
         <h2>Les modules arrivent bientôt</h2>
@@ -78,7 +80,8 @@ if ($cohorte !== null) {
       </section>
     </div>
 <?php else: ?>
-    <div class="grid">
+    <div class="grid grid-foyer">
+      <i class="foyer-carte" data-foyer aria-hidden="true"></i>
       <section class="box box-wide" aria-labelledby="e-mod">
 <?php if ($sem === 0 && !$apercu): ?>
         <p class="eyebrow" id="e-mod">Avant le départ</p>
