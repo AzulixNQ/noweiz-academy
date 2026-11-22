@@ -727,7 +727,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
       verif(large <= 0, ch + ' ne déborde pas sur téléphone (' + large + ' px)');
       await photo(telA, nom);
     }
-    await alice.goto(URL + '/formateur'); await photo(alice, 'pc-formateur');
+    await alice.goto(URL + '/formateur?p=1'); await photo(alice, 'pc-formateur');
 
     // effacer : la leçon et sa vidéo, puis le module
     const avantSup = nbVideos();
