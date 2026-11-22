@@ -19,7 +19,7 @@ page_debut('Inscription confirmée', ['annonce' => false]);
   <div class="lights" aria-hidden="true"></div>
   <section class="join auth-card">
     <h1>C'est confirmé, <?= e($l['prenom']) ?>. Tu es sur la liste.</h1>
-    <p class="auth-text">On t'écrit à l'ouverture, avant tout le monde, avec ta place prioritaire et le prix de lancement. En attendant, les lives et les annonces se passent sur le Discord.</p>
+    <p class="auth-text">On t'écrit à l'ouverture, avant tout le monde, avec ta place prioritaire. En attendant, les lives et les annonces se passent sur le Discord.</p>
     <a class="btn btn-main btn-full" href="<?= e((string) reglage('discord')) ?>" target="_blank" rel="noopener">Rejoindre le Discord</a>
     <p class="auth-alt"><a href="/">Revenir au site</a></p>
     <p class="auth-note">Tu peux te désinscrire à tout moment avec le lien en bas de nos e-mails.</p>

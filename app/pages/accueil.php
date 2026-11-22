@@ -151,7 +151,7 @@ if (!headers_sent()) entetes_securite();
           <h2 id="liste-titre">Inscris-toi sur la liste d'attente</h2>
           <ul class="join-perks">
             <li>Tu passes en premier sur les 50&nbsp;places.</li>
-            <li>Tu as le prix de lancement : 890&nbsp;€ le parcours, 1&nbsp;490&nbsp;€ le pack.</li>
+            <li>Tu connais la date d'ouverture avant tout le monde.</li>
           </ul>
           <form id="wl-form" method="post" action="/#liste" novalidate>
             <?= champ_jeton() ?>
@@ -211,7 +211,7 @@ if (!headers_sent()) entetes_securite();
             <li>Un appel bilan avec Nojah, à la fin</li>
             <li>Certificat de fin de parcours</li>
           </ul>
-          <div class="card-price"><b>890&nbsp;€</b><span>Prix de la cohorte 1, payable en 2 à 4 fois</span><span>1&nbsp;190&nbsp;€ à partir de la cohorte 2</span></div>
+          <div class="card-price"><b>599,99&nbsp;€</b><span>Payable en 2 à 4 fois</span><span>1&nbsp;199,99&nbsp;€ avec le mentorat</span></div>
           <a class="btn btn-line" href="#liste" data-parcours="wl-p-of">Être prévenu à l'ouverture</a>
         </article>
         <article class="card l2">
@@ -225,7 +225,7 @@ if (!headers_sent()) entetes_securite();
             <li>Un appel bilan avec Weizix, à la fin</li>
             <li>Certificat de fin de parcours</li>
           </ul>
-          <div class="card-price"><b>890&nbsp;€</b><span>Prix de la cohorte 1, payable en 2 à 4 fois</span><span>1&nbsp;190&nbsp;€ à partir de la cohorte 2</span></div>
+          <div class="card-price"><b>349,99&nbsp;€</b><span>Payable en 2 à 4 fois</span><span>699,99&nbsp;€ avec le mentorat</span></div>
           <a class="btn btn-line" href="#liste" data-parcours="wl-p-ict">Être prévenu à l'ouverture</a>
         </article>
         <article class="card l12">
@@ -238,7 +238,7 @@ if (!headers_sent()) entetes_securite();
             <li>Deux certificats</li>
             <li>Un appel bilan avec chacun, à la fin</li>
           </ul>
-          <div class="card-price"><b>1&nbsp;490&nbsp;€</b><span>Prix de la cohorte 1, payable en 2 à 4 fois</span><span>1&nbsp;990&nbsp;€ à partir de la cohorte 2</span></div>
+          <div class="card-price"><b>899,99&nbsp;€</b><span>Payable en 2 à 4 fois, 49,99&nbsp;€ de moins que les deux pris séparément</span><span>1&nbsp;799,99&nbsp;€ avec le mentorat</span></div>
           <a class="btn btn-main" href="#liste" data-parcours="wl-p-pack">Être prévenu à l'ouverture</a>
         </article>
       </div>
@@ -247,7 +247,7 @@ if (!headers_sent()) entetes_securite();
           <h3>Le mentorat, en option</h3>
           <p>Après ta cohorte, 4 appels individuels de 45&nbsp;minutes avec ton formateur, dans les 8 semaines qui suivent. Vous regardez tes trades ensemble, un par un.</p>
         </div>
-        <p class="plus-price"><b>490&nbsp;€</b><span>à ajouter quand tu rejoins ta cohorte</span></p>
+        <p class="plus-price"><b>Dès 699,99&nbsp;€</b><span>formation comprise : 699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack</span></p>
       </div>
     </div>
   </section>
@@ -343,12 +343,13 @@ if (!headers_sent()) entetes_securite();
       <h2 class="h2">Questions fréquentes</h2>
       <dl class="faq sec-body">
         <div><dt>Quand ouvre le site ?</dt><dd>En 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</dd></div>
-        <div><dt>À quoi sert la liste d'attente ?</dt><dd>Tu laisses ton e-mail et on te prévient à l'ouverture. Les inscrits passent en premier sur les 50&nbsp;places de la cohorte 1, celle du prix de lancement : 890&nbsp;€ le parcours, 1&nbsp;490&nbsp;€ le pack.</dd></div>
+        <div><dt>À quoi sert la liste d'attente ?</dt><dd>Tu laisses ton e-mail et on te prévient à l'ouverture. Les inscrits passent en premier sur les 50&nbsp;places de la cohorte 1.</dd></div>
+        <div><dt>Combien ça coûte ?</dt><dd>349,99&nbsp;€ le parcours ICT, 599,99&nbsp;€ le parcours order flow, 899,99&nbsp;€ les deux ensemble. Avec le mentorat : 699,99&nbsp;€, 1&nbsp;199,99&nbsp;€ et 1&nbsp;799,99&nbsp;€.</dd></div>
         <div><dt>Que faites-vous de mon e-mail ?</dt><dd>On s'en sert seulement pour t'écrire au sujet de l'ouverture. Tu peux te désinscrire quand tu veux, avec le lien en bas de chaque e-mail. Le détail est sur la page <a href="/confidentialite#liste-attente">Confidentialité</a>.</dd></div>
         <div><dt>Je garde l'accès après ma cohorte ?</dt><dd>Oui, à vie : les modules, les quiz et les replays des lives.</dd></div>
         <div><dt>Je pourrai payer en plusieurs fois ?</dt><dd>Oui, en 2 à 4 fois. L'accès reste ouvert tant que les échéances sont payées.</dd></div>
         <div><dt>Et si je rate un live ?</dt><dd>Le replay est ajouté au module concerné.</dd></div>
-        <div><dt>Et après la formation ?</dt><dd>Tu as un appel bilan de 30&nbsp;minutes avec ton formateur, compris dans le prix. Pour continuer, le mentorat ajoute 4 appels individuels de 45&nbsp;minutes, pour 490&nbsp;€.</dd></div>
+        <div><dt>Et après la formation ?</dt><dd>Tu as un appel bilan de 30&nbsp;minutes avec ton formateur, compris dans le prix. Pour continuer, le mentorat ajoute 4 appels individuels de 45&nbsp;minutes : il se choisit avec la formation (699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack, formation comprise).</dd></div>
       </dl>
     </div>
   </section>

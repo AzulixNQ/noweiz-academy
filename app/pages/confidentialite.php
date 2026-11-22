@@ -11,7 +11,7 @@ $test = (bool) reglage('test');
   <h2 id="liste-attente">La liste d'attente</h2>
   <ul>
     <li><b>Ce qu'on garde</b> : ton prénom, ton e-mail, le parcours qui t'intéresse, la date de ton inscription et celle de ta confirmation.</li>
-    <li><b>Pourquoi</b> : t'écrire au sujet de l'ouverture de la formation (la date, ta place prioritaire, le prix de lancement). Rien d'autre.</li>
+    <li><b>Pourquoi</b> : t'écrire au sujet de l'ouverture de la formation (la date, ta place prioritaire, les prix). Rien d'autre.</li>
     <li><b>Sur quelle base</b> : ton accord, donné en cochant la case du formulaire puis en cliquant sur le lien de confirmation. Tu peux le retirer quand tu veux.</li>
     <li><b>Combien de temps</b> : une inscription jamais confirmée est effacée au bout de 7 jours. Une inscription confirmée est gardée jusqu'à ta désinscription, et au plus tard 3 ans.</li>
     <li><b>Te désinscrire</b> : le lien en bas de chaque e-mail. Ton adresse est alors effacée, tout de suite.</li>
