@@ -12,6 +12,7 @@
    Tout le calcul est fait par la carte graphique (WebGL). Trois niveaux, choisis tout seuls :
      « plein »  ordinateur ; « léger »  téléphone ou ordinateur qui peine (moins de tout, 30 images par seconde) ;
      « fixe »   mouvement réduit demandé, ou appareil trop lent : une seule image, redessinée au défilement.
+   Sur Noweiz HUB (data-teinte="argent"), les mêmes rubans en blanc chaud et en argent froid, sans vert.
    Sur les pages où on lit et où on travaille (data-mode="calme" sur la toile), il ne reste que les trois rubans calmes,
    sans étincelles, à 30 images par seconde au plus.
    Sans WebGL, rien ne se passe : la page garde ses halos en CSS. */
@@ -31,6 +32,7 @@
   var fixe = veutCalme.matches;
   var calme = toile.getAttribute('data-mode') === 'calme';
   var eclat = parseFloat(toile.getAttribute('data-eclat')) || 1;      // la force des rubans du haut (1 sur la page de vente)
+  var argent = toile.getAttribute('data-teinte') === 'argent';        // Noweiz HUB : des rubans blancs et argentés, sans vert
 
   /* ---------- ce que les trois dessins ont en commun : où passe un ruban, sa couleur, sa force ---------- */
   var COMMUN = [
@@ -44,6 +46,7 @@
     'uniform float u_avance;',                 // jusqu'où le parcours est allumé (0 à 7)
     'uniform float u_chemin;',                 // 1 quand le parcours est à l'écran : les rubans calmes s'effacent
     'uniform float u_calme;',                  // 1 sur les pages de travail : les rubans calmes gardent la même force partout
+    'uniform float u_argent;',                 // 1 sur Noweiz HUB : blanc chaud et argent froid, pas de vert
     'const float PI = 3.14159265;',
     'float hasard(float n) { return fract(sin(n * 91.3458) * 47453.5453); }',
 
@@ -100,8 +103,8 @@
     'float estBlanc(float r) { return step(0.5, r) * step(r, 1.5) + step(2.5, r) * step(r, 3.5); }',
     'vec3 couleurRuban(float r, float eclat, float pointe) {',
     '  float blanc = estBlanc(r);',
-    '  vec3 sombre = mix(vec3(0.13, 0.31, 0.03), vec3(0.2, 0.25, 0.34), blanc);',
-    '  vec3 clair = mix(vec3(0.776, 0.957, 0.196), vec3(0.9, 0.94, 1.0), blanc);',
+    '  vec3 sombre = mix(mix(vec3(0.13, 0.31, 0.03), vec3(0.2, 0.25, 0.34), blanc), mix(vec3(0.24, 0.24, 0.23), vec3(0.17, 0.2, 0.27), blanc), u_argent);',
+    '  vec3 clair = mix(mix(vec3(0.776, 0.957, 0.196), vec3(0.9, 0.94, 1.0), blanc), mix(vec3(0.97, 0.96, 0.92), vec3(0.8, 0.87, 1.0), blanc), u_argent);',
     '  vec3 c = mix(sombre, clair, 0.25 + 0.75 * eclat);',
     '  return mix(c, vec3(1.0, 1.0, 0.9), pointe * 0.45);',
     '}',
@@ -275,7 +278,7 @@
     '}'
   ].join('\n');
 
-  var NOMS_COMMUNS = ['u_taille', 'u_px', 'u_temps', 'u_defil', 'u_foyer', 'u_portrait', 'u_noeuds', 'u_avance', 'u_chemin', 'u_calme'];
+  var NOMS_COMMUNS = ['u_taille', 'u_px', 'u_temps', 'u_defil', 'u_foyer', 'u_portrait', 'u_noeuds', 'u_avance', 'u_chemin', 'u_calme', 'u_argent'];
   var gl = null;
   var brins = null, voile = null, points = null, lueur = null;           // { prog, lieux, tampon, nb, nbChemin }
   var px = 1, large = 0, haut = 0;
@@ -440,6 +443,7 @@
     gl.uniform1f(l.u_avance, avance);
     gl.uniform1f(l.u_chemin, cheminDoux);
     gl.uniform1f(l.u_calme, calme ? 1 : 0);
+    gl.uniform1f(l.u_argent, argent ? 1 : 0);
   }
 
   function dessiner() {
@@ -478,11 +482,13 @@
       var souffle = 1 + Math.sin(temps * 0.4) * 0.06;
       gl.uniform2f(lueur.lieux.u_centre, foyer.x + base * 0.05, fy);
       gl.uniform2f(lueur.lieux.u_rayon, base * 0.5 * souffle, base * 0.42 * souffle);
-      gl.uniform3f(lueur.lieux.u_couleur, 0.1 * eclat, 0.14 * eclat, 0.02 * eclat);
+      if (argent) gl.uniform3f(lueur.lieux.u_couleur, 0.07 * eclat, 0.075 * eclat, 0.085 * eclat);
+      else gl.uniform3f(lueur.lieux.u_couleur, 0.1 * eclat, 0.14 * eclat, 0.02 * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
       gl.uniform2f(lueur.lieux.u_centre, foyer.x, fy);
       gl.uniform2f(lueur.lieux.u_rayon, petit * 0.2 * souffle, petit * 0.17 * souffle);
-      gl.uniform3f(lueur.lieux.u_couleur, 0.3 * eclat, 0.37 * eclat, 0.1 * eclat);
+      if (argent) gl.uniform3f(lueur.lieux.u_couleur, 0.22 * eclat, 0.23 * eclat, 0.26 * eclat);
+      else gl.uniform3f(lueur.lieux.u_couleur, 0.3 * eclat, 0.37 * eclat, 0.1 * eclat);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
