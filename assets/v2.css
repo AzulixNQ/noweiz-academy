@@ -99,6 +99,7 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 .titre .deux { color: var(--argent); }
 .chapo { max-width: 34em; margin-top: 26px; color: #C9CCCA; font-size: clamp(17px, .45vw + 15px, 20px); line-height: 1.5; text-wrap: pretty; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.hero .actions .bouton { padding-inline: 21px; font-size: 15.5px; }
 .sous-actions { margin-top: 18px; color: var(--gris-2); font-size: 14.5px; }
 
 /* ---------- le footprint ---------- */
@@ -143,7 +144,7 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 .faits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: clamp(36px, 6vh, 72px); padding: 6px 0; }
 .faits div { padding: 20px clamp(16px, 2vw, 28px) 22px; }
 .faits div + div { border-left: 1px solid var(--filet); }
-.faits dt { font-size: clamp(26px, 1.6vw + 12px, 38px); font-weight: 520; font-stretch: 110%; line-height: 1.05; letter-spacing: -.04em; white-space: nowrap; }
+.faits dt { font-size: clamp(23px, 1.5vw + 7px, 36px); font-weight: 520; font-stretch: 110%; line-height: 1.05; letter-spacing: -.04em; white-space: nowrap; }
 .faits dd { margin-top: 8px; color: var(--gris); font-size: 14.5px; line-height: 1.4; text-wrap: balance; }
 
 /* ---------- le bloc vert ---------- */
