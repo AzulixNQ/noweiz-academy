@@ -29,7 +29,7 @@ return [
     'courriel' => [
         'transport' => getenv('NA_COURRIER') ?: 'mail',
         'expediteur' => 'contact@noweiz.com',        // l'adresse affichée : on peut y répondre (chez OVH, elle renvoie vers la boîte contact@noweiz.fr)
-        'retours' => 'ne-pas-repondre@noweiz.com',   // l'enveloppe : les e-mails qui n'ont pas pu être livrés ne remplissent pas la boîte
+        'retours' => 'contact@noweiz.com',   // l'enveloppe : une adresse qui existe (les serveurs refusent un expéditeur inconnu) ; les e-mails non livrés reviennent dans la boîte contact
         'nom' => 'Noweiz Academy',
     ],
     'contact' => 'contact@noweiz.com',   // l'adresse donnée sur le site et dans les e-mails
