@@ -3,9 +3,12 @@ declare(strict_types=1);
 
 /* L'envoi par la boîte e-mail du site (SMTP), au lieu de l'envoi par l'hébergement.
 
-   Pourquoi : un e-mail envoyé par l'hébergement (mail()) n'est pas signé (DKIM). Les boîtes OVH le jettent sans prévenir,
-   Gmail et Outlook le rangent parfois dans les indésirables. Envoyé par la boîte contact@noweiz.fr elle-même, il est signé
-   par OVH comme ceux qu'on écrit depuis le webmail.
+   L'idée : un e-mail envoyé par l'hébergement (mail()) n'est pas signé (DKIM) ; envoyé par la boîte contact@noweiz.fr
+   elle-même, il est signé par OVH comme ceux qu'on écrit depuis le webmail.
+
+   ÉTAT AU 22/11/2026 : débranché. Ce jour-là, OVH acceptait les e-mails du site (« 250 queued ») puis ne les livrait nulle
+   part, par la boîte comme par l'hébergement, même en texte simple ; ceux écrits dans le webmail arrivaient. Le détail est
+   dans LISEZMOI.md. Avant de rebrancher : envoyer un essai et vérifier qu'il ARRIVE.
 
    Le mot de passe de la boîte est tapé par l'administrateur sur /admin/courriel. Il est gardé chiffré dans la base ; la clé
    est un fichier à part dans le dossier de données (avec MySQL, la base et la clé ne sont même plus sur la même machine).

@@ -854,7 +854,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
       await zoe.fill('#c-essai', 'ailleurs@exemple.fr');
       await Promise.all([zoe.waitForNavigation(), zoe.click('form:has(input[value=essai]) button[type=submit]')]);
       t = await texte(zoe);
-      verif(t.includes('E-mail d\'essai parti par la boîte') && !t.includes('Dernière panne') && recus.length === 3 && recus[2].a === 'ailleurs@exemple.fr' && await sante2() === 'boîte', 'boîte revenue : l\'essai passe, la panne s\'efface');
+      verif(t.includes('OVH a accepté l\'e-mail d\'essai') && !t.includes('Dernière panne') && recus.length === 3 && recus[2].a === 'ailleurs@exemple.fr' && await sante2() === 'boîte', 'boîte revenue : l\'essai passe, la panne s\'efface');
 
       // le serveur ne répond plus du tout : on n'attend pas à chaque e-mail
       await new Promise(r => fausseBoite.close(r));

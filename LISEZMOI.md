@@ -20,11 +20,14 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - **Pages légales** : `/confidentialite` (liste d'attente et comptes) et `/mentions-legales` (hébergeur OVH ; l'éditeur sera ajouté avant l'ouverture au public).
 
 ## Les e-mails (22/11)
-- **Par où ils partent** : par la boîte e-mail du site si elle est branchée (page admin « E-mails », `/admin/courriel`), sinon par l'hébergement (`mail()`).
-  - Par l'hébergement, l'e-mail n'est pas signé (DKIM) : les boîtes OVH le jettent sans prévenir (constaté le 22/11 : envoi compté par OVH, rien dans la boîte ni dans les indésirables), les autres le rangent parfois en indésirables.
-  - Par la boîte (`app/smtp.php`, serveur `smtp.mail.ovh.net`, port 465 chiffré, 587 en secours), il est signé comme ceux du webmail. L'expéditeur est alors l'adresse de la boîte (contact@noweiz.fr) : OVH refuse d'envoyer au nom d'une autre adresse.
-  - L'administrateur tape le mot de passe de la boîte sur la page ; le site envoie un e-mail d'essai et ne garde le mot de passe que si l'essai est parti. Il est gardé chiffré (clé dans `<données>/cle-courriel`), jamais réaffiché, jamais écrit dans le journal.
-  - Si la boîte refuse (mot de passe changé chez OVH) ou ne répond pas, l'e-mail part par l'hébergement, la page admin affiche la panne et `/sante` dit `courriel_par: boîte (en panne : hébergement)`. Serveur injoignable : la boîte est mise de côté 10 minutes pour ne pas faire attendre les visiteurs.
+- **Par où ils partent** : par l'hébergement (`mail()`), ou par la boîte e-mail du site si elle est branchée (page admin « E-mails », `/admin/courriel`, code dans `app/smtp.php` : `smtp.mail.ovh.net`, port 465 chiffré, 587 en secours). Par la boîte, l'expéditeur est l'adresse de la boîte (contact@noweiz.fr) ; le mot de passe est tapé par l'administrateur, gardé chiffré (clé dans `<données>/cle-courriel`), jamais réaffiché ; si la boîte refuse ou ne répond pas, l'e-mail part par l'hébergement et la page affiche la panne.
+- **Problème ouvert au 22/11 : aucun e-mail du site n'arrive.** La boîte est débranchée, le site envoie par l'hébergement.
+  - Le 21/11, les e-mails du site (par l'hébergement) arrivaient dans Gmail.
+  - Le 22/11 : par l'hébergement, rien dans la boîte contact (11:58, 12:20, 14:47) ni dans Gmail (vers 15:50). OVH les compte comme envoyés, 0 erreur.
+  - Le 22/11 par la boîte (15:16 à 15:46) : identification correcte (un faux mot de passe est refusé), OVH répond `250 2.0.0 Ok: queued as D81E0C0F46`, et rien n'arrive, ni dans la boîte contact ni dans Gmail, même un e-mail en texte simple sans lien ni en-tête particulier (15 e-mails, 9 variantes). Aucun retour d'erreur dans la boîte. Le compte n'est pas « bloqué pour spam ».
+  - Écrits dans le webmail de la même boîte, les e-mails arrivent en quelques secondes (y compris avec le lien Discord ou un lien du site) : ce n'est donc ni le contenu, ni la boîte, ni les DNS (SPF et DKIM passent).
+  - Écarté aussi : l'expéditeur d'enveloppe inexistant (corrigé à 14:45, sans effet).
+  - Piste : le filtrage anti-spam d'OVH sur ce qui part des hébergements mutualisés (plusieurs cas identiques sur le forum OVH, « accepté mais non délivré », sans explication). À faire : retester le 23/11 ; si ça dure, ticket OVH avec l'heure et le numéro de file, ou un service d'envoi par API (Brevo, Mailjet : gratuits à ce volume).
 - Sans la boîte : « Noweiz Academy <contact@noweiz.com> » (`courriel.expediteur`), enveloppe `courriel.retours` = contact@noweiz.com. Chez OVH, contact@noweiz.com est une redirection vers la boîte contact@noweiz.fr.
 - Gabarit aux couleurs du site : bandeau noir avec l'icône (`assets/img/courriel-icone.png`), filet vert citron vers blanc, bouton vert. Mise en page en tableaux (Outlook).
 

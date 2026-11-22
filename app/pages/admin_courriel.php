@@ -103,7 +103,7 @@ page_debut('E-mails', ['zone' => 'app', 'courant' => 'courriel']);
 <?php if ($message !== ''): ?>
     <p class="msg msg-err" role="alert"><?= e($message) ?></p>
 <?php endif; ?>
-    <p class="intro-app">Les e-mails automatiques (liste d'attente, confirmation d'adresse, mot de passe oublié) peuvent partir de deux façons. Par l'hébergement, ils ne sont pas signés : certaines boîtes les jettent ou les rangent dans les indésirables. Par la boîte contact, ils sont signés comme ceux que tu écris depuis le webmail, et ils arrivent.</p>
+    <p class="intro-app">Les e-mails automatiques (liste d'attente, confirmation d'adresse, mot de passe oublié) peuvent partir de deux façons : par l'hébergement (non signés), ou par la boîte contact (signés comme ceux du webmail). Après chaque changement, envoie un e-mail d'essai et vérifie qu'il arrive vraiment : « parti » veut seulement dire qu'OVH l'a accepté.</p>
     <div class="formes">
       <section class="box" aria-labelledby="ce-etat">
         <p class="eyebrow" id="ce-etat">Aujourd'hui</p>
@@ -122,7 +122,7 @@ page_debut('E-mails', ['zone' => 'app', 'courant' => 'courriel']);
         </form>
 <?php else: ?>
         <h2>Les e-mails partent par l'hébergement</h2>
-        <p>Ils ne sont pas signés. Pour qu'ils arrivent partout, branche la boîte contact ci-dessous.</p>
+        <p>Ils ne sont pas signés. Tu peux brancher la boîte contact ci-dessous pour comparer.</p>
 <?php endif; ?>
       </section>
 
