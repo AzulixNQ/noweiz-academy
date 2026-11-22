@@ -91,3 +91,10 @@ th .tag, td .tag { margin-left: 6px; }
 .texte .msg { margin-top: 36px; color: var(--ink); }
 .texte .btn { margin-top: 12px; }
 .foot a { color: inherit; }
+
+/* la liste d'attente, côté administrateur (22/11) */
+.hint-liste { margin-top: 14px; max-width: 760px; }
+.box-liste { margin-top: 28px; max-width: 980px; flex: none; }
+.box-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+.foot-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.foot-links a { color: var(--muted); }

@@ -1,4 +1,4 @@
-# Noweiz Academy : les comptes (version de test)
+# Noweiz Academy : la page d'accueil, la liste d'attente et les comptes (version de test)
 
 Le début du vrai site de la formation : de vrais comptes, avec e-mail et mot de passe, dans une vraie base.
 Le design est celui de la maquette validée (`assets/maquette.css` en est la copie).
@@ -9,6 +9,15 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - **E-mails automatiques** : bienvenue avec le lien pour confirmer l'adresse, « mot de passe oublié », alerte quand le mot de passe ou l'adresse change.
 - **Mon compte** : prénom, pseudo Discord, adresse e-mail, mot de passe, déconnecter les autres appareils, supprimer le compte.
 - **Comptes et invitations** (administrateur) : inviter, annuler une invitation, changer un rôle (élève, formateur, administrateur).
+
+## La page d'accueil et la liste d'attente (22/11)
+- **L'accueil** (`/`) est la page de présentation validée (prix, mentorat, cohortes, aperçu, extrait vidéo, formateurs, questions), avec le formulaire de la liste d'attente. Elle marche sans JavaScript ; `assets/fermee.js` ajoute la vérification avant l'envoi, le mur des certificats et les onglets.
+- **Inscription en deux temps** : le formulaire envoie un e-mail « Confirme ton inscription » (lien valable 48 h). Sans confirmation, l'adresse est effacée au bout de 7 jours. La page répond pareil qu'une adresse soit nouvelle ou déjà inscrite (on ne peut pas savoir qui est sur la liste) ; une adresse déjà confirmée reçoit « Tu es déjà sur la liste ».
+- **Désinscription** : un lien signé dans chaque e-mail de la liste, plus les en-têtes `List-Unsubscribe` (le « Se désabonner » de Gmail, en un clic). Ouvrir le lien ne suffit pas, il faut cliquer (les antivirus ouvrent les liens). La ligne est effacée.
+- **Protections** : champ piège contre les robots, 10 inscriptions par heure au plus depuis une connexion, 3 e-mails par jour au plus à une même adresse.
+- **Liste d'attente** (administrateur, `/admin/liste-attente`) : le nombre d'inscrits confirmés, par parcours, la liste, « Effacer » et l'export pour Excel (`.csv`, séparateur « ; », formules neutralisées).
+- Réglages dans `app/config.php` : `ouverture` (vide = « 2027 », une date = compte à rebours), `compteur_min` (le compteur « X inscrits » s'affiche à partir de 25 confirmés), `hub`.
+- **Pages légales** : `/confidentialite` (liste d'attente et comptes) et `/mentions-legales` (hébergeur OVH ; l'éditeur sera ajouté avant l'ouverture au public).
 
 ## Ce qui n'existe pas encore
 Les cohortes, les modules et les quiz, le paiement, le lien avec Discord, l'espace formateurs.
@@ -23,7 +32,8 @@ Les cohortes, les modules et les quiz, le paiement, le lien avec Discord, l'espa
 - `index.php` : toutes les pages passent par là. `app/pages/` : une page par fichier.
 - `app/config.php` : les réglages (adresse du site, durées, expéditeur des e-mails).
 - `app/base.php` : la base (SQLite par défaut ; MySQL plus tard, par `config.local.php` dans le dossier de données).
-- `assets/` : le style, la police, le petit script.
+- `app/liste.php` : la liste d'attente (inscription, confirmation, désinscription, e-mails).
+- `assets/` : le style (`maquette.css`, `comptes.css`, `fermee.css`), la police, les scripts, les images et l'extrait vidéo.
 - `outils/serveur.php` : le serveur d'essai. `outils/essais.js` : les essais automatiques (`node outils/essais.js`).
 
 ## Mise en ligne

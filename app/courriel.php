@@ -5,9 +5,9 @@ declare(strict_types=1);
    Chaque e-mail part en deux versions (texte et HTML). En essai (transport « fichier »), rien ne part :
    l'e-mail est écrit dans le dossier de données. */
 
-function envoyer_courriel(string $a, string $sujet, string $texte, string $html): bool
+function envoyer_courriel(string $a, string $sujet, string $texte, string $html, array $en_plus = []): bool
 {
-    if (!filter_var($a, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $a . $sujet)) return false;
+    if (!filter_var($a, FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/', $a . $sujet . implode('', $en_plus))) return false;
     $expediteur = (string) reglage('courriel.expediteur');
     $nom = (string) reglage('courriel.nom');
 
@@ -15,7 +15,7 @@ function envoyer_courriel(string $a, string $sujet, string $texte, string $html)
         $dossier = dossier_donnees() . '/courriels';
         if (!is_dir($dossier)) mkdir($dossier, 0700, true);
         $fichier = sprintf('%s/%s-%s.json', $dossier, number_format(microtime(true), 4, '', ''), bin2hex(random_bytes(3)));
-        return file_put_contents($fichier, json_encode(['a' => $a, 'sujet' => $sujet, 'texte' => $texte, 'html' => $html], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) !== false;
+        return file_put_contents($fichier, json_encode(['a' => $a, 'sujet' => $sujet, 'texte' => $texte, 'html' => $html, 'entetes' => $en_plus], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) !== false;
     }
 
     $limite = 'na-' . bin2hex(random_bytes(12));
@@ -26,6 +26,7 @@ function envoyer_courriel(string $a, string $sujet, string $texte, string $html)
         'Auto-Submitted: auto-generated',
         'X-Auto-Response-Suppress: All',
     ];
+    foreach ($en_plus as $e) $entetes[] = $e;
     $corps = "--$limite\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($texte))
            . "--$limite\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n" . chunk_split(base64_encode($html))
            . "--$limite--\r\n";

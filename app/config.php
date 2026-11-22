@@ -11,6 +11,11 @@ return [
     // Version de test : bandeau « Version de test », pages non référencées.
     'test' => true,
     'discord' => 'https://discord.gg/4TEKKZTCdF',
+    'hub' => 'https://noweiz.com/',
+
+    // La page d'accueil (liste d'attente). ouverture : vide = « 2027 » ; une date (ex. '2027-01-11T18:00:00+01:00') = compte à rebours.
+    'ouverture' => '',
+    'compteur_min' => 25,            // le compteur « X inscrits » ne s'affiche qu'à partir de ce nombre d'inscrits confirmés
 
     // Le dossier des données (base, journal), par rapport au dossier du site. Il doit être HORS de tout dossier lisible par le web.
     // Chez OVH, le site est dans hub/academy (le dépôt du HUB) : deux niveaux plus haut, on est à la racine de l'hébergement.

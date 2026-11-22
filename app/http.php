@@ -58,7 +58,7 @@ function entetes_securite(): void
     header('X-Frame-Options: DENY');
     header('Referrer-Policy: same-origin');   // l'adresse d'une page (et le jeton d'un lien) ne part jamais vers un autre site
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
-    header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; font-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
+    header("Content-Security-Policy: default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self' data:; media-src 'self'; font-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
     if (site_securise()) header('Strict-Transport-Security: max-age=15552000');
     if (reglage('test')) header('X-Robots-Tag: noindex, nofollow');
 }

@@ -31,7 +31,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
   const nav = await chromium.launch();
   const erreursPage = [];
   async function fenetre(o) {
-    const c = await nav.newContext(Object.assign({ viewport: { width: 1440, height: 900 }, locale: 'fr-FR' }, o || {}));
+    const c = await nav.newContext(Object.assign({ viewport: { width: 1440, height: 900 }, locale: 'fr-FR', reducedMotion: 'reduce' }, o || {}));   // sans défilement doux : les clics des essais tombent juste
     const p = await c.newPage();
     p.on('pageerror', e => erreursPage.push('erreur de script : ' + e.message));
     p.on('console', m => { if (m.type() === 'error' && !/status of 40[34]|status of 421/.test(m.text())) erreursPage.push('console : ' + m.text()); });
@@ -60,7 +60,8 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     console.log('A. Le premier compte');
     const alice = await fenetre();
     await alice.goto(URL + '/');
-    verif(alice.url() === URL + '/connexion', 'l\'accueil renvoie vers la connexion');
+    verif(alice.url() === URL + '/' && (await texte(alice)).includes('Inscris-toi sur la liste d\'attente'), 'l\'accueil montre la page de présentation et la liste d\'attente');
+    await alice.goto(URL + '/connexion');
     verif((await texte(alice)).includes('Créer le premier compte'), 'la connexion propose de créer le premier compte');
     await photo(alice, 'pc-connexion');
     await alice.goto(URL + '/inscription');
@@ -343,6 +344,125 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await alice.goto(URL + '/espace'); await photo(alice, 'pc-espace');
     await alice.goto(URL + '/compte'); await photo(alice, 'pc-compte-admin');
     await alice.goto(URL + '/inconnu'); await photo(alice, 'pc-introuvable');
+
+    /* ---------- J. la liste d'attente ---------- */
+    console.log("J. La liste d'attente");
+    const passant = await fenetre();
+    await passant.goto(URL + '/');
+    r = await fetch(URL + '/');
+    verif((r.headers.get('content-security-policy') || '').includes("media-src 'self'"), "l'accueil autorise sa vidéo (media-src)");
+    await passant.click('#wl-envoi');
+    t = await texte(passant);
+    verif(passant.url() === URL + '/' && t.includes('Écris ton prénom.') && t.includes('Coche la case'), 'formulaire vide : messages affichés sans quitter la page');
+    // sans JavaScript, le serveur vérifie tout
+    const sansJs = await fenetre({ javaScriptEnabled: false });
+    await sansJs.goto(URL + '/');
+    await sansJs.fill('#wl-prenom', 'Jean'); await sansJs.fill('#wl-email', 'jean@exemple.fr');
+    await envoyer(sansJs, '#wl-envoi');
+    t = await texte(sansJs);
+    verif(t.includes('Coche la case') && (await sansJs.inputValue('#wl-email')) === 'jean@exemple.fr', 'sans JavaScript : la case non cochée est refusée par le serveur, les champs restent remplis');
+    verif(courriels('jean@exemple.fr').length === 0, 'rien n\'est envoyé tant que le formulaire est refusé');
+    await sansJs.check('#wl-accord');
+    await envoyer(sansJs, '#wl-envoi');
+    verif((await texte(sansJs)).includes('Plus qu\'une étape'), 'sans JavaScript : l\'inscription marche aussi');
+    let mails = courriels('jean@exemple.fr');
+    verif(mails.length === 1 && mails[0].sujet.includes('Confirme ton inscription'), 'e-mail « Confirme ton inscription » envoyé');
+    const lienJean = lienDe(mails[0]);
+    verif(/\/liste-attente\/confirmer\?lien=[a-f0-9]{64}$/.test(lienJean || ''), 'le lien de confirmation a la bonne forme');
+    await alice.goto(URL + '/admin/liste-attente');
+    t = await texte(alice);
+    verif(t.includes('Liste d\'attente') && /Inscrits\s*0/.test(t) && t.includes('Une inscription attend sa confirmation'), 'avant confirmation : 0 inscrit, 1 en attente');
+    await passant.goto(lienJean);
+    verif((await texte(passant)).includes('C\'est confirmé, Jean'), 'le lien confirme l\'inscription');
+    await passant.goto(lienJean);
+    verif((await texte(passant)).includes('n\'est plus valable'), 'le lien ne sert qu\'une fois');
+    // la même adresse une 2e fois : même réponse sur la page, e-mail « déjà sur la liste » avec désinscription en un clic
+    await passant.goto(URL + '/');
+    await passant.fill('#wl-prenom', 'Jean'); await passant.fill('#wl-email', 'JEAN@exemple.fr'); await passant.check('#wl-p-ict'); await passant.check('#wl-accord');
+    await envoyer(passant, '#wl-envoi');
+    verif(passant.url() === URL + '/#liste' && (await texte(passant)).includes('Plus qu\'une étape'), 'une adresse déjà inscrite obtient la même réponse (la page ne dit pas qui est inscrit)');
+    mails = courriels('jean@exemple.fr');
+    const deja = mails[mails.length - 1];
+    verif(mails.length === 2 && deja.sujet.includes('déjà sur la liste'), 'e-mail « Tu es déjà sur la liste » envoyé');
+    verif((deja.entetes || []).some(h => h.startsWith('List-Unsubscribe: <')) && (deja.entetes || []).includes('List-Unsubscribe-Post: List-Unsubscribe=One-Click'), 'en-têtes de désinscription en un clic');
+    const desJean = (deja.texte.match(/https?:\/\/\S+\/liste-attente\/desinscription\?\S+/) || [])[0];
+    await alice.goto(URL + '/admin/liste-attente');
+    t = await texte(alice);
+    verif(/Inscrits\s*1/.test(t) && /ICT\s*1/.test(t) && t.includes('jean@exemple.fr'), 'l\'admin voit Jean, avec le parcours mis à jour (ICT)');
+    r = await fetch(URL + '/admin/liste-attente.csv', { headers: { Cookie: (await alice.context().cookies()).map(x => x.name + '=' + x.value).join('; ') } });
+    const brut = Buffer.from(await r.arrayBuffer()), csv = brut.toString('utf8');
+    verif(r.status === 200 && (r.headers.get('content-type') || '').startsWith('text/csv') && brut[0] === 0xEF && brut[1] === 0xBB && brut[2] === 0xBF && csv.includes('"jean@exemple.fr";"ICT"'), 'export CSV pour Excel (accents gardés)');
+    // désinscription : ouvrir la page ne suffit pas (les antivirus ouvrent les liens), il faut cliquer
+    await passant.goto(desJean);
+    verif((await texte(passant)).includes('Te désinscrire de la liste d\'attente ?'), 'la page de désinscription demande de confirmer');
+    await alice.goto(URL + '/admin/liste-attente');
+    verif(/Inscrits\s*1/.test(await texte(alice)), 'ouvrir le lien ne désinscrit pas');
+    await envoyer(passant, 'main form button[type=submit]');
+    verif((await texte(passant)).includes('tu n\'es plus sur la liste'), 'désinscription faite');
+    await alice.goto(URL + '/admin/liste-attente');
+    verif(/Inscrits\s*0/.test(await texte(alice)) && !(await texte(alice)).includes('jean@exemple.fr'), 'Jean est effacé de la liste');
+    r = await fetch(desJean.replace(/s=[a-f0-9]+/, 's=' + '0'.repeat(32)));
+    verif((await r.text()).includes('pas (ou plus) sur la liste'), 'une signature fausse ne marche pas');
+    // Paul : désinscription en un clic par la messagerie (RFC 8058)
+    await passant.goto(URL + '/');
+    await passant.fill('#wl-prenom', 'Paul'); await passant.fill('#wl-email', 'paul@exemple.fr'); await passant.check('#wl-accord');
+    await envoyer(passant, '#wl-envoi');
+    await passant.goto(lienDe(courriels('paul@exemple.fr')[0]));
+    await passant.goto(URL + '/');
+    await passant.fill('#wl-prenom', 'Paul'); await passant.fill('#wl-email', 'paul@exemple.fr'); await passant.check('#wl-accord');
+    await envoyer(passant, '#wl-envoi');
+    const entPaul = (courriels('paul@exemple.fr')[1].entetes || []).find(h => h.startsWith('List-Unsubscribe: <')) || '';
+    r = await fetch(entPaul.slice(19, -1), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'List-Unsubscribe=One-Click' });
+    verif(r.status === 200 && (await r.text()) === 'OK', 'désinscription en un clic depuis la messagerie');
+    await alice.goto(URL + '/admin/liste-attente');
+    verif(!(await texte(alice)).includes('paul@exemple.fr'), 'Paul est effacé de la liste');
+    // le champ piège : un robot croit être inscrit, rien n'est gardé ni envoyé
+    await passant.goto(URL + '/');
+    await passant.fill('#wl-prenom', 'Robot'); await passant.fill('#wl-email', 'robot@exemple.fr'); await passant.check('#wl-accord');
+    await passant.evaluate(() => { document.getElementById('wl-site').value = 'http://spam.example'; });
+    await envoyer(passant, '#wl-envoi');
+    verif((await texte(passant)).includes('Plus qu\'une étape') && courriels('robot@exemple.fr').length === 0, 'champ piège : rien n\'est gardé ni envoyé');
+    // une même adresse ne reçoit jamais plus de 3 e-mails par jour
+    for (let i = 0; i < 4; i++) {
+      await passant.goto(URL + '/');
+      await passant.fill('#wl-prenom', 'Léa'); await passant.fill('#wl-email', 'lea@exemple.fr'); await passant.check('#wl-accord');
+      await envoyer(passant, '#wl-envoi');
+    }
+    verif(courriels('lea@exemple.fr').length === 3, '3 e-mails au plus par jour à une même adresse (' + courriels('lea@exemple.fr').length + ')');
+    // trop d'inscriptions depuis une même connexion
+    for (let i = 0; i < 3; i++) {
+      await passant.goto(URL + '/');
+      await passant.fill('#wl-prenom', 'Spam'); await passant.fill('#wl-email', 'spam' + i + '@exemple.fr'); await passant.check('#wl-accord');
+      await envoyer(passant, '#wl-envoi');
+    }
+    verif((await texte(passant)).includes('Trop d\'inscriptions depuis ta connexion'), 'au-delà de 10 inscriptions par heure depuis une connexion, refus');
+    // réservé à l'administrateur
+    await alice.goto(URL + '/admin');
+    await alice.fill('#c-note', 'Dan');
+    await envoyer(alice, 'form:has(input[value=inviter]) button[type=submit]');
+    const eleve = await fenetre();
+    await eleve.goto(await alice.inputValue('#lien-invitation'));
+    await inscrire(eleve, 'Dan', 'dan@exemple.fr', mdp());
+    for (const ch of ['/admin/liste-attente', '/admin/liste-attente.csv']) {
+      const rr = await eleve.goto(URL + ch);
+      verif(rr.status() === 403, ch + ' refusé à une élève');
+    }
+    await eleve.goto(URL + '/espace');
+    verif(!(await eleve.locator('.side-nav').innerText()).includes('Liste d\'attente'), 'le menu de l\'élève n\'a pas « Liste d\'attente »');
+    r = await fetch(URL + '/admin/liste-attente.csv', { redirect: 'manual' });
+    verif(r.status === 303, 'export refusé sans connexion');
+    // téléphone et pages légales
+    const telV = await fenetre({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 });
+    for (const [ch, nom] of [['/', 'tel-accueil'], ['/mentions-legales', 'tel-mentions'], ['/confidentialite', 'tel-confidentialite-2']]) {
+      await telV.goto(URL + ch);
+      const large = await telV.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      verif(large <= 0, ch + ' ne déborde pas sur téléphone (' + large + ' px)');
+      await photo(telV, nom);
+    }
+    await passant.goto(URL + '/'); await photo(passant, 'pc-accueil');
+    await alice.goto(URL + '/admin/liste-attente'); await photo(alice, 'pc-admin-liste');
+    await alice.goto(URL + '/mentions-legales');
+    verif((await texte(alice)).includes('2 rue Kellermann'), 'mentions légales : l\'hébergeur est indiqué');
 
     verif(erreursPage.length === 0, 'aucune erreur de script ni de sécurité dans le navigateur : ' + erreursPage.slice(0, 3).join(' / '));
     const journal = path.join(donnees, 'erreurs.log');

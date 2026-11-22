@@ -165,6 +165,22 @@ function migrations(string $pilote): array
                 quand $date NOT NULL" . $dans('tentatives_cle', 'cle, quand') . "
             )$fin",
         ], $apart('sessions_compte', 'sessions', 'compte_id'), $apart('liens_type', 'liens', 'type, compte_id'), $apart('tentatives_cle', 'tentatives', 'cle, quand')),
+        // 2 : la liste d'attente (inscription confirmée par e-mail, désinscription en un clic)
+        array_merge([
+            "CREATE TABLE IF NOT EXISTS liste_attente (
+                id $id,
+                email $court NOT NULL UNIQUE,
+                prenom $court NOT NULL,
+                parcours $court NOT NULL,
+                statut $court NOT NULL,
+                jeton $court NULL,
+                jeton_expire $date NULL,
+                cree_le $date NOT NULL,
+                accord_le $date NOT NULL,
+                confirme_le $date NULL,
+                desinscrit_le $date NULL" . $dans('liste_statut', 'statut') . "
+            )$fin",
+        ], $apart('liste_statut', 'liste_attente', 'statut')),
     ];
 }
 

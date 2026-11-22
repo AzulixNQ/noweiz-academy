@@ -19,6 +19,11 @@ $pages = [
     '/mot-de-passe-oublie' => 'mdp_oublie',
     '/nouveau-mot-de-passe' => 'mdp_nouveau',
     '/confidentialite' => 'confidentialite',
+    '/mentions-legales' => 'mentions',
+    '/liste-attente/confirmer' => 'liste_confirmer',
+    '/liste-attente/desinscription' => 'liste_desinscription',
+    '/admin/liste-attente' => 'admin_liste',
+    '/admin/liste-attente.csv' => 'admin_liste_csv',
     '/sante' => 'sante',
 ];
 

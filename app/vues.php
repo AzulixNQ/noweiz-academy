@@ -44,6 +44,7 @@ function texte_annonce(string $code, string $detail = ''): ?array
         'invitation-annulee' => ['ok', 'Invitation annulée : son lien ne marche plus.'],
         'role-change' => ['ok', 'Rôle changé.'],
         'trop' => ['err', 'Trop de demandes. Réessaie dans quelques minutes.'],
+        'liste-supprime' => ['ok', 'Effacé de la liste d\'attente.'],
     ];
     if (!isset($liste[$code])) return null;
     [$genre, $msg] = $liste[$code];
@@ -104,6 +105,7 @@ function page_debut(string $titre, array $o = []): void
         $courant = (string) ($o['courant'] ?? '');
         $menu = ['espace' => ['/espace', 'Tableau de bord'], 'compte' => ['/compte', 'Mon compte']];
         if ($compte['role'] === 'admin') $menu['admin'] = ['/admin', 'Comptes et invitations'];
+        if ($compte['role'] === 'admin') $menu['liste'] = ['/admin/liste-attente', "Liste d'attente"];
         ?>
 <div class="app">
   <nav class="side" aria-label="Ton espace">
@@ -142,7 +144,7 @@ function page_fin(array $o = []): void
 <footer class="foot">
   <div class="wrap foot-in">
     <p>© <?= date('Y') ?> <?= e((string) reglage('nom')) ?>.<?= reglage('test') ? ' Version de test : rien ici n\'est encore ouvert au public.' : '' ?></p>
-    <p><a href="/confidentialite">Confidentialité</a></p>
+    <p class="foot-links"><a href="/">Le site</a><a href="/confidentialite">Confidentialité</a><a href="/mentions-legales">Mentions légales</a></p>
   </div>
 </footer>
 </body>

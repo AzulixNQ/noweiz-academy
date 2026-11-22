@@ -26,7 +26,7 @@ RewriteRule ^ index.php [L]
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
-  <FilesMatch "\.(css|js|woff2|svg)$">
+  <FilesMatch "\.(css|js|woff2|svg|webp|png|mp4)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
 </IfModule>
