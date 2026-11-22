@@ -181,6 +181,93 @@ function migrations(string $pilote): array
                 desinscrit_le $date NULL" . $dans('liste_statut', 'statut') . "
             )$fin",
         ], $apart('liste_statut', 'liste_attente', 'statut')),
+        // 3 : la formation (parcours, modules, leçons, quiz, cohortes, inscriptions, progression, lives)
+        array_merge([
+            "CREATE TABLE IF NOT EXISTS parcours (
+                id $id,
+                cle $court NOT NULL UNIQUE,
+                nom $court NOT NULL,
+                formateur $court NOT NULL,
+                ordre $ref NOT NULL
+            )$fin",
+            "$ignore INTO parcours (cle, nom, formateur, ordre) VALUES ('of', 'Order flow', 'Nojah', 1)",
+            "$ignore INTO parcours (cle, nom, formateur, ordre) VALUES ('ict', 'ICT', 'Weizix', 2)",
+            "CREATE TABLE IF NOT EXISTS modules (
+                id $id,
+                parcours_id $ref NOT NULL,
+                numero $ref NOT NULL,
+                titre $court NOT NULL,
+                resume TEXT NULL,
+                essai $ref NOT NULL DEFAULT 0,
+                cree_le $date NOT NULL" . $dans('modules_parcours', 'parcours_id, numero') . "
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS lecons (
+                id $id,
+                module_id $ref NOT NULL,
+                numero $ref NOT NULL,
+                titre $court NOT NULL,
+                texte TEXT NULL,
+                video $court NULL,
+                duree $ref NULL,
+                cree_le $date NOT NULL" . $dans('lecons_module', 'module_id, numero') . "
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS questions (
+                id $id,
+                module_id $ref NOT NULL,
+                numero $ref NOT NULL,
+                enonce TEXT NOT NULL,
+                choix TEXT NOT NULL,
+                bonne $ref NOT NULL,
+                explication TEXT NULL" . $dans('questions_module', 'module_id, numero') . "
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS cohortes (
+                id $id,
+                parcours_id $ref NOT NULL,
+                nom $court NOT NULL,
+                debut $date NOT NULL,
+                places $ref NOT NULL,
+                discord $court NULL,
+                essai $ref NOT NULL DEFAULT 0,
+                cree_le $date NOT NULL
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS inscriptions (
+                id $id,
+                compte_id $ref NOT NULL,
+                cohorte_id $ref NOT NULL,
+                cree_le $date NOT NULL,
+                UNIQUE (compte_id, cohorte_id)
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS vues (
+                id $id,
+                compte_id $ref NOT NULL,
+                lecon_id $ref NOT NULL,
+                vue_le $date NOT NULL,
+                UNIQUE (compte_id, lecon_id)
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS quiz (
+                id $id,
+                compte_id $ref NOT NULL,
+                module_id $ref NOT NULL,
+                note $ref NOT NULL,
+                total $ref NOT NULL,
+                reponses TEXT NOT NULL,
+                fait_le $date NOT NULL" . $dans('quiz_compte', 'compte_id, module_id') . "
+            )$fin",
+            "CREATE TABLE IF NOT EXISTS lives (
+                id $id,
+                cohorte_id $ref NOT NULL,
+                module_id $ref NULL,
+                debut $date NOT NULL,
+                duree $ref NOT NULL,
+                titre $court NOT NULL,
+                lien $court NULL,
+                replay $court NULL,
+                replay_duree $ref NULL,
+                cree_le $date NOT NULL" . $dans('lives_cohorte', 'cohorte_id, debut') . "
+            )$fin",
+        ], $apart('modules_parcours', 'modules', 'parcours_id, numero'), $apart('lecons_module', 'lecons', 'module_id, numero'),
+           $apart('questions_module', 'questions', 'module_id, numero'), $apart('quiz_compte', 'quiz', 'compte_id, module_id'),
+           $apart('lives_cohorte', 'lives', 'cohorte_id, debut')),
     ];
 }
 
