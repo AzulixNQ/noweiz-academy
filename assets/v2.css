@@ -1,8 +1,8 @@
 /* Noweiz Academy, le nouveau style (aperçu du 22/11).
    Le parti pris : la nuit, et deux lumières qui bougent. Le vert citron est celle de Nojah (order flow), le blanc celle
    de Weizix (ICT). Elles sont dessinées par assets/rubans.js sur une toile fixe, derrière la page. Tout le reste se tait :
-   du verre sombre posé sur la lumière, du blanc sur noir, une seule police. Le vert plein est réservé à ce qui se clique,
-   à ce qui est en cours, et au grand bloc qui s'ouvre au défilement. */
+   du verre sombre posé sur la lumière, à plusieurs profondeurs, du blanc sur noir, une seule police.
+   Le vert ne sert que de lumière : les rubans, les lueurs, ce qui se clique, ce qui est en cours. Jamais en fond. */
 @font-face {
   font-family: "Nojah Sans";
   src: url("fonts/nojah-sans.woff2") format("woff2");
@@ -15,10 +15,11 @@
   --citron: #C6F432; --citron-vif: #D7FA66; --argent: #E6ECF5;
   --noir: #0B0B0C;                                   /* le texte posé sur le vert */
   --filet: rgba(255, 255, 255, .10); --filet-2: rgba(255, 255, 255, .17);
-  --verre: rgba(14, 17, 15, .52);
+  --verre: rgba(12, 15, 13, .56);
   --sans: "Nojah Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   --marge: clamp(16px, 4vw, 64px);
   --large: 1312px;
+  --haut: 68px;                                      /* la hauteur du haut de page */
   color-scheme: dark;
 }
 
@@ -34,7 +35,6 @@ h1, h2, h3, p, ol, ul, dl, dd, figure { margin: 0; padding: 0; }
 ol, ul { list-style: none; }
 a { color: inherit; }
 :focus-visible { outline: 2px solid var(--citron); outline-offset: 3px; border-radius: 6px; }
-.cache { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .saut { position: absolute; left: 12px; top: -60px; z-index: 50; padding: 10px 16px; border-radius: 10px; background: var(--citron); color: var(--noir); font-weight: 600; text-decoration: none; }
 .saut:focus { top: 12px; }
 .cadre { width: 100%; max-width: var(--large); margin-inline: auto; padding-left: max(var(--marge), env(safe-area-inset-left, 0px)); padding-right: max(var(--marge), env(safe-area-inset-right, 0px)); }
@@ -55,9 +55,9 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 /* ---------- le verre ---------- */
 .verre {
   border: 1px solid var(--filet); border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .02) 42%), var(--verre);
+  background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02) 42%), var(--verre);
   -webkit-backdrop-filter: blur(22px) saturate(135%); backdrop-filter: blur(22px) saturate(135%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .13), 0 40px 90px -40px rgba(0, 0, 0, .9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .02), 0 40px 90px -40px rgba(0, 0, 0, .9);
 }
 
 /* ---------- boutons ---------- */
@@ -77,8 +77,8 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 
 /* ---------- le haut ---------- */
 .haut { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid transparent; transition: background-color .25s, border-color .25s; }
-.haut[data-pose] { border-bottom-color: var(--filet); background: rgba(5, 6, 6, .9); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
-.haut-in { display: flex; align-items: center; gap: 14px; min-height: 68px; }
+.haut[data-pose] { border-bottom-color: var(--filet); background: rgba(5, 6, 6, .82); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+.haut-in { display: flex; align-items: center; gap: 14px; min-height: var(--haut); }
 .marque { display: inline-flex; align-items: center; gap: 11px; margin-right: auto; color: var(--encre); font-size: 18.5px; font-weight: 640; font-stretch: 108%; letter-spacing: -.035em; text-decoration: none; white-space: nowrap; }
 .marque img { display: block; width: 28px; height: 28px; border-radius: 8px; }
 .etiquette { padding: 4px 11px; border: 1px solid var(--filet-2); border-radius: 999px; color: var(--gris); font-size: 13px; font-weight: 500; letter-spacing: 0; white-space: nowrap; }
@@ -89,40 +89,51 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 
 /* ---------- le premier écran ---------- */
 .hero { position: relative; padding: clamp(36px, 7vh, 96px) 0 clamp(40px, 7vh, 88px); }
-.hero-grille { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1fr); align-items: center; gap: clamp(28px, 4vw, 72px); min-height: min(660px, calc(100vh - 68px - 190px)); }
+.hero-grille { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1fr); align-items: center; gap: clamp(32px, 5vw, 88px); min-height: min(680px, calc(100vh - var(--haut) - 190px)); }
 .hero-texte { position: relative; max-width: 620px; }
 /* une ombre douce sous le texte : il reste lisible quand un ruban passe derrière */
-.hero-texte::before { content: ""; position: absolute; z-index: -1; inset: -14% -22% -18% -40%; background: radial-gradient(closest-side, rgba(5, 6, 6, .78), rgba(5, 6, 6, .5) 55%, transparent); pointer-events: none; }
+.hero-texte::before { content: ""; position: absolute; z-index: -1; inset: -14% -22% -18% -40%; background: radial-gradient(closest-side, rgba(5, 6, 6, .8), rgba(5, 6, 6, .52) 55%, transparent); pointer-events: none; }
 .hero .etat { margin-bottom: 30px; }
-.titre { font-size: clamp(40px, 3.6vw + 22px, 80px); font-weight: 470; font-stretch: 112%; line-height: .98; letter-spacing: -.045em; }
+.titre { font-size: clamp(40px, 3.3vw + 22px, 76px); font-weight: 470; font-stretch: 112%; line-height: .98; letter-spacing: -.045em; }
 .titre span { display: block; white-space: nowrap; }
 .titre .deux { color: var(--argent); }
 .chapo { max-width: 34em; margin-top: 26px; color: #C9CCCA; font-size: clamp(17px, .45vw + 15px, 20px); line-height: 1.5; text-wrap: pretty; }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+.sous-actions { margin-top: 16px; color: var(--gris-2); font-size: 14.5px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 .hero .actions .bouton { padding-inline: 21px; font-size: 15.5px; }
-.sous-actions { margin-top: 18px; color: var(--gris-2); font-size: 14.5px; }
 
-/* ---------- le footprint ---------- */
-.scene-fp { position: relative; justify-self: end; width: 100%; max-width: 700px; perspective: 1500px; }
-.foyer { position: absolute; left: -11%; top: 68%; width: 1px; height: 1px; pointer-events: none; }
-.fp { transform: rotateY(-9deg) rotateX(3.5deg) rotate(.5deg); transform-origin: 70% 50%; padding: 18px 20px 16px; }
-.fp-haut { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+/* ---------- le footprint, en relief ---------- */
+.scene-fp { position: relative; justify-self: end; width: 100%; max-width: 760px; perspective: 1600px; }
+.foyer { position: absolute; left: -10%; top: 70%; width: 1px; height: 1px; pointer-events: none; }
+/* trois plans de verre à des distances différentes ; --rx et --ry suivent la souris (assets/v2.js) */
+.relief { position: relative; transform-style: preserve-3d; transform-origin: 62% 50%;
+  transform: rotateY(calc(-11deg + var(--ry, 0deg))) rotateX(calc(4deg + var(--rx, 0deg))) rotate(.4deg); }
+/* la lueur au pied du panneau : il est posé sur de la lumière */
+.relief::after { content: ""; position: absolute; left: 6%; right: 10%; bottom: -46px; height: 70px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(198, 244, 50, .3), transparent); filter: blur(20px); transform: translateZ(-60px); }
+.fp { position: relative; padding: 18px 20px 16px; }
+/* un reflet en travers du verre */
+.fp::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(112deg, transparent 32%, rgba(255, 255, 255, .055) 44%, rgba(255, 255, 255, .012) 52%, transparent 60%); }
+.fp-haut { position: relative; display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
 .fp-haut h2 { font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
 .fp-haut .etiquette { margin-right: auto; }
 .fp-cours { display: inline-flex; align-items: center; gap: 9px; color: var(--gris); font-size: 13.5px; white-space: nowrap; }
-.fp-grille { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; grid-auto-rows: 28px; column-gap: 6px; row-gap: 2px; font-size: 12.5px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+/* le footprint vivant (une toile) ; sans lui, la grille fixe ci-dessous */
+.fp-toile { position: relative; display: none; width: 100%; height: 412px; }
+.fp[data-vif] .fp-toile { display: block; }
+.fp[data-vif] .fp-grille, .fp[data-vif] .fp-pied { display: none; }
+.fp-grille { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)) auto; grid-auto-rows: 29px; column-gap: 6px; row-gap: 2px; font-size: 12.5px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
 .fp-c { display: grid; grid-template-columns: 1fr 1fr; align-items: center; border-radius: 6px; background: rgba(255, 255, 255, .045); color: #B9BDBB; overflow: hidden; }
 .fp-c i { font-style: normal; text-align: center; padding: 0 3px; white-space: nowrap; }
 .fp-c i + i { border-left: 1px solid rgba(255, 255, 255, .07); }
 .fp-c .achat { background: rgba(198, 244, 50, .2); color: #E9FBAE; }           /* déséquilibre acheteur */
 .fp-c .vente { background: rgba(230, 236, 245, .17); color: #FFFFFF; }          /* déséquilibre vendeur */
 .fp-c .fort { background: var(--citron); color: var(--noir); font-weight: 650; }
+.fp-c.vif { background: rgba(255, 255, 255, .075); }
 /* le corps de la bougie, de l'ouverture à la clôture : vert si elle monte, blanc si elle baisse */
 .fp-corps { justify-self: start; width: 3px; margin: 2px 0 2px -5px; border-radius: 2px; }
 .fp-corps.monte { background: var(--citron); } .fp-corps.baisse { background: var(--argent); }
-.fp-c.vif { background: rgba(255, 255, 255, .075); }
-.fp-c i.touche { animation: touche .7s ease-out; }
-@keyframes touche { from { background: rgba(255, 255, 255, .38); color: #fff; } }
 .fp-prix { display: flex; align-items: center; justify-content: flex-end; padding-left: 6px; color: var(--gris-2); font-size: 11.5px; white-space: nowrap; }
 .fp-note { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; gap: 2px; margin: -2px 10px -2px 0; padding: 8px 12px; border: 1px solid rgba(198, 244, 50, .45); border-radius: 12px; background: rgba(12, 16, 8, .82); }
 .fp-note b { color: var(--citron); font-size: 13.5px; font-weight: 650; letter-spacing: -.01em; }
@@ -132,7 +143,7 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 .fp-pied span { text-align: center; white-space: nowrap; }
 .fp-pied .plus { color: var(--citron); } .fp-pied .moins { color: var(--argent); }
 .fp-pied .fp-prix { font-weight: 500; }
-.fp-legende { margin-top: 12px; color: var(--gris-2); font-size: 12.5px; line-height: 1.4; }
+.fp-legende { position: relative; margin-top: 12px; color: var(--gris-2); font-size: 12.5px; line-height: 1.4; }
 /* la place de chaque case dans la grille (pas de style écrit dans la page : la sécurité du site l'interdit) */
 .l1 { grid-row: 1; } .l2 { grid-row: 2; } .l3 { grid-row: 3; } .l4 { grid-row: 4; } .l5 { grid-row: 5; } .l6 { grid-row: 6; }
 .l7 { grid-row: 7; } .l8 { grid-row: 8; } .l9 { grid-row: 9; } .l10 { grid-row: 10; } .l11 { grid-row: 11; } .l12 { grid-row: 12; }
@@ -140,44 +151,52 @@ html:not([data-rubans]) body::before { content: ""; position: fixed; inset: 0; z
 .h1 { grid-row-end: span 1; } .h2 { grid-row-end: span 2; } .h3 { grid-row-end: span 3; } .h4 { grid-row-end: span 4; } .h5 { grid-row-end: span 5; } .h6 { grid-row-end: span 6; }
 .fp-note { grid-row: 1 / span 2; grid-column: 1 / span 3; }
 
+/* les deux cartes qui flottent autour du footprint vivant : l'une devant, l'autre derrière */
+.carte { display: none; position: absolute; flex-direction: column; padding: 15px 18px 16px; border-radius: 18px; }
+.fp[data-vif] ~ .carte { display: flex; }
+.carte small { color: var(--gris); font-size: 13px; line-height: 1.2; }
+.carte b { font-weight: 600; letter-spacing: -.025em; line-height: 1.15; }
+/* la carte de devant dépasse sous le panneau : elle ne recouvre ni les chiffres ni la légende */
+.carte-lecture { left: -7%; bottom: -92px; width: min(310px, 48%); gap: 5px; transform: translateZ(95px);
+  border-color: rgba(198, 244, 50, .38); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 30px 70px -24px rgba(0, 0, 0, .95), 0 0 50px -18px rgba(198, 244, 50, .5); }
+.carte-lecture b { color: var(--citron); font-size: 21px; font-stretch: 108%; }
+.carte-lecture span { color: #D5D8D6; font-size: 14.5px; line-height: 1.38; }
+.carte-lecture.change b { animation: change .5s ease-out; }
+@keyframes change { from { opacity: 0; transform: translateY(6px); } }
+.carte-cvd { right: -9%; top: -124px; width: 216px; gap: 2px; transform: translateZ(-120px); }
+.carte-cvd b { font-size: 23px; font-stretch: 108%; font-variant-numeric: tabular-nums; }
+.carte-cvd canvas { display: block; width: 100%; height: 44px; margin-top: 6px; }
+
 /* ---------- en bref ---------- */
-.faits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: clamp(36px, 6vh, 72px); padding: 6px 0; }
+.faits { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: clamp(84px, 13vh, 140px); padding: 6px 0; }
 .faits div { padding: 20px clamp(16px, 2vw, 28px) 22px; }
 .faits div + div { border-left: 1px solid var(--filet); }
 .faits dt { font-size: clamp(23px, 1.5vw + 7px, 36px); font-weight: 520; font-stretch: 110%; line-height: 1.05; letter-spacing: -.04em; white-space: nowrap; }
 .faits dd { margin-top: 8px; color: var(--gris); font-size: 14.5px; line-height: 1.4; text-wrap: balance; }
 
-/* ---------- le bloc vert ---------- */
-.rythme { position: relative; padding: clamp(56px, 10vh, 120px) 0; }
-.rythme-bloc { margin-inline: auto; width: min(100% - 2 * var(--marge), var(--large)); padding: clamp(40px, 7vw, 96px) clamp(22px, 6vw, 96px); border-radius: 32px; background: var(--citron); color: var(--noir); }
-.rythme-phrase { max-width: 21em; font-size: clamp(30px, 3.4vw + 10px, 68px); font-weight: 520; font-stretch: 110%; line-height: 1.04; letter-spacing: -.042em; text-wrap: balance; }
-.rythme-phrase span { transition: opacity .35s; }
-.semaines { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px; margin-top: clamp(32px, 5vw, 64px); }
-.semaines li { display: flex; flex-direction: column; gap: 4px; min-height: 86px; padding: 13px 14px; border-radius: 16px; background: rgba(11, 11, 12, .1); transition: opacity .5s, transform .5s; }
-.semaines small { font-size: 13px; font-weight: 500; opacity: .7; }
-.semaines b { margin-top: auto; font-size: 15.5px; font-weight: 650; letter-spacing: -.015em; }
-.semaines .fait { background: rgba(11, 11, 12, .2); }
-.semaines .ouvert { background: var(--noir); color: var(--citron); }
-.semaines .ouvert small { color: #fff; opacity: .75; }
-.rythme-note { margin-top: 16px; font-size: 14.5px; opacity: .72; }
-/* avec le défilement animé : la section est haute, le bloc reste à l'écran et s'ouvre */
-html[data-scene] .rythme { height: 250vh; padding: 0; }
-/* le bloc reste sous le haut de page (68 px) : le menu garde son fond noir */
-html[data-scene] .rythme-colle { position: sticky; top: 68px; display: grid; place-items: center; height: calc(100vh - 68px); height: calc(100svh - 68px); overflow: hidden; }
-html[data-scene] .rythme-bloc { display: flex; flex-direction: column; justify-content: center;
-  width: calc(min(100% - 2 * var(--marge), var(--large)) + (100% - min(100% - 2 * var(--marge), var(--large))) * var(--ouvre, 0));
-  height: calc(64% + 36% * var(--ouvre, 0)); border-radius: calc(32px * (1 - var(--ouvre, 0))); padding-block: 0; will-change: width, height; }
-html[data-scene] .rythme-dedans { width: 100%; max-width: calc(var(--large) - 2 * var(--marge)); margin-inline: auto; }
-html[data-scene] .rythme-phrase span { opacity: .22; }
-html[data-scene] .rythme-phrase span.dit { opacity: 1; }
-html[data-scene] .semaines li { opacity: 0; transform: translateY(14px); }
-html[data-scene] .rythme[data-fin] .semaines li { opacity: 1; transform: none; }
-html[data-scene] .rythme-note { opacity: 0; transition: opacity .5s .3s; }
-html[data-scene] .rythme[data-fin] .rythme-note { opacity: .72; }
-html[data-scene] .semaines li:nth-child(2) { transition-delay: .04s; } html[data-scene] .semaines li:nth-child(3) { transition-delay: .08s; }
-html[data-scene] .semaines li:nth-child(4) { transition-delay: .12s; } html[data-scene] .semaines li:nth-child(5) { transition-delay: .16s; }
-html[data-scene] .semaines li:nth-child(6) { transition-delay: .2s; } html[data-scene] .semaines li:nth-child(7) { transition-delay: .24s; }
-html[data-scene] .semaines li:nth-child(8) { transition-delay: .28s; }
+/* ---------- le parcours : le ruban passe par les huit semaines ---------- */
+.parcours { position: relative; padding: clamp(64px, 12vh, 140px) 0; }
+.parcours-in { display: grid; gap: clamp(28px, 6vh, 64px); }
+.titre-2 { font-size: clamp(32px, 2.9vw + 16px, 66px); font-weight: 480; font-stretch: 111%; line-height: 1.02; letter-spacing: -.043em; }
+.titre-2 span { display: block; }
+.titre-2 span + span { color: var(--argent); }
+.parcours-texte { max-width: 35em; margin-top: 18px; color: #C9CCCA; font-size: clamp(17px, .4vw + 15px, 19.5px); line-height: 1.5; text-wrap: pretty; }
+.chemin { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); align-items: center; height: clamp(230px, 38vh, 360px); }
+.etape { position: relative; display: grid; justify-items: center; }
+.etape:nth-child(odd) { transform: translateY(clamp(38px, 8.5vh, 84px)); }
+.etape:nth-child(even) { transform: translateY(clamp(-84px, -8.5vh, -38px)); }
+.noeud { position: relative; display: block; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, .32); background: rgba(5, 6, 6, .9); transition: background-color .45s, border-color .45s, box-shadow .45s, transform .45s; }
+.etape-nom { position: absolute; left: 50%; transform: translateX(-50%); color: var(--gris-2); font-size: 16px; font-weight: 500; white-space: nowrap; transition: color .45s; }
+.etape:nth-child(odd) .etape-nom { top: 40px; }
+.etape:nth-child(even) .etape-nom { bottom: 40px; }
+.etape.allumee .noeud { border-color: #fff; background: #fff; transform: scale(1.15); box-shadow: 0 0 0 6px rgba(198, 244, 50, .2), 0 0 30px 8px rgba(198, 244, 50, .55); }
+.etape.allumee .etape-nom { color: var(--encre); }
+.parcours-fin { justify-self: end; max-width: 30em; padding: 16px 22px; border-radius: 18px; color: #DADDDB; font-size: 16px; line-height: 1.45; }
+/* avec le défilement animé : la partie est haute, son contenu reste à l'écran, et la lumière avance de semaine en semaine */
+html[data-scene] .parcours { height: 300vh; padding: 0; }
+html[data-scene] .parcours-colle { position: sticky; top: var(--haut); display: grid; align-items: center; height: calc(100vh - var(--haut)); height: calc(100svh - var(--haut)); }
+html[data-scene] .parcours-fin { opacity: 0; transform: translateY(12px); transition: opacity .5s, transform .5s; }
+html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none; }
 
 /* ---------- la fin de l'aperçu ---------- */
 .suite { padding: clamp(48px, 9vh, 110px) 0 clamp(56px, 10vh, 120px); }
@@ -192,32 +211,39 @@ html[data-scene] .semaines li:nth-child(8) { transition-delay: .28s; }
   .hero-grille { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .hero-texte { max-width: 680px; }
   /* la place du nœud de lumière : entre les boutons et le footprint */
-  .scene-fp { justify-self: stretch; max-width: 720px; margin-top: 84px; }
-  .fp { transform: none; }
+  .scene-fp { justify-self: stretch; max-width: 720px; margin-top: 84px; perspective: none; }
+  .relief { transform: none; }
+  .relief::after { display: none; }
   .foyer { left: 14%; top: -46px; }
-  /* la petite ligne remonte au-dessus des boutons : rien d'écrit là où passe la lumière */
-  .hero-texte { display: flex; flex-direction: column; align-items: flex-start; }
-  .sous-actions { order: 1; margin-top: 16px; }
-  .actions { order: 2; margin-top: 24px; align-self: stretch; }
-  .faits { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* sous le footprint, sans rien recouvrir : la légende (« chiffres inventés ») doit rester lisible */
+  .carte-lecture { position: relative; left: auto; bottom: auto; width: auto; margin: 12px 0 0; transform: none; }
+  .carte-cvd { right: 14px; top: -40px; transform: none; }
+  .faits { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: clamp(36px, 6vh, 72px); }
   .faits div:nth-child(4) { border-left: 0; }
   .faits div:nth-child(n + 4) { border-top: 1px solid var(--filet); }
 }
 @media (max-width: 860px) {
   body { font-size: 16.5px; }
   /* sur téléphone, le flou du verre coûte cher quand le fond bouge : un verre plus opaque, moins de flou */
-  .verre { background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02) 42%), rgba(10, 13, 11, .8); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-radius: 18px; }
-  .semaines { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .semaines li { min-height: 74px; padding: 11px 9px; }
-  .semaines small { font-size: 12px; white-space: nowrap; }
-  .semaines b { font-size: 14px; white-space: nowrap; }
-  html[data-scene] .rythme { height: 220vh; }
-  html[data-scene] .rythme-bloc { height: calc(78% + 22% * var(--ouvre, 0)); }
+  .verre { background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02) 42%), rgba(10, 13, 11, .82); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-radius: 18px; }
+  /* le parcours descend l'écran en zigzag */
+  .chemin { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .etape, .etape:nth-child(odd), .etape:nth-child(even) { display: flex; align-items: center; gap: 16px; height: clamp(38px, 6.4svh, 56px); transform: none; }
+  .etape:nth-child(odd) { padding-left: 16%; }
+  .etape:nth-child(even) { flex-direction: row-reverse; padding-right: 16%; }
+  .etape .etape-nom, .etape:nth-child(odd) .etape-nom, .etape:nth-child(even) .etape-nom { position: static; transform: none; }
+  .parcours-in { gap: clamp(18px, 3.4vh, 32px); }
+  .parcours-fin { justify-self: stretch; padding: 13px 16px; font-size: 15px; }
+  .etape .etape-nom { font-size: 15.5px; }
+  html[data-scene] .parcours { height: 260vh; }
 }
 @media (max-width: 620px) {
   .actions .bouton { flex: 1 1 100%; }
   .foyer { left: 36%; top: -44px; }
   .fp { padding: 14px 12px 12px; }
+  .fp-toile { height: 358px; }
+  .fp-haut { flex-wrap: wrap; row-gap: 8px; }
+  .fp-haut h2 { flex: 1 1 100%; }
   .fp-grille, .fp-pied { grid-template-columns: repeat(4, minmax(0, 1fr)) auto; column-gap: 4px; font-size: 11.5px; }
   .fp-grille { grid-auto-rows: 26px; }
   /* on garde les quatre dernières bougies */
@@ -226,20 +252,19 @@ html[data-scene] .semaines li:nth-child(8) { transition-delay: .28s; }
   /* la note descend dans le coin vide, en bas à gauche */
   .fp-note { grid-row: 10 / span 3; grid-column: 1 / span 4; margin: 4px 0 0; }
   .fp-note::after { display: none; }
-  .fp-haut { flex-wrap: wrap; row-gap: 8px; }
-  .fp-haut h2 { flex: 1 1 100%; }
   .fp-cours { font-size: 12.5px; }
+  .fp[data-vif] ~ .carte-cvd { display: none; }
+  .carte-lecture b { font-size: 19px; }
   .faits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .faits div { padding: 16px 16px 18px; }
   .faits div + div { border-left: 0; }
   .faits div:nth-child(even) { border-left: 1px solid var(--filet); }
   .faits div:nth-child(n + 3) { border-top: 1px solid var(--filet); }
   .faits div:last-child { grid-column: 1 / -1; }
-  .rythme-bloc { border-radius: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .pouls, .fp-c i.touche { animation: none; }
+  .pouls, .carte-lecture.change b { animation: none; }
   * { transition: none !important; }
 }

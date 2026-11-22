@@ -1,7 +1,9 @@
-/* Le nouveau style : ce qui bouge dans la page elle-même (les rubans de lumière sont dans rubans.js).
-   - le haut de page prend un fond en verre dès qu'on défile ;
-   - le bloc vert s'ouvre au défilement, sa phrase s'allume mot à mot ;
-   - la bougie en cours du footprint d'exemple continue de se remplir.
+/* Le nouveau style : ce qui bouge dans la page elle-même (les rubans de lumière sont dans rubans.js, le footprint
+   vivant dans footprint.js).
+   - le haut de page prend un fond dès qu'on défile ;
+   - le parcours : la partie reste à l'écran pendant qu'on défile, et les huit semaines s'allument une à une
+     (la page écrit l'avancée dans data-avance, rubans.js allume le ruban jusque-là) ;
+   - le relief : les plans de verre du footprint suivent légèrement la souris.
    Avec « mouvement réduit », rien de tout ça ne bouge : la page est complète sans. */
 (function () {
   'use strict';
@@ -9,64 +11,59 @@
   var calme = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var borne = function (x) { return x < 0 ? 0 : x > 1 ? 1 : x; };
 
-  /* le haut de page */
   var haut = document.querySelector('.haut');
-  /* le bloc vert */
-  var rythme = document.querySelector('.rythme');
-  var bloc = rythme && rythme.querySelector('.rythme-bloc');
-  var mots = rythme ? Array.prototype.slice.call(rythme.querySelectorAll('.rythme-phrase span')) : [];
-  var dits = -1;
-  if (rythme && !calme && window.CSS && CSS.supports && CSS.supports('position', 'sticky')) racine.setAttribute('data-scene', '');
+  var parcours = document.querySelector('[data-parcours]');
+  var etapes = parcours ? Array.prototype.slice.call(parcours.querySelectorAll('.etape')) : [];
+  var allumees = -2;
+  var scene = parcours && !calme && window.CSS && CSS.supports && CSS.supports('position', 'sticky');
+  if (scene) racine.setAttribute('data-scene', '');
+
+  function allumer(n) {                          // n : le numéro de la dernière semaine allumée (0 à 7), -1 pour aucune
+    if (n === allumees) return;
+    for (var i = 0; i < etapes.length; i++) etapes[i].classList.toggle('allumee', i <= n);
+    allumees = n;
+  }
 
   var prevu = false;
   function suivre() {
     prevu = false;
     if (haut) { if (window.scrollY > 8) haut.setAttribute('data-pose', ''); else haut.removeAttribute('data-pose'); }
-    if (!rythme || !racine.hasAttribute('data-scene')) return;
-    var r = rythme.getBoundingClientRect();
+    if (!scene) return;
+    var r = parcours.getBoundingClientRect();
     var course = r.height - window.innerHeight;
     if (course <= 0) return;
-    // un peu avant d'arriver en haut de l'écran, le bloc commence déjà à s'ouvrir
-    var p = borne((window.innerHeight * 0.35 - r.top) / (course + window.innerHeight * 0.35));
-    var ouvre = borne(p / 0.34);
-    bloc.style.setProperty('--ouvre', (ouvre * ouvre * (3 - 2 * ouvre)).toFixed(4));
-    var n = Math.round(borne((p - 0.2) / 0.36) * mots.length);
-    if (n !== dits) {
-      for (var i = 0; i < mots.length; i++) mots[i].classList.toggle('dit', i < n);
-      dits = n;
-    }
-    if (p > 0.6) rythme.setAttribute('data-fin', ''); else rythme.removeAttribute('data-fin');
+    // la lumière part un peu avant que la partie se fixe à l'écran, et elle est arrivée au bout avant qu'elle reparte
+    var avant = window.innerHeight * 0.3;
+    var p = borne((avant - r.top) / (course + avant));
+    var avance = borne((p - 0.1) / 0.72) * 7.5 - 0.5;
+    parcours.setAttribute('data-avance', avance.toFixed(3));
+    allumer(Math.floor(avance + 0.06));
+    if (avance >= 6.98) parcours.setAttribute('data-fin', ''); else parcours.removeAttribute('data-fin');
   }
   function demander() { if (!prevu) { prevu = true; requestAnimationFrame(suivre); } }
   window.addEventListener('scroll', demander, { passive: true });
   window.addEventListener('resize', demander);
+  if (parcours && !scene) { allumer(7); parcours.setAttribute('data-fin', ''); }
   suivre();
 
-  /* le footprint d'exemple : la bougie en cours se remplit (chiffres inventés, c'est écrit dessous) */
-  var grille = document.querySelector('.fp-grille');
-  var delta = document.querySelector('.fp-pied [data-delta-vif]');
-  if (grille && !calme) {
-    var cases = Array.prototype.slice.call(grille.querySelectorAll('.fp-c.vif i'));
-    var visible = true, minuteur = 0;
-    var ecrire = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); };
-    var lire = function (el) { return parseInt(el.textContent.replace(/\D/g, ''), 10) || 0; };
-    function battre() {
-      if (!visible || document.hidden || !cases.length) return;
-      var el = cases[Math.floor(Math.random() * cases.length)];
-      el.textContent = ecrire(lire(el) + 1 + Math.floor(Math.random() * 7));
-      el.classList.remove('touche');
-      void el.offsetWidth;                          // relance l'éclat
-      el.classList.add('touche');
-      if (delta) {
-        var d = 0;
-        for (var i = 0; i < cases.length; i += 2) d += lire(cases[i + 1]) - lire(cases[i]);
-        delta.textContent = (d > 0 ? '+' : d < 0 ? '−' : '') + ecrire(Math.abs(d));
-        delta.className = 'k6 ' + (d >= 0 ? 'plus' : 'moins');
-      }
-    }
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }, { threshold: 0.1 }).observe(grille);
-    }
-    minuteur = window.setInterval(battre, 900);
+  /* le relief : seulement avec une souris, et sur un écran assez large pour que le footprint soit à côté du texte */
+  var relief = document.querySelector('[data-relief]');
+  var hero = document.querySelector('.hero');
+  var souris = window.matchMedia('(hover: hover) and (pointer: fine)');
+  if (relief && hero && !calme) {
+    var cx = 0, cy = 0, vx = 0, vy = 0, tourne = false;
+    var pas = function () {
+      vx += (cx - vx) * 0.08; vy += (cy - vy) * 0.08;
+      relief.style.setProperty('--ry', (vx * 5).toFixed(3) + 'deg');
+      relief.style.setProperty('--rx', (-vy * 4).toFixed(3) + 'deg');
+      if (Math.abs(cx - vx) + Math.abs(cy - vy) > 0.002) requestAnimationFrame(pas); else tourne = false;
+    };
+    var viser = function (x, y) { cx = x; cy = y; if (!tourne) { tourne = true; requestAnimationFrame(pas); } };
+    hero.addEventListener('pointermove', function (ev) {
+      if (!souris.matches || window.innerWidth <= 1080) return;
+      var r = hero.getBoundingClientRect();
+      viser((ev.clientX - r.left) / r.width * 2 - 1, (ev.clientY - r.top) / r.height * 2 - 1);
+    });
+    hero.addEventListener('pointerleave', function () { viser(0, 0); });
   }
 })();

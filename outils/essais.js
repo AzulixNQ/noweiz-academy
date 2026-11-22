@@ -886,18 +886,32 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await apercu.goto(URL + '/apercu-style');
     t = await texte(apercu);
     verif(t.includes('L\'order flow') && t.includes('avec Weizix.') && t.includes('Exemple illustratif') && t.includes('Les chiffres de cet exemple sont inventés'), 'aperçu : le titre, et le footprint annoncé comme un exemple aux chiffres inventés');
-    verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.semaines li').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 semaines, les faits (13 certificats)');
+    verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 semaines, les faits (13 certificats)');
     verif((await apercu.locator('meta[name=robots]').getAttribute('content')) === 'noindex, nofollow', 'aperçu : jamais référencé');
-    verif(!(await apercu.evaluate(() => document.documentElement.hasAttribute('data-scene'))) && (await apercu.evaluate(() => document.documentElement.getAttribute('data-rubans'))) !== 'animes', 'aperçu en mouvement réduit : pas de scène au défilement, rubans fixes ou absents');
+    verif(await apercu.evaluate(() => !document.documentElement.hasAttribute('data-scene') && document.documentElement.getAttribute('data-rubans') !== 'animes' && !document.querySelector('.fp[data-vif]') && document.querySelectorAll('.etape.allumee').length === 8
+      && getComputedStyle(document.querySelector('.fp-grille')).display === 'grid' && getComputedStyle(document.querySelector('.carte-lecture')).display === 'none'),
+      'aperçu en mouvement réduit : pas de scène, rubans fixes ou absents, footprint en grille fixe, les 8 semaines allumées');
+    verif(await apercu.evaluate(() => !/C6F432|198, 244, 50/i.test(getComputedStyle(document.querySelector('.parcours')).backgroundColor + getComputedStyle(document.body).backgroundColor)), 'aperçu : le vert n\'est jamais un fond de page');
     const anime = await fenetre({ reducedMotion: 'no-preference' });
     await anime.goto(URL + '/apercu-style');
-    await pause(400);
-    verif(await anime.evaluate(() => document.documentElement.hasAttribute('data-scene')), 'aperçu : la scène au défilement est en place');
-    const sec = await anime.evaluate(() => { const r = document.querySelector('.rythme').getBoundingClientRect(); return { haut: r.top + window.scrollY, h: r.height }; });
-    await anime.evaluate(y => window.scrollTo(0, y), sec.haut + sec.h - 900 - 40);
+    await pause(900);
+    verif(await anime.evaluate(() => document.documentElement.hasAttribute('data-scene') && !!document.querySelector('.fp[data-vif]') && getComputedStyle(document.querySelector('.fp-toile')).display === 'block' && getComputedStyle(document.querySelector('.fp-grille')).display === 'none'),
+      'aperçu animé : la scène du parcours est en place, le footprint vivant remplace la grille');
+    const lu1 = await anime.locator('[data-lecture] b').innerText();
+    const cvd1 = await anime.locator('[data-cvd]').innerText();
+    await pause(1500);
+    verif(lu1 === 'Absorption' && (await anime.locator('[data-cvd]').innerText()) !== cvd1 && /achats sur deux niveaux|revient tester/.test(await anime.locator('[data-lecture] span').innerText()), 'aperçu animé : la bougie se construit (le delta cumulé bouge), la carte lit une absorption');
+    const sec = await anime.evaluate(() => { const r = document.querySelector('.parcours').getBoundingClientRect(); return { haut: r.top + window.scrollY, h: r.height }; });
+    await anime.evaluate(y => window.scrollTo(0, y), sec.haut + 10);
+    await pause(500);
+    const debut = await anime.evaluate(() => document.querySelectorAll('.etape.allumee').length);
+    await anime.evaluate(y => window.scrollTo(0, y), sec.haut + (sec.h - 900) * 0.5);
+    await pause(500);
+    const milieu = await anime.evaluate(() => document.querySelectorAll('.etape.allumee').length);
+    await anime.evaluate(y => window.scrollTo(0, y), sec.haut + sec.h - 900 - 30);
     await pause(700);
-    verif(await anime.evaluate(() => document.querySelectorAll('.rythme-phrase span.dit').length === document.querySelectorAll('.rythme-phrase span').length && document.querySelector('.rythme').hasAttribute('data-fin') && parseFloat(document.querySelector('.rythme-bloc').style.getPropertyValue('--ouvre')) === 1),
-      'aperçu : en bas de la scène, le bloc vert est ouvert, la phrase dite, les semaines affichées');
+    const bout = await anime.evaluate(() => ({ n: document.querySelectorAll('.etape.allumee').length, fin: document.querySelector('.parcours').hasAttribute('data-fin'), avance: parseFloat(document.querySelector('.parcours').getAttribute('data-avance')) }));
+    verif(debut <= 1 && milieu >= 3 && milieu <= 6 && bout.n === 8 && bout.fin && bout.avance >= 7, 'aperçu animé : les semaines s\'allument au défilement (' + debut + ', puis ' + milieu + ', puis ' + bout.n + ')');
     await apercu.context().close(); await anime.context().close();
 
     verif(erreursPage.length === 0, 'aucune erreur de script ni de sécurité dans le navigateur : ' + erreursPage.slice(0, 3).join(' / '));
