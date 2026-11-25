@@ -49,6 +49,8 @@ $inscrits = liste_nombre();
 $montrer_compteur = $inscrits >= (int) reglage('compteur_min');
 $ouverture = (string) reglage('ouverture');
 $fin = $ouverture !== '' ? strtotime($ouverture) : false;
+$annee = reglage('compteur') === 'annee';
+$prix = (bool) reglage('prix_visibles');
 $titre = $nom . " : l'order flow avec Nojah, l'ICT avec Weizix";
 $desc = "Une formation par cohortes : un module par semaine, des lives sur Discord. Ouverture en 2027. Inscris-toi sur la liste d'attente.";
 $aria = static fn(string $c): string => isset($err[$c]) ? ' aria-invalid="true" aria-describedby="wl-' . $c . '-err"' : '';
@@ -102,6 +104,12 @@ if (!headers_sent()) {
 <script src="<?= e(version_fichier('/assets/fermee.js')) ?>" defer></script>
 </head>
 <body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+<symbol id="i-telegram" viewBox="0 0 24 24"><path d="M21.2 3.6 2.9 10.7c-.9.4-.9 1.6 0 1.9l4.5 1.6 1.7 5.3c.3.8 1.3 1 1.9.4l2.6-2.5 4.5 3.3c.7.5 1.7.1 1.9-.7l2.9-14.8c.2-1-.8-1.9-1.7-1.6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m7.6 14 10-7.1-7.8 8.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+  <symbol id="i-discord" viewBox="0 0 24 24"><path d="M8.3 6.4A15 15 0 0 1 12 6c1.3 0 2.5.1 3.7.4 1.8 2.5 2.7 5.3 2.6 8.6a12.7 12.7 0 0 1-4 2l-.9-1.6M8.3 6.4c-1.8 2.5-2.7 5.3-2.6 8.6a12.7 12.7 0 0 0 4 2l.9-1.6M7.6 14.7c2.9 1.5 5.9 1.5 8.8 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.7" cy="11.6" r="1.25" fill="currentColor"/><circle cx="14.3" cy="11.6" r="1.25" fill="currentColor"/></symbol>
+  <symbol id="i-tiktok" viewBox="0 0 24 24"><path d="M14 3.5v11a3.8 3.8 0 1 1-3.8-3.8M14 3.5c.5 2.5 2.2 4.2 4.8 4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-instagram" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.2" cy="6.8" r="1.05" fill="currentColor"/></symbol>
+</svg>
 <a class="saut" href="#contenu">Aller au contenu</a>
 <canvas id="rubans" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
@@ -142,19 +150,26 @@ if (!headers_sent()) {
           <p class="sous-actions" id="ouverture">Ouverture en 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</p>
 <?php else: ?>
           <div class="compteur" id="compteur" role="timer" aria-label="Temps restant avant l'ouverture" data-fin="<?= (int) $fin ?>">
-            <p class="compteur-titre">Le site ouvre dans</p>
+            <p class="compteur-titre"><?= $annee ? 'Ouverture en ' . e(date('Y', $fin)) . '. Il reste' : 'Le site ouvre dans' ?></p>
             <div class="compteur-rang">
 <?php $r = max(0, $fin - time()); foreach ([['t-j', intdiv($r, 86400), 'jours'], ['t-h', intdiv($r % 86400, 3600), 'heures'], ['t-m', intdiv($r % 3600, 60), 'minutes'], ['t-s', $r % 60, 'secondes']] as [$id, $n, $u]): ?>
               <div class="compteur-case"><b id="<?= $id ?>"><?= sprintf('%02d', $n) ?></b><span><?= $u ?></span></div>
 <?php endforeach; ?>
             </div>
-            <p class="compteur-note">Ouverture le <?= e(date_fr($fin, true)) ?>, heure de Paris.</p>
+            <p class="compteur-note"><?= $annee ? 'avant ' . e(date('Y', $fin)) . '. La date exacte sera annoncée d\'abord aux inscrits de la liste d\'attente.' : 'Ouverture le ' . e(date_fr($fin, true)) . ', heure de Paris.' ?></p>
           </div>
 <?php endif; ?>
           <div class="actions">
             <a class="bouton bouton-vert" href="#liste">M'inscrire sur la liste d'attente</a>
             <a class="bouton bouton-verre" href="#extrait"><i class="lecture" aria-hidden="true"></i>Voir un extrait, 1 minute</a>
           </div>
+<?php $reseaux = (array) reglage('reseaux'); if ($reseaux): ?>
+          <ul class="reseaux" aria-label="Nos réseaux">
+<?php foreach ($reseaux as [$ic, $nomr, $lien]): ?>
+            <li><a href="<?= e((string) $lien) ?>" target="_blank" rel="noopener"><svg class="reseau-ico" aria-hidden="true"><use href="#i-<?= e((string) $ic) ?>"/></svg><span><?= e((string) $nomr) ?></span></a></li>
+<?php endforeach; ?>
+          </ul>
+<?php endif; ?>
         </div>
 
         <div class="scene-fp">
@@ -241,7 +256,11 @@ if (!headers_sent()) {
             <li>Un appel bilan avec Nojah, à la fin</li>
             <li>Certificat de fin de parcours</li>
           </ul>
+<?php if ($prix): ?>
           <p class="offre-prix"><b>599,99&nbsp;€</b><span>1&nbsp;199,99&nbsp;€ avec le mentorat</span></p>
+<?php else: ?>
+          <p class="offre-prix offre-prix-bientot"><b>Prix annoncé bientôt</b><span>d'abord aux inscrits de la liste d'attente</span></p>
+<?php endif; ?>
           <a class="bouton bouton-verre" href="#liste" data-parcours="wl-p-of">Être prévenu à l'ouverture</a>
         </article>
         <article class="offre offre-ict verre">
@@ -254,7 +273,11 @@ if (!headers_sent()) {
             <li>Un appel bilan avec Weizix, à la fin</li>
             <li>Certificat de fin de parcours</li>
           </ul>
+<?php if ($prix): ?>
           <p class="offre-prix"><b>349,99&nbsp;€</b><span>699,99&nbsp;€ avec le mentorat</span></p>
+<?php else: ?>
+          <p class="offre-prix offre-prix-bientot"><b>Prix annoncé bientôt</b><span>d'abord aux inscrits de la liste d'attente</span></p>
+<?php endif; ?>
           <a class="bouton bouton-verre" href="#liste" data-parcours="wl-p-ict">Être prévenu à l'ouverture</a>
         </article>
         <article class="offre offre-pack verre">
@@ -267,7 +290,11 @@ if (!headers_sent()) {
             <li>Un appel bilan avec chacun, à la fin</li>
             <li>Deux certificats</li>
           </ul>
+<?php if ($prix): ?>
           <p class="offre-prix"><b>899,99&nbsp;€</b><span>49,99&nbsp;€ de moins que les deux pris séparément</span><span>1&nbsp;799,99&nbsp;€ avec le mentorat</span></p>
+<?php else: ?>
+          <p class="offre-prix offre-prix-bientot"><b>Prix annoncé bientôt</b><span>d'abord aux inscrits de la liste d'attente</span></p>
+<?php endif; ?>
           <a class="bouton bouton-vert" href="#liste" data-parcours="wl-p-pack">Être prévenu à l'ouverture</a>
         </article>
       </div>
@@ -276,7 +303,9 @@ if (!headers_sent()) {
           <h3>Le mentorat, en option</h3>
           <p>Après ta cohorte, 4 appels individuels de 45&nbsp;minutes avec ton formateur, dans les 8 semaines qui suivent. Vous regardez tes trades ensemble, un par un.</p>
         </div>
+<?php if ($prix): ?>
         <p class="mentorat-prix"><b>Dès 699,99&nbsp;€</b><span>formation comprise : 699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack</span></p>
+<?php endif; ?>
       </div>
     </div>
   </section>
@@ -352,11 +381,15 @@ if (!headers_sent()) {
       <div class="faq">
         <details open><summary>Quand ouvre le site ?</summary><p>En 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</p></details>
         <details><summary>À quoi sert la liste d'attente ?</summary><p>Tu laisses ton e-mail et on te prévient à l'ouverture. Les inscrits passent en premier sur les 50&nbsp;places de la cohorte 1.</p></details>
+<?php if ($prix): ?>
         <details><summary>Combien ça coûte ?</summary><p>349,99&nbsp;€ le parcours ICT, 599,99&nbsp;€ le parcours order flow, 899,99&nbsp;€ les deux ensemble. Avec le mentorat : 699,99&nbsp;€, 1&nbsp;199,99&nbsp;€ et 1&nbsp;799,99&nbsp;€.</p></details>
+<?php else: ?>
+        <details><summary>Combien ça coûte ?</summary><p>Les prix seront annoncés d'abord aux inscrits de la liste d'attente, avant l'ouverture.</p></details>
+<?php endif; ?>
         <details><summary>Je pourrai payer en plusieurs fois ?</summary><p>Oui, en 2 à 4 fois. L'accès reste ouvert tant que les échéances sont payées.</p></details>
         <details><summary>Je garde l'accès après ma cohorte ?</summary><p>Oui, à vie : les modules, les quiz et les replays des lives.</p></details>
         <details><summary>Et si je rate un live ?</summary><p>Le replay est ajouté au module concerné.</p></details>
-        <details><summary>Et après la formation ?</summary><p>Tu as un appel bilan de 30&nbsp;minutes avec ton formateur, compris dans le prix. Pour continuer, le mentorat ajoute 4 appels individuels de 45&nbsp;minutes : il se choisit avec la formation (699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack, formation comprise).</p></details>
+        <details><summary>Et après la formation ?</summary><p>Tu as un appel bilan de 30&nbsp;minutes avec ton formateur, compris dans le prix. Pour continuer, le mentorat ajoute 4 appels individuels de 45&nbsp;minutes : il se choisit avec la formation<?= $prix ? ' (699,99&nbsp;€ l\'ICT, 1&nbsp;199,99&nbsp;€ l\'order flow, 1&nbsp;799,99&nbsp;€ le pack, formation comprise)' : '' ?>.</p></details>
         <details><summary>Que faites-vous de mon e-mail ?</summary><p>On s'en sert seulement pour t'écrire au sujet de l'ouverture. Tu peux te désinscrire quand tu veux, avec le lien en bas de chaque e-mail. Le détail est sur la page <a href="/confidentialite#liste-attente">Confidentialité</a>.</p></details>
       </div>
     </div>
@@ -432,6 +465,13 @@ if (!headers_sent()) {
 <footer class="pied">
   <div class="cadre pied-in">
     <p>Le trading comporte un risque de perte. Cette formation ne promet aucun gain : Nojah et Weizix y partagent leur méthode, pas des conseils en investissement.</p>
+<?php if ($reseaux): ?>
+    <ul class="reseaux reseaux-pied" aria-label="Nos réseaux">
+<?php foreach ($reseaux as [$ic, $nomr, $lien]): ?>
+      <li><a href="<?= e((string) $lien) ?>" target="_blank" rel="noopener" aria-label="<?= e((string) $nomr) ?>"><svg class="reseau-ico" aria-hidden="true"><use href="#i-<?= e((string) $ic) ?>"/></svg></a></li>
+<?php endforeach; ?>
+    </ul>
+<?php endif; ?>
     <p class="pied-liens"><a href="/confidentialite">Confidentialité</a><a href="/mentions-legales">Mentions légales</a><a href="<?= $compte !== null ? '/espace' : '/connexion' ?>" class="pale"><?= $compte !== null ? 'Mon espace' : 'Se connecter' ?></a></p>
   </div>
 </footer>

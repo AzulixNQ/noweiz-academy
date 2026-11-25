@@ -8,8 +8,10 @@ page_debut('Mentions légales');
   <p class="intro">Qui édite et qui héberge le site <?= e((string) reglage('nom')) ?>.</p>
 
   <h2>Éditeur du site</h2>
-<?php $ed = (array) reglage('editeur'); if (reglage('test') || trim((string) ($ed['nom'] ?? '')) === ''): ?>
+<?php $ed = (array) reglage('editeur'); if (reglage('test')): ?>
   <p class="msg msg-info">L'éditeur du site (nom ou société, adresse, numéro d'immatriculation) et le directeur de la publication seront indiqués ici avant l'ouverture au public.</p>
+<?php elseif (trim((string) ($ed['nom'] ?? '')) === ''): ?>
+  <p>La société qui éditera le site est en cours de création : son nom, son adresse, son numéro d'immatriculation et le directeur de la publication seront indiqués ici dès son immatriculation. En attendant, pour toute question : <a href="mailto:<?= e((string) reglage('contact')) ?>"><?= e((string) reglage('contact')) ?></a>.</p>
 <?php else: ?>
   <p><?= e((string) $ed['nom']) ?><?= ($ed['forme'] ?? '') !== '' ? ', ' . e((string) $ed['forme']) : '' ?>.<?php if (($ed['immatriculation'] ?? '') !== ''): ?><br><?= e((string) $ed['immatriculation']) ?>.<?php endif; ?><?php if (($ed['adresse'] ?? '') !== ''): ?><br><?= e((string) $ed['adresse']) ?>.<?php endif; ?></p>
 <?php if (($ed['directeur'] ?? '') !== ''): ?>

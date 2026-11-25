@@ -245,6 +245,7 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
 .offre-prix { margin-top: auto; padding-top: 26px; }
 .offre-prix b { display: block; font-size: clamp(32px, 1.6vw + 18px, 44px); font-weight: 520; font-stretch: 110%; font-variant-numeric: tabular-nums; line-height: 1.05; letter-spacing: -.04em; }
 .offre-prix span { display: block; margin-top: 6px; color: var(--gris); font-size: 14.5px; }
+.offre-prix-bientot b { font-size: clamp(22px, .8vw + 14px, 28px); letter-spacing: -.025em; }
 .offre .bouton { margin-top: 22px; }
 .mentorat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 56px; margin-top: 16px; padding: clamp(22px, 2.2vw, 32px); border-radius: 26px; }
 .mentorat > div { flex: 1 1 420px; min-width: 0; }
@@ -418,4 +419,26 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
   html { scroll-behavior: auto; }
   .pouls, .carte-lecture.change b, .wall-row { animation: none; }
   * { transition: none !important; }
+}
+
+/* les réseaux (26/11) */
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.reseaux { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+.reseaux a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid var(--filet); border-radius: 999px; background: rgba(255, 255, 255, .04); color: var(--encre); font-size: 14.5px; text-decoration: none; transition: border-color .2s, background-color .2s; }
+.reseaux a:hover { border-color: rgba(255, 255, 255, .28); background: rgba(255, 255, 255, .08); }
+.reseaux a:focus-visible { outline: 2px solid var(--citron); outline-offset: 2px; }
+.reseau-ico { width: 18px; height: 18px; flex: none; }
+.reseaux-pied { margin: 0; }
+.reseaux-pied a { width: 44px; padding: 0; justify-content: center; }
+/* le compte à rebours, bien visible */
+.compteur { margin-top: 26px; }
+.compteur-titre { color: var(--encre); font-size: 15.5px; font-weight: 520; }
+.compteur-rang { gap: 12px; }
+.compteur-case { min-width: 88px; padding: 14px 12px 12px; border-color: rgba(198, 244, 50, .28); background: rgba(198, 244, 50, .05); }
+.compteur-case b { font-size: clamp(32px, 2vw + 20px, 46px); }
+@media (max-width: 520px) {
+  .compteur-rang { gap: 8px; }
+  .compteur-case { min-width: 0; flex: 1 1 0; padding: 12px 4px 10px; }
+  .compteur-case b { font-size: 30px; }
+  .reseaux a { padding: 0 12px; }
 }

@@ -41,7 +41,7 @@ function verifier_adresse(): void
     $port = parse_url(url_site(), PHP_URL_PORT);
     if ($port) $attendu .= ':' . $port;
     $recu = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
-    if ($recu !== $attendu) {
+    if ($recu !== $attendu && !in_array($recu, array_map('strtolower', (array) reglage('autres_adresses')), true)) {
         http_response_code(421);
         header('Content-Type: text/plain; charset=utf-8');
         exit("Cette adresse n'est pas celle du site.");
