@@ -58,7 +58,7 @@ function smtp_serveur(): array
 /** De quoi envoyer, mot de passe déchiffré ; null si l'envoi par la boîte n'est pas branché (ou la clé perdue). */
 function smtp_actif(): ?array
 {
-    if (reglage('courriel.transport') !== 'mail') return null;
+    if (reglage('courriel.transport') !== 'mail' || reglage('courriel.par_boite') === false) return null;
     $r = smtp_reglage();
     if ($r === null || empty($r['actif']) || empty($r['utilisateur']) || empty($r['mdp'])) return null;
     // Le serveur ne répondait pas il y a un instant : on ne fait pas attendre chaque visiteur, on passe par l'hébergement.

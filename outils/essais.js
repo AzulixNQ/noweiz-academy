@@ -787,7 +787,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     });
     await new Promise(r => fausseBoite.listen(PORT_SMTP, '127.0.0.1', r));
     // sendmail_path=/bin/true : l'envoi « par l'hébergement » réussit sans rien envoyer
-    const serveur2 = spawn('php', ['-d', 'sendmail_path=/bin/true', '-S', '127.0.0.1:' + PORT2, 'outils/serveur.php'], { cwd: racine, env: Object.assign({}, process.env, { NA_URL: URL2, NA_COURRIER: 'mail', NA_DONNEES: donnees2, NA_SMTP_HOTE: '127.0.0.1', NA_SMTP_PORT: String(PORT_SMTP) }), stdio: 'ignore' });
+    const serveur2 = spawn('php', ['-d', 'sendmail_path=/bin/true', '-S', '127.0.0.1:' + PORT2, 'outils/serveur.php'], { cwd: racine, env: Object.assign({}, process.env, { NA_URL: URL2, NA_COURRIER: 'mail', NA_PAR_BOITE: '1', NA_DONNEES: donnees2, NA_SMTP_HOTE: '127.0.0.1', NA_SMTP_PORT: String(PORT_SMTP) }), stdio: 'ignore' });
     try {
       for (let i = 0; i < 50; i++) { try { const r = await fetch(URL2 + '/sante'); if (r.ok) break; } catch (e) {} await pause(100); }
       const base2 = (sql) => JSON.parse(require('child_process').execFileSync('php', ['-r', 'require "app/demarrage.php"; echo json_encode(lignes($argv[1]));', sql],

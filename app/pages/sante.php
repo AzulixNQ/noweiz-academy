@@ -29,7 +29,7 @@ $etat['courriel'] = reglage('courriel.transport') === 'mail' ? (function_exists(
 // « boîte » : les e-mails partent par la boîte contact (signés) ; « hébergement » : par mail(), non signés.
 try {
     $r = smtp_reglage();
-    $etat['courriel_par'] = $r !== null && !empty($r['actif']) ? ((string) ($r['erreur'] ?? '') !== '' ? 'boîte (en panne : hébergement)' : 'boîte') : 'hébergement';
+    $etat['courriel_par'] = reglage('courriel.par_boite') === false ? 'hébergement (boîte mise de côté)' : ($r !== null && !empty($r['actif']) ? ((string) ($r['erreur'] ?? '') !== '' ? 'boîte (en panne : hébergement)' : 'boîte') : 'hébergement');
 } catch (Throwable $e) {
     $etat['courriel_par'] = 'inconnu';
 }

@@ -108,7 +108,12 @@ page_debut('E-mails', ['zone' => 'app', 'courant' => 'courriel']);
       <section class="box" aria-labelledby="ce-etat">
         <p class="eyebrow" id="ce-etat">Aujourd'hui</p>
 <?php if ($branche): ?>
+<?php if (reglage('courriel.par_boite') === false): ?>
+        <h2>Les e-mails partent par l'hébergement</h2>
+        <p class="msg msg-err" role="status">La boîte <?= e((string) $reglage['utilisateur']) ?> est branchée, mais mise de côté (réglage <code>par_boite</code> de config.php) : ses e-mails n'arrivaient pas le 25/11. L'essai ci-dessous part donc par l'hébergement.</p>
+<?php else: ?>
         <h2>Les e-mails partent par la boîte <?= e((string) $reglage['utilisateur']) ?></h2>
+<?php endif; ?>
         <p>Branchée le <?= e($quand((int) ($reglage['le'] ?? 0))) ?>. Dernier essai réussi : <?= e($quand((int) ($reglage['test_le'] ?? 0))) ?>. Serveur : <?= e($serveur['hote']) ?>.</p>
 <?php if ((string) ($reglage['erreur'] ?? '') !== ''): ?>
         <p class="msg msg-err" role="status">Dernière panne, le <?= e($quand((int) $reglage['erreur_le'])) ?> : <?= e((string) $reglage['erreur']) ?> Tant que ça dure, les e-mails partent par l'hébergement. Si le mot de passe de la boîte a changé, retape-le ci-dessous.</p>

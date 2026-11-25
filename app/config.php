@@ -53,6 +53,10 @@ return [
         'expediteur' => 'contact@noweiz.com',        // l'adresse affichée : on peut y répondre (chez OVH, elle renvoie vers la boîte contact@noweiz.fr)
         'retours' => 'contact@noweiz.com',   // l'enveloppe : une adresse qui existe (les serveurs refusent un expéditeur inconnu) ; les e-mails non livrés reviennent dans la boîte contact
         'nom' => 'Noweiz Academy',
+        // Passer par la boîte contact@noweiz.fr quand elle est branchée (/admin/courriel) ? Mis à false le 25/11 à minuit :
+        // ses envois sont acceptés par OVH mais n'arrivent pas (22/11, et encore le 25/11 à 23:53), alors que ceux de
+        // l'hébergement arrivent de nouveau depuis le 25/11 à 21:51. Remettre à true quand un essai par la boîte arrive.
+        'par_boite' => getenv('NA_PAR_BOITE') !== false ? getenv('NA_PAR_BOITE') === '1' : false,
     ],
     'contact' => 'contact@noweiz.com',   // l'adresse donnée sur le site et dans les e-mails
 
