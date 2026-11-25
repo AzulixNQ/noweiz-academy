@@ -36,8 +36,11 @@ $test = (bool) reglage('test');
   <h2>Tes droits</h2>
   <p>Tu peux demander à voir tes informations, à les corriger, à les faire effacer, à en limiter l'usage, à les récupérer, ou retirer ton accord. Pour toute demande, écris-nous à <a href="mailto:<?= e((string) reglage('contact')) ?>"><?= e((string) reglage('contact')) ?></a> ou sur le <a href="<?= e((string) reglage('discord')) ?>" target="_blank" rel="noopener">Discord</a> ; la réponse arrive sous un mois. Si elle ne te convient pas, tu peux saisir la CNIL sur <a href="https://www.cnil.fr/fr/plaintes" target="_blank" rel="noopener">cnil.fr</a>.</p>
 
-<?php if ($test): ?>
-  <p class="msg msg-info">Version de test : le nom du responsable du site et une adresse e-mail de contact seront indiqués ici avant l'ouverture au public.</p>
+<?php $ed = (array) reglage('editeur'); if ($test || trim((string) ($ed['nom'] ?? '')) === ''): ?>
+  <p class="msg msg-info">Le nom du responsable des données sera indiqué ici avant l'ouverture au public.</p>
+<?php else: ?>
+  <h2>Qui est responsable de ces données</h2>
+  <p><?= e((string) $ed['nom']) ?><?= ($ed['adresse'] ?? '') !== '' ? ', ' . e((string) $ed['adresse']) : '' ?>. Contact : <a href="mailto:<?= e((string) reglage('contact')) ?>"><?= e((string) reglage('contact')) ?></a>.</p>
 <?php endif; ?>
   <p><a class="btn btn-line" href="/">Revenir au site</a></p>
 </main>

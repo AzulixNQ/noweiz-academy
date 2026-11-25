@@ -100,7 +100,9 @@ function page_debut(string $titre, array $o = []): void
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= e($titre) ?>, <?= e($nom) ?></title>
+<?php if (reglage('test') || $zone !== 'site'): ?>
 <meta name="robots" content="noindex, nofollow">
+<?php endif; ?>
 <meta name="theme-color" content="#050606">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="/assets/icone.svg" type="image/svg+xml">

@@ -23,7 +23,7 @@ function est_https(): bool
         || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
 }
 
-/** L'adresse officielle du site, sans barre finale : https://test.noweiz.com */
+/** L'adresse officielle du site, sans barre finale : https://academy.noweiz.com */
 function url_site(string $chemin = ''): string
 {
     return rtrim((string) reglage('url'), '/') . $chemin;

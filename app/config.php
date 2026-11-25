@@ -7,9 +7,17 @@ declare(strict_types=1);
 return [
     'nom' => 'Noweiz Academy',
     // L'adresse officielle du site : les liens des e-mails sont construits avec elle, jamais avec l'adresse reçue du visiteur.
-    'url' => getenv('NA_URL') ?: 'https://test.noweiz.com',
+    'url' => getenv('NA_URL') ?: 'https://academy.noweiz.com',
     // Version de test : bandeau « Version de test », pages non référencées.
-    'test' => true,
+    'test' => false,
+    // L'éditeur du site (mentions légales) et le responsable des données (confidentialité). À remplir avant l'ouverture.
+    'editeur' => [
+        'nom' => '',                 // la société (ou le nom de la personne)
+        'forme' => '',               // ex. SAS au capital de 1 000 €
+        'adresse' => '',
+        'immatriculation' => '',     // ex. RCS Paris 123 456 789
+        'directeur' => '',           // le directeur de la publication
+    ],
     'discord' => 'https://discord.gg/4TEKKZTCdF',
     'hub' => 'https://noweiz.com/',
 

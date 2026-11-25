@@ -887,7 +887,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     t = await texte(apercu);
     verif(t.includes('L\'order flow') && t.includes('avec Weizix.') && t.includes('Exemple illustratif') && t.includes('Les chiffres de cet exemple sont inventés'), 'aperçu : le titre, et le footprint annoncé comme un exemple aux chiffres inventés');
     verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 semaines, les faits (13 certificats)');
-    verif((await apercu.locator('meta[name=robots]').getAttribute('content')) === 'noindex, nofollow', 'accueil de test : jamais référencé');
+    verif((await apercu.locator('meta[name=robots]').count()) === 0, 'accueil ouvert au public : référençable (plus de noindex)');
     verif(await apercu.evaluate(() => !document.documentElement.hasAttribute('data-scene') && document.documentElement.getAttribute('data-rubans') !== 'animes' && !document.querySelector('.fp[data-vif]') && document.querySelectorAll('.etape.allumee').length === 8
       && getComputedStyle(document.querySelector('.fp-grille')).display === 'grid' && getComputedStyle(document.querySelector('.carte-lecture')).display === 'none'),
       'aperçu en mouvement réduit : pas de scène, rubans fixes ou absents, footprint en grille fixe, les 8 semaines allumées');

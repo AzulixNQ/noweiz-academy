@@ -8,8 +8,13 @@ page_debut('Mentions légales');
   <p class="intro">Qui édite et qui héberge le site <?= e((string) reglage('nom')) ?>.</p>
 
   <h2>Éditeur du site</h2>
-<?php if (reglage('test')): ?>
-  <p class="msg msg-info">Version de test : l'éditeur du site (nom ou société, adresse, téléphone, numéro d'immatriculation) et le directeur de la publication seront indiqués ici avant l'ouverture au public.</p>
+<?php $ed = (array) reglage('editeur'); if (reglage('test') || trim((string) ($ed['nom'] ?? '')) === ''): ?>
+  <p class="msg msg-info">L'éditeur du site (nom ou société, adresse, numéro d'immatriculation) et le directeur de la publication seront indiqués ici avant l'ouverture au public.</p>
+<?php else: ?>
+  <p><?= e((string) $ed['nom']) ?><?= ($ed['forme'] ?? '') !== '' ? ', ' . e((string) $ed['forme']) : '' ?>.<?php if (($ed['immatriculation'] ?? '') !== ''): ?><br><?= e((string) $ed['immatriculation']) ?>.<?php endif; ?><?php if (($ed['adresse'] ?? '') !== ''): ?><br><?= e((string) $ed['adresse']) ?>.<?php endif; ?></p>
+<?php if (($ed['directeur'] ?? '') !== ''): ?>
+  <p>Directeur de la publication : <?= e((string) $ed['directeur']) ?>.</p>
+<?php endif; ?>
 <?php endif; ?>
 
   <h2>Contact</h2>
