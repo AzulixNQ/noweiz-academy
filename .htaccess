@@ -5,9 +5,12 @@ RewriteEngine On
 # Le contrôle du certificat HTTPS (Let's Encrypt) passe tel quel
 RewriteRule ^\.well-known/ - [L]
 
+# L'ancienne adresse de test renvoie vers l'adresse du site (mêmes pages)
+RewriteCond %{HTTP_HOST} ^test\.noweiz\.com$ [NC]
+RewriteRule ^(.*)$ https://academy.noweiz.com/$1 [R=301,L]
+
 # Ce dossier est rangé dans celui du HUB : il ne répond que sous l'adresse du site de la formation
-# (academy.noweiz.com prendra le relais quand son certificat HTTPS sera prêt ; test.noweiz.com y renverra alors)
-RewriteCond %{HTTP_HOST} !^(test|academy)\.noweiz\.com$ [NC]
+RewriteCond %{HTTP_HOST} !^academy\.noweiz\.com$ [NC]
 RewriteRule ^ - [R=404,L]
 
 # Toujours en HTTPS

@@ -69,11 +69,11 @@ Le paiement (inscription automatique dans une cohorte), le lien avec Discord (r�
 
 ## Mise en ligne
 L'offre OVH Perso n'accepte qu'un seul site relié à GitHub, et c'est le HUB. Ce site est donc livré **par le dépôt du HUB**
-(`AzulixNQ/nojah`), dans son sous-dossier `academy/` ; chez OVH, `test.noweiz.com` pointe sur `hub/academy`.
+(`AzulixNQ/nojah`), dans son sous-dossier `academy/` ; chez OVH, `academy.noweiz.com` (et l'ancienne adresse `test.noweiz.com`, renvoyée vers elle) pointe sur `hub/academy`.
 
 1. Travailler ici (`AzulixNQ/noweiz-academy`, le code source), lancer `node outils/essais.js`.
 2. Recopier ce dossier (sans `.git`) dans `academy/` du dépôt `nojah`, puis envoyer `nojah` sur GitHub.
 3. Console OVH > Hébergements web > Mes sites > ⋮ de « Noweiz HUB » > Git > Déployer.
-4. Contrôler `https://test.noweiz.com/sante` (`donnees_niveaux` doit valoir 2 : les données sont à la racine de l'hébergement, hors du HUB).
+4. Contrôler `https://academy.noweiz.com/sante` (`donnees_niveaux` doit valoir 2 : les données sont à la racine de l'hébergement, hors du HUB).
 
-`.htaccess` rend ce dossier introuvable sous une autre adresse que `test.noweiz.com` (par exemple `noweiz.com/academy`).
+`.htaccess` rend ce dossier introuvable sous une autre adresse que `academy.noweiz.com` (par exemple `noweiz.com/academy`).

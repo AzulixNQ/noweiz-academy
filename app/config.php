@@ -7,9 +7,10 @@ declare(strict_types=1);
 return [
     'nom' => 'Noweiz Academy',
     // L'adresse officielle du site : les liens des e-mails sont construits avec elle, jamais avec l'adresse reçue du visiteur.
-    'url' => getenv('NA_URL') ?: 'https://test.noweiz.com',   // passera à https://academy.noweiz.com quand son certificat HTTPS sera prêt
+    'url' => getenv('NA_URL') ?: 'https://academy.noweiz.com',
     // Les autres adresses acceptées (mêmes pages ; les liens des e-mails gardent l'adresse officielle ci-dessus)
-    'autres_adresses' => ['academy.noweiz.com'],
+    // (test.noweiz.com est renvoyée vers academy.noweiz.com par .htaccess ; elle reste acceptée ici par sécurité)
+    'autres_adresses' => ['test.noweiz.com'],
     // Version de test : bandeau « Version de test », pages non référencées. Ouverture au public le 26/11/2026 à 10 h (heure de Paris).
     'test' => getenv('NA_TEST') !== false ? getenv('NA_TEST') === '1' : time() < strtotime('2026-11-26T10:00:00+01:00'),
     // Les prix des parcours : cachés pour l'instant (annoncés d'abord aux inscrits de la liste d'attente).
