@@ -217,7 +217,7 @@ if (!headers_sent()) {
         <div><dt>2 parcours</dt><dd>l'order flow, l'ICT, ou les deux ensemble</dd></div>
         <div><dt>70&nbsp;%</dt><dd>au quiz d'un module pour ouvrir le suivant</dd></div>
         <div><dt>20 à 50</dt><dd>élèves par cohorte, et des lives sur Discord</dd></div>
-        <div><dt><?= $certificats ?> certificats</dt><dd>de payout de Nojah, à vérifier un par un</dd></div>
+        <div><dt><?= $certificats ?> certificats</dt><dd>de payout de Nojah et Weizix, à vérifier un par un</dd></div>
       </dl>
     </div>
   </section>
@@ -351,8 +351,7 @@ if (!headers_sent()) {
           <dl>
             <div><dt>Sa méthode</dt><dd>L'order flow</dd></div>
             <div><dt>Son marché</dt><dd>Le Nasdaq, en futures : NQ et MNQ</dd></div>
-            <div><dt>Comptes funded</dt><dd>Lucid Trading et Topstep, avec des payouts depuis juin 2026</dd></div>
-            <div><dt>Ses payouts</dt><dd><span class="gain">33&nbsp;115&nbsp;$</span></dd></div>
+            <div><dt>Comptes funded</dt><dd>Lucid Trading et Topstep, tradés avec Weizix</dd></div>
           </dl>
         </article>
         <article class="formateur formateur-ict verre">
@@ -360,13 +359,17 @@ if (!headers_sent()) {
           <dl>
             <div><dt>Sa méthode</dt><dd>L'ICT (Inner Circle Trader)</dd></div>
             <div><dt>L'ICT, en bref</dt><dd>La liquidité, la structure du marché et les déséquilibres de prix (fair value gaps)</dd></div>
+            <div><dt>Comptes funded</dt><dd>Lucid Trading et Topstep, tradés avec Nojah</dd></div>
           </dl>
         </article>
       </div>
     </div>
     <div class="preuves">
       <div class="cadre preuves-tete">
-        <h3>Les payouts de Nojah, certificat par certificat</h3>
+        <div>
+          <h3>Leurs payouts, certificat par certificat</h3>
+          <p class="preuves-total"><span class="gain">33&nbsp;115&nbsp;$</span> depuis juin 2026. Nojah et Weizix tradent ensemble, sur les mêmes comptes : les certificats sont au nom de Nojah.</p>
+        </div>
         <p><a href="<?= e((string) reglage('hub')) ?>" target="_blank" rel="noopener">Voir tous les certificats sur Noweiz HUB</a></p>
       </div>
       <div class="wall" id="wall" aria-hidden="true"></div>

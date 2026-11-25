@@ -26,7 +26,7 @@ page_debut('Mentions légales');
   <p>OVH SAS, au capital de 50 000 000 €, RCS Lille Métropole 424 761 419 00045.<br>2 rue Kellermann, 59100 Roubaix, France. Téléphone : +33 9 72 10 10 07.</p>
 
   <h2>Avertissement sur le trading</h2>
-  <p>Le trading comporte un risque de perte, qui peut dépasser la somme engagée sur certains produits. <?= e((string) reglage('nom')) ?> est une formation : Nojah et Weizix y partagent leur méthode, pas des conseils en investissement. Les payouts montrés sont ceux de Nojah ; ils ne promettent aucun résultat à qui que ce soit.</p>
+  <p>Le trading comporte un risque de perte, qui peut dépasser la somme engagée sur certains produits. <?= e((string) reglage('nom')) ?> est une formation : Nojah et Weizix y partagent leur méthode, pas des conseils en investissement. Les payouts montrés sont ceux de Nojah et Weizix, qui tradent ensemble sur les mêmes comptes ; ils ne promettent aucun résultat à qui que ce soit.</p>
 
   <h2>Contenus</h2>
   <p>Les textes, les vidéos et les images du site appartiennent à <?= e((string) reglage('nom')) ?> ou à leurs auteurs. Ils ne peuvent pas être repris sans accord.</p>

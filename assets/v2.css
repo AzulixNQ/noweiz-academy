@@ -442,3 +442,4 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
   .compteur-case b { font-size: 30px; }
   .reseaux a { padding: 0 12px; }
 }
+.preuves-total { margin-top: 6px; max-width: 64ch; color: var(--gris); font-size: 15px; line-height: 1.5; }
