@@ -33,7 +33,6 @@ $pages = [
     '/video' => 'video',
     '/admin/essai' => 'admin_essai',
     '/admin/courriel' => 'admin_courriel',
-    '/admin/courriel/expediteurs' => 'admin_courriel_exp',   // TEMPORAIRE (23/11)
     '/formateur' => 'formateur',
     '/formateur/module' => 'formateur_module',
     '/formateur/lecon' => 'formateur_lecon',
