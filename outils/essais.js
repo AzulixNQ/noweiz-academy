@@ -888,7 +888,8 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await apercu.goto(URL + '/');
     t = await texte(apercu);
     verif(t.includes('L\'order flow') && t.includes('avec Weizix.') && t.includes('Exemple illustratif') && t.includes('Les chiffres de cet exemple sont inventés'), 'aperçu : le titre, et le footprint annoncé comme un exemple aux chiffres inventés');
-    verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 semaines, les faits (13 certificats)');
+    verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 étapes du parcours, les faits (13 certificats)');
+    verif(!/8 semaines|huit semaines|par semaine|chaque semaine/i.test(t), 'accueil : aucune durée de formation annoncée (pas encore fixée)');
     verif((await apercu.locator('meta[name=robots]').count()) === 0, 'accueil ouvert au public : référençable (plus de noindex)');
     const html = await apercu.content();
     verif(!/\d,\d\d(&nbsp;|\s|\u00a0)?€/.test(html) && html.includes('Prix annoncé bientôt') && html.includes('annoncés d\'abord aux inscrits'), 'accueil : aucun prix affiché (prix_visibles = false)');
@@ -897,7 +898,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     verif(await apercu.locator('video').count() === 0 && !html.includes('absorption-v2') && !html.includes('#extrait'), 'accueil : plus d\'extrait vidéo (retiré à la demande de Nojah)');
     verif(await apercu.evaluate(() => !document.documentElement.hasAttribute('data-scene') && document.documentElement.getAttribute('data-rubans') !== 'animes' && !document.querySelector('.fp[data-vif]') && document.querySelectorAll('.etape.allumee').length === 8
       && getComputedStyle(document.querySelector('.fp-grille')).display === 'grid' && getComputedStyle(document.querySelector('.carte-lecture')).display === 'none'),
-      'aperçu en mouvement réduit : pas de scène, rubans fixes ou absents, footprint en grille fixe, les 8 semaines allumées');
+      'aperçu en mouvement réduit : pas de scène, rubans fixes ou absents, footprint en grille fixe, les 8 étapes allumées');
     verif(await apercu.evaluate(() => !/C6F432|198, 244, 50/i.test(getComputedStyle(document.querySelector('.parcours')).backgroundColor + getComputedStyle(document.body).backgroundColor)), 'aperçu : le vert n\'est jamais un fond de page');
     const anime = await fenetre({ reducedMotion: 'no-preference' });
     await anime.goto(URL + '/');
@@ -918,7 +919,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await anime.evaluate(y => window.scrollTo(0, y), sec.haut + sec.h - 900 - 30);
     await pause(700);
     const bout = await anime.evaluate(() => ({ n: document.querySelectorAll('.etape.allumee').length, fin: document.querySelector('.parcours').hasAttribute('data-fin'), avance: parseFloat(document.querySelector('.parcours').getAttribute('data-avance')) }));
-    verif(debut <= 1 && milieu >= 3 && milieu <= 6 && bout.n === 8 && bout.fin && bout.avance >= 7, 'aperçu animé : les semaines s\'allument au défilement (' + debut + ', puis ' + milieu + ', puis ' + bout.n + ')');
+    verif(debut <= 1 && milieu >= 3 && milieu <= 6 && bout.n === 8 && bout.fin && bout.avance >= 7, 'aperçu animé : les étapes s\'allument au défilement (' + debut + ', puis ' + milieu + ', puis ' + bout.n + ')');
     await apercu.context().close(); await anime.context().close();
 
     verif(erreursPage.length === 0, 'aucune erreur de script ni de sécurité dans le navigateur : ' + erreursPage.slice(0, 3).join(' / '));

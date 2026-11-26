@@ -52,7 +52,7 @@ $fin = $ouverture !== '' ? strtotime($ouverture) : false;
 $annee = reglage('compteur') === 'annee';
 $prix = (bool) reglage('prix_visibles');
 $titre = $nom . " : l'order flow avec Nojah, l'ICT avec Weizix";
-$desc = "Une formation par cohortes : un module par semaine, des lives sur Discord. Ouverture en 2027. Inscris-toi sur la liste d'attente.";
+$desc = "Une formation par cohortes : des modules pas à pas, des lives sur Discord. Ouverture en 2027. Inscris-toi sur la liste d'attente.";
 $aria = static fn(string $c): string => isset($err[$c]) ? ' aria-invalid="true" aria-describedby="wl-' . $c . '-err"' : '';
 
 /* Le footprint d'exemple du haut de page, tel qu'il s'affiche sans animation (les six premières bougies de assets/footprint.js).
@@ -145,7 +145,7 @@ if (!headers_sent()) {
         <div class="hero-texte">
           <p class="etat"><i class="pouls" aria-hidden="true"></i>La liste d'attente est ouverte</p>
           <h1 class="titre"><span>L'order flow</span> <span>avec Nojah,</span> <span class="deux">l'ICT</span> <span class="deux">avec Weizix.</span></h1>
-          <p class="chapo">Une formation en cohorte de 8 semaines. Un module s'ouvre chaque semaine, tu le valides par un quiz, et les lives se passent sur Discord avec ta promo.</p>
+          <p class="chapo">Une formation en cohorte, avec ta promo. Les modules s'ouvrent un par un, tu valides chacun par un quiz, et les lives se passent sur Discord.</p>
 <?php if ($fin === false): ?>
           <p class="sous-actions" id="ouverture">Ouverture en 2027. La date exacte sera annoncée d'abord aux inscrits de la liste d'attente.</p>
 <?php else: ?>
@@ -212,7 +212,7 @@ if (!headers_sent()) {
       </div>
 
       <dl class="faits verre" id="bref">
-        <div><dt>8 semaines</dt><dd>du premier module à ton bilan avec ton formateur</dd></div>
+        <div><dt>Pas à pas</dt><dd>un module à la fois, jusqu'à ton bilan avec ton formateur</dd></div>
         <div><dt>2 parcours</dt><dd>l'order flow, l'ICT, ou les deux ensemble</dd></div>
         <div><dt>70&nbsp;%</dt><dd>au quiz d'un module pour ouvrir le suivant</dd></div>
         <div><dt>20 à 50</dt><dd>élèves par cohorte, et des lives sur Discord</dd></div>
@@ -225,13 +225,13 @@ if (!headers_sent()) {
     <div class="parcours-colle">
       <div class="cadre parcours-in">
         <div class="parcours-tete">
-          <h2 class="titre-2" id="parcours-titre"><span>Huit semaines,</span> <span>un module à la fois.</span></h2>
-          <p class="parcours-texte">Ta cohorte, c'est ta promo : 20 à 50 élèves qui avancent au même rythme. Chaque semaine, des vidéos courtes, un quiz, puis le live sur Discord. À 70&nbsp;% au quiz, le module suivant s'ouvre.</p>
+          <h2 class="titre-2" id="parcours-titre"><span>Ta promo,</span> <span>un module à la fois.</span></h2>
+          <p class="parcours-texte">Ta cohorte, c'est ta promo : 20 à 50 élèves qui avancent au même rythme. À chaque module, des vidéos courtes, un quiz, puis le live sur Discord. À 70&nbsp;% au quiz, le module suivant s'ouvre.</p>
         </div>
         <ol class="chemin">
-<?php for ($s = 1; $s <= 8; $s++): ?>
-          <li class="etape"><i class="noeud" data-noeud aria-hidden="true"></i><span class="etape-nom">Semaine <?= $s ?></span></li>
-<?php endfor; ?>
+<?php foreach (['Vidéos', 'Quiz', 'Live', 'Vidéos', 'Quiz', 'Live', '…', 'Bilan'] as $etape): /* 8 étapes : le ruban lumineux passe par 8 points (rubans.js) ; la durée des formations n'est pas encore fixée */ ?>
+          <li class="etape"><i class="noeud" data-noeud aria-hidden="true"></i><span class="etape-nom"><?= e($etape) ?></span></li>
+<?php endforeach; ?>
         </ol>
         <p class="parcours-fin verre">Et à la fin : 30&nbsp;minutes seul avec ton formateur pour faire le point, ton certificat, et l'accès aux cours et aux replays à vie.</p>
       </div>
@@ -250,7 +250,7 @@ if (!headers_sent()) {
           <h3>Order flow</h3>
           <p class="offre-texte">Lire qui achète et qui vend, en direct : carnet d'ordres, footprint, absorption, volume profile, VWAP.</p>
           <ul class="offre-liste">
-            <li>Un module par semaine, un quiz par module</li>
+            <li>Des modules pas à pas, un quiz par module</li>
             <li>Lives sur Discord et replays</li>
             <li>Un appel bilan avec Nojah, à la fin</li>
             <li>Certificat de fin de parcours</li>
@@ -267,7 +267,7 @@ if (!headers_sent()) {
           <h3>ICT</h3>
           <p class="offre-texte">La liquidité, la structure du marché et les déséquilibres de prix (fair value gaps).</p>
           <ul class="offre-liste">
-            <li>Un module par semaine, un quiz par module</li>
+            <li>Des modules pas à pas, un quiz par module</li>
             <li>Lives sur Discord et replays</li>
             <li>Un appel bilan avec Weizix, à la fin</li>
             <li>Certificat de fin de parcours</li>
@@ -300,7 +300,7 @@ if (!headers_sent()) {
       <div class="mentorat verre">
         <div>
           <h3>Le mentorat, en option</h3>
-          <p>Après ta cohorte, 4 appels individuels de 45&nbsp;minutes avec ton formateur, dans les 8 semaines qui suivent. Vous regardez tes trades ensemble, un par un.</p>
+          <p>Après ta cohorte, 4 appels individuels de 45&nbsp;minutes avec ton formateur. Vous regardez tes trades ensemble, un par un.</p>
         </div>
 <?php if ($prix): ?>
         <p class="mentorat-prix"><b>Dès 699,99&nbsp;€</b><span>formation comprise : 699,99&nbsp;€ l'ICT, 1&nbsp;199,99&nbsp;€ l'order flow, 1&nbsp;799,99&nbsp;€ le pack</span></p>
