@@ -264,11 +264,6 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
 .ecran img { display: block; width: 100%; height: auto; border-radius: 17px; }
 .ecran-note { margin-top: 16px; color: var(--gris); font-size: 15.5px; }
 
-/* ---------- l'extrait ---------- */
-.extrait { display: flex; flex-wrap: wrap; align-items: center; gap: 44px 88px; }
-.extrait-texte { flex: 1 1 400px; min-width: 0; }
-.extrait-video { flex: 0 1 320px; margin-inline: auto; }
-.extrait-video video { display: block; width: 100%; aspect-ratio: 9 / 16; border: 1px solid var(--filet-2); border-radius: 26px; background: #000; box-shadow: 0 50px 120px -44px rgba(198, 244, 50, .38), 0 30px 80px -30px rgba(0, 0, 0, .9); }
 
 /* ---------- les formateurs ---------- */
 .formateurs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 16px; margin-top: clamp(28px, 4vw, 48px); }

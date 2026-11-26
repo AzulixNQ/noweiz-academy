@@ -97,9 +97,10 @@ function essai_creer(int $compte_id): int
     $maintenant = time();
     $debut = (int) strtotime('today', $maintenant - 15 * 86400);       // il y a 15 jours, à minuit : la cohorte est en semaine 3
 
-    // La vraie vidéo de l'essai : l'extrait sur l'absorption, copié hors du site sous un nom tiré au hasard.
+    // La vraie vidéo de l'essai, si on en a posé une dans le dossier de données (video-essai.mp4) : copiée sous un nom tiré au hasard.
+    // (L'extrait sur l'absorption n'est plus sur le site depuis le 26/11, à la demande de Nojah.)
     $video = null;
-    $source = RACINE . '/assets/video/absorption-v2.mp4';
+    $source = (string) (getenv('NA_VIDEO_ESSAI') ?: dossier_donnees() . '/video-essai.mp4');
     if (is_file($source)) {
         $nom = bin2hex(random_bytes(16)) . '.mp4';
         if (@copy($source, dossier_videos() . '/' . $nom)) $video = $nom;
@@ -119,7 +120,7 @@ function essai_creer(int $compte_id): int
             foreach ($lecons as $j => $lt) {
                 $avec_video = $i === 2 && $j === 0 && $video !== null;
                 requete('INSERT INTO lecons (module_id, numero, titre, texte, video, duree, cree_le) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                    [$mid, $j + 1, $lt, $avec_video ? "Leçon d'essai avec une vraie vidéo : l'extrait sur l'absorption de la page d'accueil. Les autres leçons n'ont pas encore de vidéo." : "Leçon d'essai : la vidéo et le texte de Nojah viendront ici.",
+                    [$mid, $j + 1, $lt, $avec_video ? "Leçon d'essai avec une vraie vidéo. Les autres leçons n'ont pas encore de vidéo." : "Leçon d'essai : la vidéo et le texte de Nojah viendront ici.",
                      $avec_video ? $video : null, $avec_video ? 64 : null, $maintenant]);
             }
             foreach ($questions as $k => [$enonce, $choix, $explication]) {

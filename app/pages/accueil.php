@@ -161,7 +161,6 @@ if (!headers_sent()) {
 <?php endif; ?>
           <div class="actions">
             <a class="bouton bouton-vert" href="#liste">M'inscrire sur la liste d'attente</a>
-            <a class="bouton bouton-verre" href="#extrait"><i class="lecture" aria-hidden="true"></i>Voir un extrait, 1 minute</a>
           </div>
 <?php $reseaux = (array) reglage('reseaux'); if ($reseaux): ?>
           <ul class="reseaux" aria-label="Nos réseaux">
@@ -325,18 +324,6 @@ if (!headers_sent()) {
         <img id="shot-img" src="/assets/img/apercu-espace.webp" width="1440" height="900" loading="lazy" decoding="async" alt="Aperçu du tableau de bord de l'élève : module de la semaine, prochain live, progression et classement.">
       </figure>
       <p class="ecran-note"><span id="shot-cap">Le tableau de bord : ce que tu as à faire cette semaine, d'un coup d'œil.</span> Les noms, les titres et les chiffres de l'aperçu sont des exemples.</p>
-    </div>
-  </section>
-
-  <section class="bloc" id="extrait" aria-labelledby="extrait-titre">
-    <div class="cadre extrait">
-      <div class="extrait-texte">
-        <h2 class="titre-2" id="extrait-titre"><span>Un extrait :</span> <span>l'absorption, par Nojah.</span></h2>
-        <p class="bloc-texte">Une minute pour comprendre pourquoi beaucoup d'achats ne font pas toujours monter le prix. Dans la formation, chaque notion a ses vidéos, son quiz et son live.</p>
-      </div>
-      <figure class="extrait-video">
-        <video controls playsinline preload="none" poster="/assets/video/absorption-v2-affiche.webp" src="/assets/video/absorption-v2.mp4" aria-label="Extrait vidéo : l'absorption expliquée par Nojah, 1 minute 04"></video>
-      </figure>
     </div>
   </section>
 

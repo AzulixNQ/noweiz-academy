@@ -11,7 +11,7 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - **Comptes et invitations** (administrateur) : inviter, annuler une invitation, changer un rôle (élève, formateur, administrateur).
 
 ## La page d'accueil et la liste d'attente (22/11)
-- **L'accueil** (`/`) est la page de présentation validée (prix, mentorat, cohortes, aperçu, extrait vidéo, formateurs, questions), avec le formulaire de la liste d'attente. Elle marche sans JavaScript ; `assets/fermee.js` ajoute la vérification avant l'envoi, le mur des certificats et les onglets.
+- **L'accueil** (`/`) est la page de présentation validée (prix, mentorat, cohortes, aperçu, formateurs, questions ; l'extrait vidéo a été retiré le 26/11 à la demande de Nojah), avec le formulaire de la liste d'attente. Elle marche sans JavaScript ; `assets/fermee.js` ajoute la vérification avant l'envoi, le mur des certificats et les onglets.
 - **Inscription en deux temps** : le formulaire envoie un e-mail « Confirme ton inscription » (lien valable 48 h). Sans confirmation, l'adresse est effacée au bout de 7 jours. La page répond pareil qu'une adresse soit nouvelle ou déjà inscrite (on ne peut pas savoir qui est sur la liste) ; une adresse déjà confirmée reçoit « Tu es déjà sur la liste ».
 - **Désinscription** : un lien signé dans chaque e-mail de la liste, plus les en-têtes `List-Unsubscribe` (le « Se désabonner » de Gmail, en un clic). Ouvrir le lien ne suffit pas, il faut cliquer (les antivirus ouvrent les liens). La ligne est effacée.
 - **Protections** : champ piège contre les robots, 10 inscriptions par heure au plus depuis une connexion, 3 e-mails par jour au plus à une même adresse.
@@ -36,7 +36,7 @@ Le design est celui de la maquette validée (`assets/maquette.css` en est la cop
 - **Règles** (`app/cours.php`) : le module n s'ouvre au départ de la cohorte + (n − 1) semaines, et seulement si le quiz du module n − 1 est validé (`quiz_seuil`, 70 %). Sans quiz, un module est validé quand ses leçons sont vues. Quiz corrigé sur le serveur ; raté, on dit quelles questions sont fausses sans donner les bonnes réponses ; on garde le meilleur essai. Points : 10 par leçon vue, 10 par bonne réponse (à valider par Nojah et Weizix). Le classement n'affiche que les prénoms.
 - **Aperçu** : un administrateur ou un formateur qui n'est pas inscrit dans une cohorte la voit avec tout ouvert, sans rien enregistrer.
 - **Vidéos** : rangées dans `<données>/videos/`, hors du site, sous un nom tiré au hasard. Lien signé (ce compte, cette connexion, 4 heures), accès revérifié à chaque morceau, morceaux de 4 Mo (206), refus si l'adresse est ouverte dans un onglet (`Sec-Fetch-Dest`), pas de bouton Télécharger dans le lecteur ni de menu « Enregistrer sous ». Rien n'empêche un élève de filmer son écran.
-- **Cohorte d'essai** (administrateur, `/admin/essai`) : une cohorte d'order flow partie il y a 15 jours, avec les 8 modules de la trame, 5 leçons chacun, 3 questions par module (notions de base écrites pour l'essai, pas celles de Nojah), l'extrait sur l'absorption en vidéo (module 3), un live passé avec replay et le prochain live. On peut y inscrire d'autres comptes. Tout s'efface d'un clic (vidéo copiée comprise).
+- **Cohorte d'essai** (administrateur, `/admin/essai`) : une cohorte d'order flow partie il y a 15 jours, avec les 8 modules de la trame, 5 leçons chacun, 3 questions par module (notions de base écrites pour l'essai, pas celles de Nojah), une vraie vidéo en module 3 si un fichier `video-essai.mp4` est posé dans le dossier de données, un live passé avec replay et le prochain live. On peut y inscrire d'autres comptes. Tout s'efface d'un clic (vidéo copiée comprise).
 - La suppression d'un compte efface aussi ses inscriptions, leçons vues et quiz.
 
 ## L'espace formateur (22/11)
@@ -64,7 +64,7 @@ Le paiement (inscription automatique dans une cohorte), le lien avec Discord (r�
 - `app/liste.php` : la liste d'attente (inscription, confirmation, désinscription, e-mails).
 - `app/smtp.php` : l'envoi des e-mails par la boîte du site (connexion chiffrée, mot de passe gardé chiffré, repli sur l'hébergement).
 - `app/cours.php` : la formation (cohortes, modules, progression, quiz, classement, lives, vidéos protégées). `app/essai.php` : la cohorte d'essai. `app/formateur.php` : l'espace formateur (équipe, modules, leçons, questions, cohortes, lives, envoi des vidéos, suivi).
-- `assets/` : le style (`maquette.css`, `comptes.css`, `fermee.css`), la police, les scripts, les images et l'extrait vidéo.
+- `assets/` : le style (`maquette.css`, `comptes.css`, `fermee.css`), la police, les scripts, les images.
 - `outils/serveur.php` : le serveur d'essai. `outils/essais.js` : les essais automatiques (`node outils/essais.js`).
 
 ## Mise en ligne

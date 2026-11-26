@@ -48,7 +48,7 @@ page_debut("Cohorte d'essai", ['zone' => 'app', 'courant' => 'essai']);
     <h1 class="h1-app">Cohorte d'essai</h1>
     <?= annonce_html() ?>
 <?php if ($essai === null): ?>
-    <p class="intro-app">Pour essayer l'espace élève avant que les vrais cours existent : une cohorte d'order flow qui a démarré il y a 15 jours (semaine 3), avec les 8 modules de la trame, 5 leçons chacun, un quiz de 3 questions par module, une vraie vidéo (l'extrait sur l'absorption, module 3) et deux lives. Tu y es inscrit tout de suite ; tu pourras y inscrire Johan ou Weizix. Tout s'efface d'un clic.</p>
+    <p class="intro-app">Pour essayer l'espace élève avant que les vrais cours existent : une cohorte d'order flow qui a démarré il y a 15 jours (semaine 3), avec les 8 modules de la trame, 5 leçons chacun, un quiz de 3 questions par module, une vraie vidéo en module 3 si un fichier video-essai.mp4 est posé dans le dossier de données et deux lives. Tu y es inscrit tout de suite ; tu pourras y inscrire Johan ou Weizix. Tout s'efface d'un clic.</p>
 <?php if (essai_possible()): ?>
     <form class="mt-24" method="post" action="/admin/essai">
       <?= champ_jeton() ?>

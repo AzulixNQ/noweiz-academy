@@ -8,6 +8,8 @@ const fs = require('fs'), os = require('os'), path = require('path'), crypto = r
 
 const PORT = 8766, URL = 'http://127.0.0.1:' + PORT;
 const racine = path.resolve(__dirname, '..');
+// La vidéo des essais (envoi de leçons, cohorte d'essai) : gardée hors du dépôt, plus sur le site depuis le 26/11.
+process.env.NA_VIDEO_ESSAI = process.env.NA_VIDEO_ESSAI || path.join(racine, '..', 'essais-academy', 'absorption-v2.mp4');
 const donnees = fs.mkdtempSync(path.join(os.tmpdir(), 'na-essais-'));
 const captures = process.argv[2] === 'captures' ? (process.env.NA_CAPTURES || path.join(donnees, 'captures')) : null;
 const mdp = () => 'essai ' + crypto.randomBytes(9).toString('base64url');
@@ -594,7 +596,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
 
     /* ---------- L. l'espace formateur ---------- */
     console.log('L. L\'espace formateur');
-    const videoEssai = path.join(racine, 'assets/video/absorption-v2.mp4');
+    const videoEssai = process.env.NA_VIDEO_ESSAI;
     const nbVideos = () => fs.readdirSync(path.join(donnees, 'videos')).length;
     verif((await eleve.goto(URL + '/formateur')).status() === 403, 'espace formateur refusé à une élève');
     verif((await eleve.request.post(URL + '/formateur/envoi?action=debut', { form: { genre: 'lecon', id: '1', taille: '9999', nom: 'a.mp4' } })).status() === 403, 'envoi de vidéo refusé à une élève');
@@ -892,6 +894,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     verif(!/\d,\d\d(&nbsp;|\s|\u00a0)?€/.test(html) && html.includes('Prix annoncé bientôt') && html.includes('annoncés d\'abord aux inscrits'), 'accueil : aucun prix affiché (prix_visibles = false)');
     verif(await apercu.locator('.reseaux a').count() === 8 && html.includes('instagram.com/fx_nojah') && html.includes('tiktok.com/@nojahonorderflow') && html.includes('t.me/+zSf9D4ee_4w5NzM0') && html.includes('discord.gg/zVJuSdCjSG'), 'accueil : les 4 réseaux, en haut et en bas');
     verif(await apercu.locator('#compteur').count() === 1 && t.includes('Ouverture en 2027') && /avant 2027/.test(t) && +(await apercu.locator('#t-j').innerText()) > 0, 'accueil : compte à rebours jusqu\'en 2027');
+    verif(await apercu.locator('video').count() === 0 && !html.includes('absorption-v2') && !html.includes('#extrait'), 'accueil : plus d\'extrait vidéo (retiré à la demande de Nojah)');
     verif(await apercu.evaluate(() => !document.documentElement.hasAttribute('data-scene') && document.documentElement.getAttribute('data-rubans') !== 'animes' && !document.querySelector('.fp[data-vif]') && document.querySelectorAll('.etape.allumee').length === 8
       && getComputedStyle(document.querySelector('.fp-grille')).display === 'grid' && getComputedStyle(document.querySelector('.carte-lecture')).display === 'none'),
       'aperçu en mouvement réduit : pas de scène, rubans fixes ou absents, footprint en grille fixe, les 8 semaines allumées');
