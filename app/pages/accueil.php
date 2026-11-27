@@ -355,7 +355,7 @@ if (!headers_sent()) {
       <div class="cadre preuves-tete">
         <div>
           <h3>Leurs payouts, certificat par certificat</h3>
-          <p class="preuves-total"><span class="gain">33&nbsp;115&nbsp;$</span> depuis juin 2026. Nojah et Weizix tradent ensemble, sur les mêmes comptes : les certificats sont au nom de Nojah.</p>
+          <p class="preuves-total"><span class="gain">34&nbsp;674&nbsp;$</span> depuis juin 2026. Nojah et Weizix tradent ensemble, sur les mêmes comptes : les certificats sont au nom de Nojah.</p>
         </div>
         <p><a href="<?= e((string) reglage('hub')) ?>" target="_blank" rel="noopener">Voir tous les certificats sur Noweiz HUB</a></p>
       </div>

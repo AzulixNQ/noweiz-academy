@@ -54,7 +54,7 @@
   });
 
   /* ---------- les certificats de payout de Nojah, en deux rangées qui défilent ---------- */
-  var CERTS = ['lucid-2026-06-11', 'lucid-2026-06-22', 'lucid-2026-07-17', 'lucid-2026-07-24', 'lucid-2026-07-31', 'lucid-2026-08-07', 'lucid-2026-08-12', 'lucid-2026-08-17', 'lucid-2026-08-18', 'lucid-2026-08-20', 'lucid-2026-10-20', 'lucid-2026-10-23', 'topstep-2026-11-19'];
+  var CERTS = ['lucid-2026-06-11', 'lucid-2026-06-22', 'lucid-2026-07-17', 'lucid-2026-07-24', 'lucid-2026-07-31', 'lucid-2026-08-07', 'lucid-2026-08-12', 'lucid-2026-08-17', 'lucid-2026-08-18', 'lucid-2026-08-20', 'lucid-2026-10-20', 'lucid-2026-10-23', 'topstep-2026-11-19', 'topstep-2026-11-26'];
   var wall = $('#wall');
   if (wall) {
     for (var r = 0; r < 2; r++) {

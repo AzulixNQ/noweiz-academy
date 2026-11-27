@@ -888,7 +888,7 @@ function lienDe(c) { const m = c.texte.match(/https?:\/\/\S+/); return m ? m[0] 
     await apercu.goto(URL + '/');
     t = await texte(apercu);
     verif(t.includes('L\'order flow') && t.includes('avec Weizix.') && t.includes('Exemple illustratif') && t.includes('Les chiffres de cet exemple sont inventés'), 'aperçu : le titre, et le footprint annoncé comme un exemple aux chiffres inventés');
-    verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes('13 certificats'), 'aperçu : 31 cases de footprint, 8 étapes du parcours, les faits (13 certificats)');
+    verif(await apercu.locator('.fp-c').count() === 31 && await apercu.locator('.etape').count() === 8 && (await apercu.locator('.faits dt').allInnerTexts()).join('|').includes(require('fs').readdirSync(racine + '/assets/img/certificats').filter(f => f.endsWith('.webp')).length + ' certificats'), 'aperçu : 31 cases de footprint, 8 étapes du parcours, les faits (un certificat par image)');
     verif(!/8 semaines|huit semaines|par semaine|chaque semaine/i.test(t), 'accueil : aucune durée de formation annoncée (pas encore fixée)');
     verif((await apercu.locator('meta[name=robots]').count()) === 0, 'accueil ouvert au public : référençable (plus de noindex)');
     const html = await apercu.content();
