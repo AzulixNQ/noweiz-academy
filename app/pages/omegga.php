@@ -104,6 +104,7 @@ $etapes = [
 $tuto = [
     'video' => '/assets/video/omegga-installation.mp4',
     'affiche' => '/assets/img/omegga-installation.jpg',
+    'version' => '2',                 // à changer à chaque nouvelle vidéo : la vidéo est gardée 7 jours par les navigateurs
     'duree' => '13 min',
     'chapitres' => [[0, 'Ce qu\'il te faut'], [57, 'Ton abonnement'], [141, 'Ta clé'], [198, 'Tu as déjà une clé ?'], [325, 'L\'installation'], [419, 'Quantower'], [636, 'Lancer et activer'], [722, 'Au quotidien']],
 ];
@@ -274,8 +275,8 @@ if (!headers_sent()) entetes_securite();
     <div class="cadre installer">
 <?php if (is_file(__DIR__ . '/../..' . $tuto['video'])): ?>
       <div class="tuto">
-        <video class="tuto-video" controls preload="none" playsinline poster="<?= e($tuto['affiche']) ?>" data-tuto aria-label="Vidéo : installer Omegga, étape par étape (<?= e($tuto['duree']) ?>)">
-          <source src="<?= e($tuto['video']) ?>" type="video/mp4">
+        <video class="tuto-video" controls preload="none" playsinline poster="<?= e($tuto['affiche'] . '?v=' . $tuto['version']) ?>" data-tuto aria-label="Vidéo : installer Omegga, étape par étape (<?= e($tuto['duree']) ?>)">
+          <source src="<?= e($tuto['video'] . '?v=' . $tuto['version']) ?>" type="video/mp4">
         </video>
         <ol class="tuto-chap" data-tuto-chap hidden aria-label="Aller à un chapitre de la vidéo">
 <?php foreach ($tuto['chapitres'] as $i => [$ct, $cnom]): ?>
