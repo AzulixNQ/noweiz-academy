@@ -387,12 +387,12 @@ if (!headers_sent()) {
             <li><span>Max</span><b>53,99&nbsp;€</b><s>59,99&nbsp;€</s></li>
           </ul>
           <p class="partenaire-note">Par mois avec le code, sur chaque renouvellement. Aussi à l'année.</p>
-          <a class="bouton bouton-vert" href="<?= e((string) $om['lien']) ?>" target="_blank" rel="noopener sponsored">Découvrir Omegga</a>
+          <a class="bouton bouton-vert" href="/omegga">Découvrir Omegga</a>
           <p class="partenaire-mention">Partenaire. Omegga est édité par Azulix : Noweiz touche une commission sur les abonnements pris avec le code. C'est un outil d'analyse, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
         </div>
         <figure class="partenaire-ecran om" data-omegga aria-labelledby="om-titre">
           <div class="om-haut">
-            <h3 id="om-titre">Omegga en action</h3>
+            <h3 class="om-nom" id="om-titre">Omegga en action</h3>
             <span class="etiquette">Exemple illustratif</span>
             <span class="om-direct"><i class="pouls" aria-hidden="true"></i>NQ</span>
           </div>

@@ -34,10 +34,19 @@ return [
     'hub' => 'https://noweiz.com/',
     // Le partenaire Omegga (accueil, avant les questions). lien : le lien d'affilié Whop de Johan (à mettre quand il a son compte Whop) ;
     // code : le code promo Whop (−10 % à vie, sur chaque renouvellement). visible : false pour retirer la partie.
+    // Omegga, le terminal d'Azulix (partenaire) : la partie de l'accueil et la page de vente /omegga.
+    // Les boutons « Choisir » mènent au paiement Whop de chaque formule, avec le code déjà appliqué (?promoCode=).
+    // « affilie » : le nom d'utilisateur Whop de Johan, une fois son compte d'affilié créé (ajoute ?a=… : ses 20 % sont comptés par Whop).
     'omegga' => [
         'visible' => true,
-        'lien' => 'https://whop.com/azulix/',
         'code' => 'NOWEIZ',
+        'affilie' => '',
+        'plans' => [
+            'basic' => ['mois' => 'plan_04TdglEF1iQiU', 'an' => 'plan_y05WA34SzuRwn'],
+            'pro' => ['mois' => 'plan_jzrkJK4KNKwv5', 'an' => 'plan_JMDmqMUlaQuFO'],
+            'max' => ['mois' => 'plan_eTq4cgsAyOqK2', 'an' => 'plan_S6znye1goRs4o'],
+        ],
+        'contact' => 'omegga.support@proton.me',
     ],
 
     // La page d'accueil (liste d'attente). ouverture : vide = « 2027 » ; une date (ex. '2027-01-11T18:00:00+01:00') = compte à rebours.

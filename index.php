@@ -40,6 +40,7 @@ $pages = [
     '/formateur/cohorte' => 'formateur_cohorte',
     '/formateur/envoi' => 'formateur_envoi',
     '/sante' => 'sante',
+    '/omegga' => 'omegga',
 ];
 
 if (!in_array(methode(), ['GET', 'HEAD', 'POST'], true)) {

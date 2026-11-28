@@ -479,7 +479,7 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
 .om::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background: linear-gradient(112deg, transparent 30%, rgba(255, 255, 255, .05) 42%, rgba(255, 255, 255, .01) 50%, transparent 58%); }
 .om-haut { position: relative; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.om-haut h3 { font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
+.om-nom { font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
 .om-haut .etiquette { margin-right: auto; }
 .om-direct { display: inline-flex; align-items: center; gap: 9px; color: var(--gris); font-size: 13.5px; white-space: nowrap; }
 .om-onglets { position: relative; display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 14px; padding: 4px; border: 1px solid var(--filet); border-radius: 14px; background: rgba(255, 255, 255, .02); }
@@ -508,8 +508,101 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
 @media (max-width: 520px) {
   .partenaire-ecran.om { padding: 12px 12px 10px; }
   .om-haut { flex-wrap: wrap; row-gap: 8px; }
-  .om-haut h3 { flex: 1 1 100%; }
+  .om-nom { flex: 1 1 100%; }
   .om-onglets button { padding: 8px 4px 11px; font-size: 13px; }
   .om-onglets button::after, .om-onglets i { left: 8px; right: 8px; }
   .om-toile { height: 340px; }
+}
+
+/* ---------- la page de vente d'Omegga (/omegga) ---------- */
+.vente-hero { padding-top: clamp(28px, 5vh, 64px); }
+.vente-grille { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); align-items: center; gap: clamp(32px, 4.5vw, 80px); }
+.vente-texte .partenaire-tag { margin-bottom: 26px; }
+.vente-code { max-width: 460px; margin-top: 30px; }
+.vente-code-note { max-width: 460px; margin-top: 10px; color: var(--gris); font-size: 14.5px; line-height: 1.45; }
+.vente-scene { position: relative; }
+.vente-scene .foyer { left: -6%; top: 58%; }
+
+/* ce qu'Omegga montre : une fiche technique, un usage par groupe */
+.fonctions { margin-top: clamp(36px, 6vh, 64px); border-top: 1px solid var(--filet); }
+.fonctions-groupe { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 9fr); gap: 12px clamp(24px, 4vw, 64px); padding: 26px 0 22px; border-bottom: 1px solid var(--filet); }
+.fonctions-nom { padding-top: 12px; font-size: clamp(19px, .5vw + 16px, 23px); font-weight: 540; font-stretch: 108%; letter-spacing: -.03em; line-height: 1.15; }
+.fonction { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr) minmax(110px, 2fr); align-items: baseline; gap: 6px 24px; padding: 12px 0; }
+.fonction + .fonction { border-top: 1px solid rgba(255, 255, 255, .055); }
+.fonction dt { font-size: 16.5px; font-weight: 560; letter-spacing: -.015em; }
+.fonction dd { color: #C9CCCA; font-size: 15.5px; line-height: 1.45; }
+.fonction .fonction-ou { justify-self: end; color: var(--gris-2); font-size: 13.5px; white-space: nowrap; }
+.fonction .fonction-plus { color: var(--citron); }
+
+/* les formules */
+.formules-tete { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 24px 40px; }
+.periode { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--filet-2); border-radius: 999px; background: rgba(255, 255, 255, .03); }
+.periode[hidden] { display: none; }
+.periode button { display: inline-flex; align-items: center; gap: 8px; min-height: 42px; padding: 8px 18px; border: 0; border-radius: 999px; background: transparent; color: var(--gris); font: inherit; font-size: 15px; font-weight: 520; cursor: pointer; transition: background-color .2s, color .2s; }
+.periode button small { color: var(--citron); font-size: 12.5px; font-weight: 520; }
+.periode button:hover { color: var(--encre); }
+.periode button[aria-pressed="true"] { background: var(--encre); color: var(--noir); }
+.periode button[aria-pressed="true"] small { color: #4A6B00; }
+.periode button:focus-visible { outline: 2px solid var(--citron); outline-offset: 2px; }
+.formules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 20px); margin-top: clamp(32px, 5vh, 52px); }
+.formule { position: relative; display: flex; flex-direction: column; padding: clamp(22px, 2vw, 30px); border-radius: 26px; }
+.formule-pro { box-shadow: inset 0 0 0 1px rgba(198, 244, 50, .45), 0 40px 90px -50px rgba(198, 244, 50, .35); }
+.formule-nom { font-size: 22px; font-weight: 560; font-stretch: 108%; letter-spacing: -.03em; }
+.formule-phrase { min-height: 2.9em; margin-top: 6px; color: var(--gris); font-size: 15.5px; line-height: 1.4; }
+.formule-prix { margin-top: 18px; }
+.formule-prix p:first-child { display: flex; align-items: baseline; gap: 8px; }
+.formule-prix b { font-size: clamp(36px, 1.6vw + 22px, 48px); font-weight: 520; font-stretch: 110%; letter-spacing: -.045em; line-height: 1; font-variant-numeric: tabular-nums; }
+.formule-prix span { color: var(--gris); font-size: 15px; }
+.formule-avant { margin-top: 8px; color: var(--gris-2); font-size: 14px; line-height: 1.4; }
+.formule-avant s { color: var(--gris-2); }
+.formule-choix { margin-top: 20px; }
+.formule-choix + .formule-choix { margin-top: 10px; }
+.formule-contenu { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--filet); }
+.formule-contenu li { position: relative; padding: 6px 0 6px 24px; color: #D5D8D6; font-size: 15px; line-height: 1.4; }
+.formule-contenu li::before { content: ""; position: absolute; left: 2px; top: 12px; width: 10px; height: 6px; border-left: 1.6px solid var(--citron); border-bottom: 1.6px solid var(--citron); transform: rotate(-45deg); }
+.formule-contenu .formule-tout { color: var(--encre); font-weight: 520; }
+/* avec JavaScript : un seul prix et un seul bouton, selon « au mois / à l'année » */
+[data-formules][data-periode="mois"] .formule-an, [data-formules][data-periode="an"] .formule-mois { display: none; }
+[data-formules][data-periode] .sans-js { display: none; }
+[data-formules][data-periode="an"] .formule-choix.formule-an { border-color: transparent; background: var(--citron); color: var(--noir); box-shadow: 0 0 0 1px rgba(198, 244, 50, .35), 0 14px 44px -14px rgba(198, 244, 50, .55); }
+.formules-pied { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 40px; margin-top: 26px; color: var(--gris); font-size: 14.5px; line-height: 1.5; }
+
+/* l'installer */
+.installer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: clamp(32px, 5vw, 88px); }
+.installer-sous { margin-top: clamp(28px, 4vh, 44px); color: var(--gris); font-size: 15px; font-weight: 520; }
+.besoins { margin-top: 12px; border-top: 1px solid var(--filet); }
+.besoins li { display: grid; gap: 2px; padding: 14px 0; border-bottom: 1px solid var(--filet); }
+.besoins b { font-size: 17px; font-weight: 560; letter-spacing: -.015em; }
+.besoins span { color: #C9CCCA; font-size: 15.5px; line-height: 1.45; }
+.etapes-om { counter-reset: etape; }
+.etapes-om li { position: relative; display: grid; gap: 3px; padding: 18px 0 18px 64px; border-bottom: 1px solid var(--filet); counter-increment: etape; }
+.etapes-om li:first-child { border-top: 1px solid var(--filet); }
+.etapes-om li::before { content: counter(etape); position: absolute; left: 0; top: 16px; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid rgba(198, 244, 50, .5); border-radius: 50%; color: var(--citron); font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.etapes-om b { font-size: 18px; font-weight: 560; letter-spacing: -.02em; }
+.etapes-om span { color: #C9CCCA; font-size: 15.5px; line-height: 1.45; }
+
+.vente-fin-in { display: grid; justify-items: start; gap: 6px; padding: clamp(28px, 4vw, 56px); border-radius: 30px; }
+.vente-fin-in .bouton { margin-top: 22px; }
+
+@media (max-width: 1080px) {
+  .vente-grille { grid-template-columns: minmax(0, 1fr); }
+  .vente-texte { max-width: 680px; }
+  .vente-scene { max-width: 720px; }
+  .formules { grid-template-columns: minmax(0, 1fr); max-width: 560px; }
+  .formule-phrase { min-height: 0; }
+  .installer { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .fonctions-groupe { grid-template-columns: minmax(0, 1fr); padding-top: 22px; }
+  .fonctions-nom { padding-top: 0; }
+  .fonction { grid-template-columns: minmax(0, 1fr) auto; }
+  .fonction dd:not(.fonction-ou) { grid-column: 1 / -1; grid-row: 2; }
+  .fonction .fonction-ou { grid-column: 2; grid-row: 1; }
+  .formules-pied { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 420px) {
+  .periode { width: 100%; }
+  .periode button { flex: 1 1 0; justify-content: center; padding-inline: 10px; }
+  .periode button small { display: none; }
+  .etapes-om li { padding-left: 54px; }
 }
