@@ -102,6 +102,9 @@ if (!headers_sent()) {
 <script src="<?= e(version_fichier('/assets/footprint.js')) ?>" defer></script>
 <script src="<?= e(version_fichier('/assets/v2.js')) ?>" defer></script>
 <script src="<?= e(version_fichier('/assets/fermee.js')) ?>" defer></script>
+<?php if (is_array(reglage('omegga')) && !empty(reglage('omegga')['visible'])): ?>
+<script src="<?= e(version_fichier('/assets/omegga.js')) ?>" defer></script>
+<?php endif; ?>
 </head>
 <body>
 <svg class="sprite" aria-hidden="true" focusable="false">
@@ -369,7 +372,7 @@ if (!headers_sent()) {
       <div class="partenaire verre">
         <i class="partenaire-lueur" aria-hidden="true"></i>
         <div class="partenaire-tete">
-          <p class="partenaire-tag"><img src="/assets/img/omegga-symbole.svg" width="22" height="20" alt=""><b>Notre partenaire</b><span>Publicité</span></p>
+          <p class="partenaire-tag"><img src="/assets/img/omegga-symbole.svg" width="22" height="20" alt=""><b>Notre partenaire</b></p>
           <h2 class="titre-2" id="omegga-titre"><span>Omegga,</span> <span>le terminal order flow.</span></h2>
         </div>
         <div class="partenaire-texte">
@@ -385,11 +388,23 @@ if (!headers_sent()) {
           </ul>
           <p class="partenaire-note">Par mois avec le code, sur chaque renouvellement. Aussi à l'année.</p>
           <a class="bouton bouton-vert" href="<?= e((string) $om['lien']) ?>" target="_blank" rel="noopener sponsored">Découvrir Omegga</a>
-          <p class="partenaire-mention">Publicité. Omegga est édité par Azulix, partenaire de Noweiz : Noweiz touche une commission sur les abonnements pris avec le code. C'est un outil d'analyse, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
+          <p class="partenaire-mention">Partenaire. Omegga est édité par Azulix : Noweiz touche une commission sur les abonnements pris avec le code. C'est un outil d'analyse, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
         </div>
-        <figure class="partenaire-ecran">
-          <img src="/assets/img/omegga-apercu.webp" width="1600" height="900" loading="lazy" decoding="async" alt="Omegga : deux graphiques du NQ en footprint, le TPO, les niveaux gamma et les options du QQQ.">
-          <figcaption>Capture d'Omegga, avec des données simulées.</figcaption>
+        <figure class="partenaire-ecran om" data-omegga aria-labelledby="om-titre">
+          <div class="om-haut">
+            <h3 id="om-titre">Omegga en action</h3>
+            <span class="etiquette">Exemple illustratif</span>
+            <span class="om-direct"><i class="pouls" aria-hidden="true"></i>NQ</span>
+          </div>
+          <div class="om-onglets" role="group" aria-label="Choisir l'écran d'Omegga">
+            <button type="button" data-scene="0" aria-pressed="true"><span>DOM</span><i aria-hidden="true"></i></button>
+            <button type="button" data-scene="1" aria-pressed="false"><span>Scanner</span><i aria-hidden="true"></i></button>
+            <button type="button" data-scene="2" aria-pressed="false"><span>Gros trades</span><i aria-hidden="true"></i></button>
+          </div>
+          <canvas class="om-toile" aria-hidden="true"></canvas>
+          <img class="om-capture" src="/assets/img/omegga-apercu.webp" width="1600" height="900" loading="lazy" decoding="async" alt="Omegga : deux graphiques du NQ en footprint, le TPO, les niveaux gamma et les options du QQQ.">
+          <p class="carte om-lecture verre" data-om-lecture aria-live="polite"><small>Ce qu'on y voit</small><b>Les acheteurs montent</b><span>Ils prennent les ventes, niveau après niveau.</span></p>
+          <figcaption class="om-legende"><span class="om-legende-vif">Le DOM, le scanner et les gros trades d'Omegga, dessinés pour l'exemple : les chiffres sont inventés.</span><span class="om-legende-fixe">Capture d'Omegga, avec des données simulées.</span></figcaption>
         </figure>
       </div>
     </div>

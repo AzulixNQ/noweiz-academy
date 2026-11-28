@@ -472,3 +472,44 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
   .partenaire-prix { grid-template-columns: 1fr; }
   .partenaire-prix li { grid-template-columns: 1fr auto auto; align-items: baseline; gap: 10px; }
 }
+
+/* la vitrine animée d'Omegga (assets/omegga.js) : le DOM, le scanner et les gros trades, l'un après l'autre.
+   Sans JavaScript, la capture reste à la place du dessin. */
+.partenaire-ecran.om { padding: 16px 18px 14px; }
+.om::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(112deg, transparent 30%, rgba(255, 255, 255, .05) 42%, rgba(255, 255, 255, .01) 50%, transparent 58%); }
+.om-haut { position: relative; display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.om-haut h3 { font-size: 16px; font-weight: 600; letter-spacing: -.02em; }
+.om-haut .etiquette { margin-right: auto; }
+.om-direct { display: inline-flex; align-items: center; gap: 9px; color: var(--gris); font-size: 13.5px; white-space: nowrap; }
+.om-onglets { position: relative; display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-bottom: 14px; padding: 4px; border: 1px solid var(--filet); border-radius: 14px; background: rgba(255, 255, 255, .02); }
+.om[data-vif] .om-onglets { display: grid; }
+.om-onglets button { position: relative; padding: 9px 8px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--gris); font: inherit; font-size: 14px; font-weight: 500; letter-spacing: -.01em; white-space: nowrap; cursor: pointer; transition: background-color .25s, color .25s; }
+.om-onglets button:hover { color: var(--encre); }
+.om-onglets button[aria-pressed="true"] { background: rgba(255, 255, 255, .065); color: var(--encre); }
+.om-onglets button:focus-visible { outline: 2px solid var(--citron); outline-offset: 2px; }
+/* sous chaque onglet, le temps qui reste avant l'écran suivant */
+.om-onglets button::after, .om-onglets i { content: ""; position: absolute; left: 12px; right: 12px; bottom: 5px; height: 2px; border-radius: 2px; }
+.om-onglets button::after { background: rgba(255, 255, 255, .08); }
+.om-onglets i { z-index: 1; background: var(--citron); transform: scaleX(0); transform-origin: left center; }
+.om-toile { position: relative; display: none; width: 100%; height: 380px; }
+.om[data-vif] .om-toile { display: block; }
+.om[data-vif] .om-capture { display: none; }
+/* la carte « Ce qu'on y voit » : posée sur le bord du panneau, comme celles du footprint en haut de page */
+.om .om-lecture { position: relative; z-index: 2; display: none; gap: 4px; width: min(400px, 100%); margin: 14px 0 0 -40px; padding: 14px 17px 15px; box-shadow: 0 30px 60px -28px rgba(0, 0, 0, .95), 0 0 0 1px rgba(198, 244, 50, .12); }
+.om[data-vif] .om-lecture { display: flex; }
+.om-lecture b { color: var(--citron); font-size: 19px; font-stretch: 108%; }
+.om-lecture span { color: #D5D8D6; font-size: 14px; line-height: 1.38; }
+.om-lecture.change b, .om-lecture.change span { animation: change .5s ease-out; }
+.om .om-legende { margin: 12px 2px 2px; color: var(--gris-2); font-size: 12.5px; line-height: 1.4; }
+.om-legende-vif, .om[data-vif] .om-legende-fixe { display: none; }
+.om[data-vif] .om-legende-vif { display: inline; }
+@media (max-width: 1100px) { .om .om-lecture { margin-left: 0; } }
+@media (max-width: 520px) {
+  .partenaire-ecran.om { padding: 12px 12px 10px; }
+  .om-haut { flex-wrap: wrap; row-gap: 8px; }
+  .om-haut h3 { flex: 1 1 100%; }
+  .om-onglets button { padding: 8px 4px 11px; font-size: 13px; }
+  .om-onglets button::after, .om-onglets i { left: 8px; right: 8px; }
+  .om-toile { height: 340px; }
+}
