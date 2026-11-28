@@ -104,7 +104,7 @@ $etapes = [
 $tuto = [
     'video' => '/assets/video/omegga-installation.mp4',
     'affiche' => '/assets/img/omegga-installation.jpg',
-    'version' => '2',                 // à changer à chaque nouvelle vidéo : la vidéo est gardée 7 jours par les navigateurs
+    'version' => '3',                 // à changer à chaque nouvelle vidéo : la vidéo est gardée 7 jours par les navigateurs
     'duree' => '13 min',
     'chapitres' => [[0, 'Ce qu\'il te faut'], [57, 'Ton abonnement'], [141, 'Ta clé'], [198, 'Tu as déjà une clé ?'], [325, 'L\'installation'], [419, 'Quantower'], [636, 'Lancer et activer'], [722, 'Au quotidien']],
 ];
@@ -312,7 +312,7 @@ if (!headers_sent()) entetes_securite();
       <div class="faq">
         <details open><summary>Le −10&nbsp;% dure combien de temps&nbsp;?</summary><p>À vie : il s'applique à chaque renouvellement, au mois comme à l'année, tant que ton abonnement reste actif. Le code <?= e($code) ?> est déjà mis quand tu cliques sur « Choisir ». S'il n'apparaît pas au paiement, tape-le dans « Code promo ».</p></details>
         <details><summary>Comment marche l'essai gratuit&nbsp;?</summary><p>Il existe sur les formules au mois. Tu mets ta carte, mais rien n'est prélevé pendant 48&nbsp;h : tu as Omegga en entier, avec ta clé. Whop t'envoie un rappel environ 24&nbsp;h avant le premier paiement. Pour ne pas continuer, annule depuis ton compte Whop avant la fin des 48&nbsp;h. Un essai par personne.</p></details>
-        <details><summary>On m'a donné une clé, je n'ai rien acheté&nbsp;?</summary><p>Une clé qui commence par OMEGGA- (bêta-testeur, partenaire, cadeau) suffit : pas d'abonnement ni de compte Whop. Ouvre <b>omegga.azulix.workers.dev</b> dans Chrome, colle ta clé, télécharge le kit, puis installe Omegga et colle la même clé au lancement. Tout est dans le chapitre « Tu as déjà une clé ? » de la vidéo.</p></details>
+        <details><summary>On m'a donné une clé, je n'ai rien acheté&nbsp;?</summary><p>Une clé qui commence par OMEGGA- (bêta-testeur, partenaire, cadeau) suffit : pas d'abonnement ni de compte Whop. Ouvre <b>omegga.azulix.workers.dev</b> dans Chrome, colle ta clé, télécharge le kit, puis installe Omegga et colle la même clé au lancement. Elle a sa formule et sa durée, par exemple Max pendant 1&nbsp;an. Tout est dans le chapitre « Tu as déjà une clé ? » de la vidéo.</p></details>
         <details><summary>Ça marche avec ma prop firm&nbsp;?</summary><p>Omegga marche avec tout compte connecté par Rithmic qui a les données du CME, comme les comptes de Lucid Trading. Avant de trader avec, vérifie les règles de ta prop firm sur les logiciels tiers.</p></details>
         <details><summary>Et sur Mac&nbsp;?</summary><p>Non : Omegga tourne sur Windows 10 ou 11, comme Quantower.</p></details>
         <details><summary>Omegga passe des ordres tout seul&nbsp;?</summary><p>Non. Il ne prend aucune décision : c'est toi qui passes tes ordres, sur le graphique ou le DOM. Le trading réel est désactivé au départ, et le copieur ne fait que recopier tes ordres sur tes autres comptes.</p></details>
