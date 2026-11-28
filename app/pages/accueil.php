@@ -363,6 +363,39 @@ if (!headers_sent()) {
     </div>
   </section>
 
+<?php $om = reglage('omegga'); if (is_array($om) && !empty($om['visible'])): ?>
+  <section class="bloc" id="omegga" aria-labelledby="omegga-titre">
+    <div class="cadre">
+      <div class="partenaire verre">
+        <i class="partenaire-lueur" aria-hidden="true"></i>
+        <div class="partenaire-tete">
+          <p class="partenaire-tag"><img src="/assets/img/omegga-symbole.svg" width="22" height="20" alt=""><b>Notre partenaire</b><span>Publicité</span></p>
+          <h2 class="titre-2" id="omegga-titre"><span>Omegga,</span> <span>le terminal order flow.</span></h2>
+        </div>
+        <div class="partenaire-texte">
+          <p class="bloc-texte">Le footprint, le CVD, la VWAP, les profils de volume, le TPO et l'absorption, dans un seul terminal pour le NQ et le MNQ. Il tourne sur ton PC, avec Quantower et tes propres données Rithmic.</p>
+          <div class="code-promo">
+            <p class="code-promo-remise"><b>−10&nbsp;%</b><span>à vie avec le code</span></p>
+            <p class="code-promo-code"><?= e((string) $om['code']) ?></p>
+          </div>
+          <ul class="partenaire-prix" aria-label="Prix par mois avec le code">
+            <li><span>Basic</span><b>17,99&nbsp;€</b><s>19,99&nbsp;€</s></li>
+            <li><span>Pro</span><b>35,99&nbsp;€</b><s>39,99&nbsp;€</s></li>
+            <li><span>Max</span><b>53,99&nbsp;€</b><s>59,99&nbsp;€</s></li>
+          </ul>
+          <p class="partenaire-note">Par mois avec le code, sur chaque renouvellement. Aussi à l'année.</p>
+          <a class="bouton bouton-vert" href="<?= e((string) $om['lien']) ?>" target="_blank" rel="noopener sponsored">Découvrir Omegga</a>
+          <p class="partenaire-mention">Publicité. Omegga est édité par Azulix, partenaire de Noweiz : Noweiz touche une commission sur les abonnements pris avec le code. C'est un outil d'analyse, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
+        </div>
+        <figure class="partenaire-ecran">
+          <img src="/assets/img/omegga-apercu.webp" width="1600" height="900" loading="lazy" decoding="async" alt="Omegga : deux graphiques du NQ en footprint, le TPO, les niveaux gamma et les options du QQQ.">
+          <figcaption>Capture d'Omegga, avec des données simulées.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+<?php endif; ?>
+
   <section class="bloc" id="questions" aria-labelledby="questions-titre">
     <div class="cadre questions">
       <div class="bloc-tete">

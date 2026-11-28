@@ -438,3 +438,37 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
   .reseaux a { padding: 0 12px; }
 }
 .preuves-total { margin-top: 6px; max-width: 64ch; color: var(--gris); font-size: 15px; line-height: 1.5; }
+
+/* ---------- le partenaire Omegga (accueil, avant les questions) ---------- */
+.partenaire { position: relative; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-areas: "tete tete" "texte ecran"; align-items: start; gap: clamp(28px, 4vw, 64px); padding: clamp(24px, 3vw, 48px); border-radius: 30px; overflow: hidden; }
+.partenaire-lueur { position: absolute; left: -10%; bottom: -40%; width: 60%; height: 90%; pointer-events: none; background: radial-gradient(closest-side, rgba(198, 244, 50, .16), transparent); }
+.partenaire-tete, .partenaire-texte, .partenaire-ecran { position: relative; min-width: 0; }
+.partenaire-tete { grid-area: tete; } .partenaire-texte { grid-area: texte; } .partenaire-ecran { grid-area: ecran; }
+.partenaire-tag { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 8px; border: 1px solid var(--filet-2); border-radius: 999px; font-size: 14px; color: var(--gris); }
+.partenaire-tag img { display: block; }
+.partenaire-tag b { color: var(--encre); font-weight: 520; }
+.partenaire-tag span { padding-left: 10px; border-left: 1px solid var(--filet-2); }
+.partenaire .titre-2 { margin-top: 18px; }
+.partenaire-texte .bloc-texte { margin-top: 0; }
+.code-promo { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 26px; padding: 16px 18px; border: 1px dashed rgba(198, 244, 50, .55); border-radius: 18px; background: rgba(198, 244, 50, .05); }
+.code-promo-remise b { display: block; color: var(--citron); font-size: 34px; font-weight: 560; font-stretch: 110%; line-height: 1; letter-spacing: -.035em; }
+.code-promo-remise span { display: block; margin-top: 4px; color: var(--gris); font-size: 14.5px; }
+.code-promo-code { font-size: clamp(24px, 1.2vw + 16px, 32px); font-weight: 620; font-stretch: 118%; letter-spacing: .06em; user-select: all; }
+.partenaire-prix { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+.partenaire-prix li { display: grid; padding: 12px 14px; border: 1px solid var(--filet); border-radius: 14px; }
+.partenaire-prix span { color: var(--gris); font-size: 14px; }
+.partenaire-prix b { font-size: 21px; font-weight: 520; letter-spacing: -.02em; }
+.partenaire-prix s { color: var(--gris-2); font-size: 13.5px; }
+.partenaire-note { margin-top: 10px; color: var(--gris); font-size: 14.5px; }
+.partenaire .bouton { margin-top: 22px; }
+.partenaire-mention { margin-top: 18px; color: var(--gris-2); font-size: 13px; line-height: 1.5; }
+.partenaire-ecran { padding: 8px; border: 1px solid var(--filet); border-radius: 22px; background: rgba(0, 0, 0, .35); box-shadow: 0 50px 110px -50px rgba(0, 0, 0, .95), 0 0 110px -40px rgba(124, 108, 255, .35); }
+.partenaire-ecran img { display: block; width: 100%; height: auto; border-radius: 15px; }
+.partenaire-ecran figcaption { margin: 10px 6px 2px; color: var(--gris); font-size: 13.5px; }
+@media (max-width: 900px) {
+  .partenaire { grid-template-columns: 1fr; grid-template-areas: "tete" "ecran" "texte"; }
+}
+@media (max-width: 420px) {
+  .partenaire-prix { grid-template-columns: 1fr; }
+  .partenaire-prix li { grid-template-columns: 1fr auto auto; align-items: baseline; gap: 10px; }
+}

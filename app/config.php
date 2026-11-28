@@ -32,6 +32,13 @@ return [
         ['discord', 'Discord', 'https://discord.gg/zVJuSdCjSG'],
     ],
     'hub' => 'https://noweiz.com/',
+    // Le partenaire Omegga (accueil, avant les questions). lien : le lien d'affilié Whop de Johan (à mettre quand il a son compte Whop) ;
+    // code : le code promo Whop (−10 % à vie, sur chaque renouvellement). visible : false pour retirer la partie.
+    'omegga' => [
+        'visible' => true,
+        'lien' => 'https://whop.com/azulix/',
+        'code' => 'NOWEIZ',
+    ],
 
     // La page d'accueil (liste d'attente). ouverture : vide = « 2027 » ; une date (ex. '2027-01-11T18:00:00+01:00') = compte à rebours.
     // compteur : « ouverture » = jusqu'à la date d'ouverture ; « annee » = jusqu'au début de l'année d'ouverture (la date exacte n'est pas encore fixée).
