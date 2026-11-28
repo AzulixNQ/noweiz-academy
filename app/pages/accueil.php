@@ -388,7 +388,7 @@ if (!headers_sent()) {
           </ul>
           <p class="partenaire-note">Par mois avec le code, sur chaque renouvellement. Aussi à l'année.</p>
           <a class="bouton bouton-vert" href="/omegga">Découvrir Omegga</a>
-          <p class="partenaire-mention">Partenaire. Omegga est édité par Azulix : Noweiz touche une commission sur les abonnements pris avec le code. C'est un outil d'analyse, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
+          <p class="partenaire-mention">Partenaire. Omegga est édité par Azulix : Noweiz touche une commission sur les abonnements pris depuis ce site ou avec le code. C'est un outil d'analyse, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
         </div>
         <figure class="partenaire-ecran om" data-omegga aria-labelledby="om-titre">
           <div class="om-haut">

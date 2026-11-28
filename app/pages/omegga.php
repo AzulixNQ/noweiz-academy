@@ -293,7 +293,7 @@ if (!headers_sent()) entetes_securite();
         <details><summary>Je peux l'installer sur plusieurs PC&nbsp;?</summary><p>Une clé marche sur 1 PC. Pour changer de PC, libère l'ancien dans Paramètres, puis Licence, et entre ta clé sur le nouveau.</p></details>
         <details><summary>Où vont mes données&nbsp;?</summary><p>Tes données de marché restent sur ton PC : Omegga les lit dans ton Quantower et ne les envoie nulle part. Seule ta clé est vérifiée de temps en temps, et Omegga marche aussi quelques jours sans internet.</p></details>
         <details><summary>Comment j'arrête mon abonnement&nbsp;?</summary><p>Depuis ton compte Whop, quand tu veux. Il ne se renouvelle plus, et Omegga marche jusqu'à la fin de la période déjà payée.</p></details>
-        <details><summary>Qui vend Omegga&nbsp;?</summary><p>Azulix, qui l'édite. Le paiement et l'abonnement passent par Whop. <?= e($nom) ?> est partenaire d'Omegga et touche une commission sur les abonnements pris avec le code <?= e($code) ?>.<?php if ($contact !== ''): ?> Une question, un souci&nbsp;? Écris à <a href="mailto:<?= e($contact) ?>"><?= e($contact) ?></a>.<?php endif; ?></p></details>
+        <details><summary>Qui vend Omegga&nbsp;?</summary><p>Azulix, qui l'édite. Le paiement et l'abonnement passent par Whop. <?= e($nom) ?> est partenaire d'Omegga et touche une commission sur les abonnements pris depuis cette page ou avec le code <?= e($code) ?>.<?php if ($contact !== ''): ?> Une question, un souci&nbsp;? Écris à <a href="mailto:<?= e($contact) ?>"><?= e($contact) ?></a>.<?php endif; ?></p></details>
       </div>
     </div>
   </section>
@@ -311,7 +311,7 @@ if (!headers_sent()) entetes_securite();
 
 <footer class="pied">
   <div class="cadre pied-in">
-    <p>Partenaire. Omegga est édité et vendu par Azulix ; <?= e($nom) ?> touche une commission sur les abonnements pris avec le code <?= e($code) ?>. C'est un outil d'analyse et d'exécution, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
+    <p>Partenaire. Omegga est édité et vendu par Azulix ; <?= e($nom) ?> touche une commission sur les abonnements pris depuis cette page ou avec le code <?= e($code) ?>. C'est un outil d'analyse et d'exécution, pas un service de signaux ni un conseil en investissement. Le trading de contrats à terme comporte un risque élevé de perte.</p>
     <p class="pied-liens"><a href="/">L'Academy</a><a href="/confidentialite">Confidentialité</a><a href="/mentions-legales">Mentions légales</a><?php if ($contact !== ''): ?><a href="mailto:<?= e($contact) ?>" class="pale">Contact Omegga</a><?php endif; ?></p>
   </div>
 </footer>

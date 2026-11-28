@@ -36,11 +36,12 @@ return [
     // code : le code promo Whop (−10 % à vie, sur chaque renouvellement). visible : false pour retirer la partie.
     // Omegga, le terminal d'Azulix (partenaire) : la partie de l'accueil et la page de vente /omegga.
     // Les boutons « Choisir » mènent au paiement Whop de chaque formule, avec le code déjà appliqué (?promoCode=).
-    // « affilie » : le nom d'utilisateur Whop de Johan, une fois son compte d'affilié créé (ajoute ?a=… : ses 20 % sont comptés par Whop).
+    // « affilie » : le nom d'utilisateur Whop de Johan (@nojah, affilié d'Azulix depuis le 28/11/2026 : 20 % de chaque paiement, renouvellements compris,
+    // seulement pour les clients arrivés par ce lien ?a=… ; Whop garde l'attribution 30 jours). Vide : les liens n'ont plus que le code.
     'omegga' => [
         'visible' => true,
         'code' => 'NOWEIZ',
-        'affilie' => '',
+        'affilie' => 'nojah',
         'plans' => [
             'basic' => ['mois' => 'plan_04TdglEF1iQiU', 'an' => 'plan_y05WA34SzuRwn'],
             'pro' => ['mois' => 'plan_jzrkJK4KNKwv5', 'an' => 'plan_JMDmqMUlaQuFO'],
