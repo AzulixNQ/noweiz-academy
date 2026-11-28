@@ -93,12 +93,19 @@ $fonctions = [
 ];
 
 $etapes = [
-    ['Installe Quantower', 'La plateforme qui reçoit tes données. La version gratuite suffit.'],
-    ['Connecte ton compte Rithmic', 'Avec les identifiants Rithmic de ta prop firm, puis active la connexion automatique.'],
-    ['Ouvre un graphique NQ ou MNQ', 'Sur le contrat en cours. Un seul graphique suffit.'],
-    ['Installe Omegga', 'Télécharge le kit avec ta clé, puis double-clique sur « Installer Omegga ».'],
-    ['Active le pont « Omegga Bridge »', 'Ajoute l\'indicateur sur ton graphique et enregistre ton espace de travail.'],
-    ['Lance Omegga et colle ta clé', 'Omegga ouvre Quantower s\'il est fermé, attend les données, et c\'est parti.'],
+    ['Prends ta formule', 'Au mois, les 48 premières heures sont gratuites. Ta clé de licence arrive tout de suite, sur Whop.'],
+    ['Télécharge Omegga', 'Sur Whop, dans ta page Omegga : copie ta clé, clique sur « Download », colle-la et télécharge le kit.'],
+    ['Installe-le', 'Extrais le zip, puis double-clique sur « Installer Omegga ». Si Windows prévient : « Informations complémentaires », puis « Exécuter quand même ».'],
+    ['Connecte Quantower', 'Avec les identifiants Rithmic de ta prop firm, et la connexion automatique au démarrage.'],
+    ['Ajoute le pont', 'Sur un graphique NQ ou MNQ (contrat en cours), ajoute l\'indicateur « Omegga Bridge », puis enregistre ton espace de travail.'],
+    ['Lance Omegga et colle ta clé', 'Double-clique sur l\'icône Omegga : elle ouvre Quantower s\'il est fermé. Colle ta clé, clique sur « Activer ».'],
+];
+// la vidéo d'installation : ses chapitres (en secondes), pour aller directement à une étape
+$tuto = [
+    'video' => '/assets/video/omegga-installation.mp4',
+    'affiche' => '/assets/img/omegga-installation.jpg',
+    'duree' => '10 min',
+    'chapitres' => [[0, 'Ce qu\'il te faut'], [43, 'Ton abonnement'], [127, 'Ta clé'], [184, 'L\'installation'], [278, 'Quantower'], [436, 'Lancer et activer'], [522, 'Au quotidien']],
 ];
 
 if (!headers_sent()) entetes_securite();
@@ -129,6 +136,7 @@ if (!headers_sent()) entetes_securite();
 <script src="<?= e(version_fichier('/assets/v2.js')) ?>" defer></script>
 <script src="<?= e(version_fichier('/assets/omegga.js')) ?>" defer></script>
 <script src="<?= e(version_fichier('/assets/omegga-vente.js')) ?>" defer></script>
+<script src="<?= e(version_fichier('/assets/omegga-tuto.js')) ?>" defer></script>
 </head>
 <body>
 <a class="saut" href="#contenu">Aller au contenu</a>
@@ -164,7 +172,7 @@ if (!headers_sent()) entetes_securite();
             <p class="code-promo-remise"><b>−10&nbsp;%</b><span>à vie avec le code</span></p>
             <p class="code-promo-code"><?= e($code) ?></p>
           </div>
-          <p class="vente-code-note">Déjà compté dans les prix de cette page, et appliqué tout seul au paiement.</p>
+          <p class="vente-code-note">Déjà compté dans les prix de cette page, et appliqué tout seul au paiement. Au mois, les 48 premières heures sont gratuites.</p>
           <div class="actions">
             <a class="bouton bouton-vert" href="#formules">Voir les formules</a>
             <a class="bouton bouton-verre" href="#installer">Comment l'installer</a>
@@ -238,12 +246,13 @@ if (!headers_sent()) entetes_securite();
           <div class="formule-prix formule-mois">
             <p><b><?= e($euros($remise($mois))) ?></b><span>par mois</span></p>
             <p class="formule-avant"><s><?= e($euros($mois)) ?></s> sans le code.</p>
+            <p class="formule-essai">48&nbsp;h gratuites pour essayer</p>
           </div>
           <div class="formule-prix formule-an">
             <p><b><?= e($euros($remise($an))) ?></b><span>par an</span></p>
             <p class="formule-avant">Soit <?= e($euros(round($remise($an) / 12, 2))) ?> par mois. <s><?= e($euros($an)) ?></s> sans le code.</p>
           </div>
-          <a class="bouton bouton-vert bouton-plein formule-choix formule-mois" href="<?= e($paiement($cle, 'mois')) ?>" rel="noopener sponsored">Choisir <?= e($fnom) ?><span class="sans-js"> au mois</span></a>
+          <a class="bouton bouton-vert bouton-plein formule-choix formule-mois" href="<?= e($paiement($cle, 'mois')) ?>" rel="noopener sponsored">Essayer <?= e($fnom) ?> 48&nbsp;h<span class="sans-js"> (au mois)</span></a>
           <a class="bouton bouton-verre bouton-plein formule-choix formule-an" href="<?= e($paiement($cle, 'an')) ?>" rel="noopener sponsored">Choisir <?= e($fnom) ?><span class="sans-js"> à l'année</span></a>
           <ul class="formule-contenu">
 <?php foreach ($contenu as $ligne): ?>
@@ -255,6 +264,7 @@ if (!headers_sent()) entetes_securite();
       </div>
       <div class="formules-pied">
         <p>Prix TTC. Paiement par carte, Apple Pay ou Google Pay, sécurisé par Whop. Une clé de licence pour 1 PC, livrée tout de suite ; mises à jour automatiques ; en français ou en anglais.</p>
+        <p>Au mois, les 48 premières heures sont gratuites : tu ne paies rien le jour de l'inscription, Whop te prévient par e-mail environ 24&nbsp;h avant le premier paiement, et tu peux annuler avant depuis ton compte Whop. Un essai par personne.</p>
         <p>Sans engagement : tu arrêtes ton abonnement quand tu veux depuis ton compte Whop, et Omegga marche jusqu'à la fin de la période payée. Ta clé arrive dès le paiement : pour ça, tu renonces au délai de rétractation de 14 jours (on te le demande au paiement).</p>
       </div>
     </div>
@@ -262,6 +272,19 @@ if (!headers_sent()) entetes_securite();
 
   <section class="bloc" id="installer" aria-labelledby="installer-titre">
     <div class="cadre installer">
+<?php if (is_file(__DIR__ . '/../..' . $tuto['video'])): ?>
+      <div class="tuto">
+        <video class="tuto-video" controls preload="none" playsinline poster="<?= e($tuto['affiche']) ?>" data-tuto aria-label="Vidéo : installer Omegga, étape par étape (<?= e($tuto['duree']) ?>)">
+          <source src="<?= e($tuto['video']) ?>" type="video/mp4">
+        </video>
+        <ol class="tuto-chap" data-tuto-chap hidden aria-label="Aller à un chapitre de la vidéo">
+<?php foreach ($tuto['chapitres'] as $i => [$ct, $cnom]): ?>
+          <li><button type="button" data-t="<?= (int) $ct ?>"><?= e(($i + 1) . '. ' . $cnom) ?><span><?= e(sprintf('%d:%02d', intdiv((int) $ct, 60), (int) $ct % 60)) ?></span></button></li>
+<?php endforeach; ?>
+        </ol>
+        <p class="tuto-note">Sans son : tout est écrit à l'écran. Mets en pause à chaque étape.</p>
+      </div>
+<?php endif; ?>
       <div class="installer-tete">
         <h2 class="titre-2" id="installer-titre"><span>De zéro à Omegga,</span> <span>en 30 minutes.</span></h2>
         <h3 class="installer-sous">Ce qu'il te faut</h3>
@@ -287,6 +310,7 @@ if (!headers_sent()) entetes_securite();
       </div>
       <div class="faq">
         <details open><summary>Le −10&nbsp;% dure combien de temps&nbsp;?</summary><p>À vie : il s'applique à chaque renouvellement, au mois comme à l'année, tant que ton abonnement reste actif. Le code <?= e($code) ?> est déjà mis quand tu cliques sur « Choisir ». S'il n'apparaît pas au paiement, tape-le dans « Code promo ».</p></details>
+        <details><summary>Comment marche l'essai gratuit&nbsp;?</summary><p>Il existe sur les formules au mois. Tu mets ta carte, mais rien n'est prélevé pendant 48&nbsp;h : tu as Omegga en entier, avec ta clé. Whop t'envoie un rappel environ 24&nbsp;h avant le premier paiement. Pour ne pas continuer, annule depuis ton compte Whop avant la fin des 48&nbsp;h. Un essai par personne.</p></details>
         <details><summary>Ça marche avec ma prop firm&nbsp;?</summary><p>Omegga marche avec tout compte connecté par Rithmic qui a les données du CME, comme les comptes de Lucid Trading. Avant de trader avec, vérifie les règles de ta prop firm sur les logiciels tiers.</p></details>
         <details><summary>Et sur Mac&nbsp;?</summary><p>Non : Omegga tourne sur Windows 10 ou 11, comme Quantower.</p></details>
         <details><summary>Omegga passe des ordres tout seul&nbsp;?</summary><p>Non. Il ne prend aucune décision : c'est toi qui passes tes ordres, sur le graphique ou le DOM. Le trading réel est désactivé au départ, et le copieur ne fait que recopier tes ordres sur tes autres comptes.</p></details>

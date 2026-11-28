@@ -555,6 +555,7 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
 .formule-prix span { color: var(--gris); font-size: 15px; }
 .formule-avant { margin-top: 8px; color: var(--gris-2); font-size: 14px; line-height: 1.4; }
 .formule-avant s { color: var(--gris-2); }
+.formule-essai { margin-top: 10px; color: var(--citron); font-size: 14px; font-weight: 560; line-height: 1.4; }
 .formule-choix { margin-top: 20px; }
 .formule-choix + .formule-choix { margin-top: 10px; }
 .formule-contenu { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--filet); }
@@ -569,6 +570,13 @@ html[data-scene] .parcours[data-fin] .parcours-fin { opacity: 1; transform: none
 
 /* l'installer */
 .installer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: clamp(32px, 5vw, 88px); }
+.tuto { grid-column: 1 / -1; }
+.tuto-video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 18px; background: #000; border: 1px solid var(--filet); }
+.tuto-chap { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.tuto-chap button { height: 36px; padding: 0 14px; border: 1px solid var(--filet-2); border-radius: 18px; background: transparent; color: var(--encre); font: inherit; font-size: 14.5px; cursor: pointer; }
+.tuto-chap button span { margin-left: 8px; color: var(--gris); font-variant-numeric: tabular-nums; }
+.tuto-chap button:hover, .tuto-chap button:focus-visible { border-color: var(--citron); outline: none; }
+.tuto-note { margin-top: 10px; color: var(--gris); font-size: 14px; }
 .installer-sous { margin-top: clamp(28px, 4vh, 44px); color: var(--gris); font-size: 15px; font-weight: 520; }
 .besoins { margin-top: 12px; border-top: 1px solid var(--filet); }
 .besoins li { display: grid; gap: 2px; padding: 14px 0; border-bottom: 1px solid var(--filet); }
