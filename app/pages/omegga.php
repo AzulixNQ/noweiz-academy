@@ -52,6 +52,7 @@ $formules = [
     ]],
     'max' => ['Max', 59.99, 599.0, "Tout Pro, plus l'analyse de tes trades.", [
         'Tout ce qu\'a Pro',
+        'Swing Flow : les jambes du marché, avec leur CVD',
         'Zones de confluence avec un score',
         'Replay bougie par bougie',
         '« Mes stats » sur tes trades',
@@ -79,6 +80,7 @@ $fonctions = [
         ['Les niveaux de la veille et de la nuit', 'Le haut et le bas de l\'Asie et de Londres, la clôture et le POC de la veille.', 'Les 3 formules'],
         ['Les LVN', 'Les prix où il s\'est peu échangé, que le marché traverse vite.', 'Pro et Max'],
         ['Les confluences', 'Les zones où plusieurs niveaux se rejoignent, avec un score.', 'Max'],
+        ['Swing Flow', 'Les jambes du marché tracées toutes seules : sommets et creux confirmés, HH / HL / LH / LL, points, durée et CVD de chaque jambe, Fibonacci. Une lecture, pas un signal.', 'Max'],
     ]],
     ['Trader et progresser', [
         ['Le trading démo et réel', 'Par Quantower, sur le graphique ou le DOM. Le réel est désactivé au départ.', 'Les 3 formules'],
